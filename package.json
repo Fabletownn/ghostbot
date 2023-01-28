@@ -1,0 +1,12 @@
+{
+  "dependencies": {
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "fs": "^0.0.1-security",
+    "mongodb": "^4.13.0",
+    "mongoose": "^6.8.4",
+    "node-cron": "^3.0.2",
+    "seconds-formater": "^2.0.3"
+  }
+}
