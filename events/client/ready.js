@@ -36,7 +36,10 @@ function searchAndChangeStatus(client) {
         if (!data) {
 
             client.user.setPresence({
-                activities: [{ name: `Phasmophobia`, type: ActivityType.Playing }],
+                activities: [{
+                    name: 'Phasmophobia',
+                    type: ActivityType.Playing
+                }],
                 status: 'online'
             });
 
@@ -46,7 +49,10 @@ function searchAndChangeStatus(client) {
             let randomStatus = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
 
             client.user.setPresence({
-                activities: [{ name: randomStatus || 'Phasmophobia', type: ActivityType.Playing }],
+                activities: [{
+                    name: randomStatus || 'Phasmophobia',
+                    type: ActivityType.Playing
+                }],
                 status: 'online'
             });
 
