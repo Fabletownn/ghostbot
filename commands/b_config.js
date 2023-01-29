@@ -53,7 +53,7 @@ module.exports = {
             if (err) return fc.ErrorMessage(message, err);
             if (!data) return fc.ErrorMessage(message, 'There is no data yet created for the server. Use the `setup` command.');
 
-            if (configParam == 'prefix') {
+            if (configParam === 'prefix') {
 
                 if (data && data.prefix === configVal) return fc.ErrorMessage(message, 'That prefix is already being used.');
                 if (configVal.length > 2) return fc.ErrorMessage(message, 'Please try and condense the prefix `' + configVal + '` into something shorter (want max 2, got ' + configVal.length + ').');
@@ -67,9 +67,9 @@ module.exports = {
 
                 }
 
-            } else if (configParam == 'autopublish') {
+            } else if (configParam === 'autopublish') {
 
-                if (configVal == 'on' || configVal == 'true') {
+                if (configVal === 'on' || configVal === 'true') {
 
                     if (data && data.autopublish === true) return fc.ErrorMessage(message, 'Auto-publishing is already enabled.');
 
@@ -80,7 +80,7 @@ module.exports = {
 
                     }
 
-                } else if (configVal == 'off' || configVal == 'false') {
+                } else if (configVal === 'off' || configVal === 'false') {
 
                     if (data && data.autopublish === false) return fc.ErrorMessage(message, 'Auto-publishing is already disabled.');
 
@@ -99,7 +99,7 @@ module.exports = {
 
                 }
 
-            } else if (configParam == 'pb_vc_id') {
+            } else if (configParam === 'pb_vc_id') {
 
                 const vChannel = message.guild.channels.cache.get(configVal);
 
@@ -113,7 +113,7 @@ module.exports = {
 
                 }
 
-            } else if (configParam == 'pb_default_limit') {
+            } else if (configParam === 'pb_default_limit') {
 
                 if (!configVal.match(/^[1-9][0-9]?$/)) return fc.ErrorMessage(message, 'Invalid integer (not a number, or not through 1 to 99).');
 
@@ -124,7 +124,7 @@ module.exports = {
 
                 }
 
-            } else if (configParam == 'view') {
+            } else if (configParam === 'view') {
 
                 if (data) {
 

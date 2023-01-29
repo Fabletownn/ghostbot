@@ -6,7 +6,7 @@ module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
     if (message.guild === null) return;
 
-    if (message.guild.id !== '435431947963990026' && message.guild.id !== '801490791071613029') return;
+    if (message.guild.id !== '435431947963990026') return;
 
     /*
         Used for not executing a commannd if the user doesn't have one of the below roles
@@ -14,7 +14,7 @@ module.exports = async (Discord, client, message) => {
     */
     const staffRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '759265333600190545', '749029859048816651'];
     const adminRoles = ['759265333600190545', '749029859048816651', '761412136794456085'];
-    const modRoles = ['756591038373691606', '759265333600190545', '749029859048816651', '761412136794456085'];
+    const modRoles = ['756591038373691606', '759265333600190545', '749029859048816651', '759255791605383208'];
 
     const execRoles = message.member.roles.cache;
 

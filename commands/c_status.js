@@ -27,7 +27,7 @@ module.exports = {
 
             if (contentArg.length > 128) return message.reply('Please try and condense the status `' + contentArg + '` into something shorter (want max 128, got ' + contentArg.length + ').');
 
-            if (arArg == 'add') {
+            if (arArg === 'add') {
 
                 if (!data) {
 
@@ -53,7 +53,7 @@ module.exports = {
 
                 }
 
-            } else if (arArg == 'remove' || arArg.startsWith('del')) {
+            } else if (arArg === 'remove' || arArg.startsWith('del')) {
 
                 if (data) {
 
