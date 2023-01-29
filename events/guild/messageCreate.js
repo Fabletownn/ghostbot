@@ -57,7 +57,7 @@ module.exports = async (Discord, client, message) => {
 
             if (data) {
 
-                if ((message.crosspostable) && data.autopublish == true) {
+                if ((message.crosspostable) && data.autopublish === true) {
 
                     await message.crosspost();
 

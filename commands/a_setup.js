@@ -36,7 +36,7 @@ module.exports = {
                         guildID: message.guild.id,
                         prefix: "!",
                         autopublish: false,
-                        pbvcid: '1068691525309055026',
+                        pbvcid: '761671691960188949',
                         pbvclimit: 4
                     });
 
@@ -76,7 +76,7 @@ module.exports = {
                                         guildID: message.guild.id,
                                         prefix: "!",
                                         autopublish: false,
-                                        pbvcid: '1068691525309055026',
+                                        pbvcid: '761671691960188949',
                                         pbvclimit: 4
                                     });
 
