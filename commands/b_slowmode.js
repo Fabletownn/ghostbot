@@ -1,3 +1,4 @@
+const { ChannelType } = require('discord.js');
 const sf = require('seconds-formater');
 const fc = require('../handlers/global_functions.js');
 
@@ -34,7 +35,10 @@ module.exports = {
             } else {
 
                 if (!args[1]) return fc.InsufficientArgs(message, 2, args, module.exports.syntax);
-                if (!toChannelChange || !message.guild.channels.cache.get(toChannelChange.id)) return message.reply('Invalid channel, or channel not found. Please make sure the channel is text/voice!')
+
+                if (!toChannelChange || !message.guild.channels.cache.get(toChannelChange.id)) return message.reply('Invalid channel, or channel not found. Please make sure the channel is a proper type (text/voice).');
+                if ((toChannelChange.type !== ChannelType.GuildText) && (toChannelChange.type !== ChannelType.GuildVoice)) return message.reply('Invalid channel, or channel type is not text/voice-based. Please make sure the channel is a proper type.');
+                
                 if (isNaN(parseInt(rateLimitPerUser)) || parseInt(rateLimitPerUser) > 21600) return message.reply('Invalid integer (not a number, or not through 1 to 21600).');
 
                 toChannelChange.setRateLimitPerUser(rateLimitPerUser).then(() => {

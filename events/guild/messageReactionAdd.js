@@ -25,7 +25,7 @@ module.exports = async (Discord, client, reaction, user) => {
             },
             {
                 name: 'Staff Commands',
-                value: 'React with the 🔨 emoji to get a list of staff commands.',
+                value: 'React with the 🔨 emoji to get a list of staff/moderator commands.',
                 inline: false
             },
             {
@@ -124,7 +124,7 @@ module.exports = async (Discord, client, reaction, user) => {
 
                 await client.commands.forEach((cmd) => {
 
-                    if (cmd.category === 'staff') {
+                    if (cmd.category === 'staff' || cmd.category === 'mod') {
 
                         baseEmbed.addFields([{
                             name: cmd.syntax,
