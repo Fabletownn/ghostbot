@@ -5,11 +5,15 @@ module.exports = async (Discord, client, oldUser, newUser) => {
         const oldUsername = oldUser.username;
         const newUsername = newUser.username;
 
-        if ((oldUsername !== null) && (newUsername !== null)) {
+        if ((!oldUser.partial) && (oldUsername !== null && newUsername !== null)) {
 
-            if (newUsername.match(/(fa..ot|ni..er|ni..a|卐|卍|adolf|hitler)/gmi)) {
+            if ((oldUsername !== newUsername)) {
 
-                client.channels.cache.get('1067061056867938386').send(`⚠️ Potentially **harmful profile** has been detected (username change).\n\nUser: <@${newUser.id}> (${newUser.id})\nUsername: \`${newUsername}\`, previously being named \`${oldUsername}\``);
+                if (newUsername.match(/(fa..ot|ni..er|ni..a|卐|卍|adolf|hitler)/gmi)) {
+
+                    client.channels.cache.get('1067061056867938386').send(`⚠️ Potentially **harmful profile** has been detected (username change).\n\nUser: <@${newUser.id}> (${newUser.id})\nUsername: \`${newUsername}\`, previously being named \`${oldUsername}\``);
+
+                }
 
             }
 
