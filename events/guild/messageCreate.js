@@ -69,6 +69,53 @@ module.exports = async (Discord, client, message) => {
 
         }
 
+        /*
+            Security/moderation measure for username or impersonation tracking
+            Lists last 3 username changes from the past week once they're looked up
+        */
+        if ((message.content.startsWith('-www')) && (args[0]) && (!isNaN(args[0]))) {
+
+            if ((execRoles.find((r) => modRoles.includes(r.id)))) {
+
+                message.guild.members.fetch(args[0]).then(() => {
+
+                    UNAME.findOne({
+
+                        userID: args[0]
+
+                    }, (err, data) => {
+
+                        if (err) return console.log(err);
+
+                        if (data) {
+
+                            const waitFilter = m => m.author.bot;
+                            let nameCount;
+
+                            if (data.usernames.length >= 3) nameCount = 'several';
+                            if (data.usernames.length < 3) nameCount = data.usernames.length;
+
+                            message.channel.awaitMessages({
+                                waitFilter,
+                                max: 2,
+                                time: 180_000,
+                                errors: ['time']
+                            }).then((collected) => {
+
+                                setTimeout(() => message.channel.send(`<@${args[0]}> (${client.users.cache.get(args[0]).tag} \`${args[0]}\`) has had ${nameCount} prior username(s) this week\n\nRecent username history: ${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`), 1000);
+
+                            }).catch((collected) => {});
+
+                        }
+
+                    });
+
+                });
+
+            }
+
+        }
+
     });
 
 };
