@@ -1,7 +1,7 @@
 module.exports = async (Discord, client, thread, newlyCreated) => {
 
     const techSupport = '1027309663357767780';
-    const bugReports = '1034230224973484112'; // needs changed - reminder to ask shu if she wants something or not
+    const bugReports = '1034230224973484112'; // needs changed/reminder - reverted bug report, shu may or may not want something, add in later if so - Thanks for the report.  After being reviewed, posts may be closed or deleted if they are already known issues, or after a dev has confirmed the issue has been looked into.
 
     if (newlyCreated) {
 

@@ -27,8 +27,8 @@ module.exports = {
                 const phasmophobiaParent = phasmophobiaCat.children.cache.filter((channel) => channel.rateLimitPerUser !== 0);
                 const otopicParent = otopicCat.children.cache.filter((channel) => channel.rateLimitPerUser !== 0);
 
-                let mappedPCats = phasmophobiaParent.map((pChan) => `<#${pChan.id}>: **${sf.convert(pChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
-                let mappedOCats = otopicParent.map((oChan) => `<#${oChan.id}>: **${sf.convert(oChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
+                let mappedPCats = phasmophobiaParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((pChan) => `<#${pChan.id}>: **${sf.convert(pChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
+                let mappedOCats = otopicParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((oChan) => `<#${oChan.id}>: **${sf.convert(oChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
 
                 message.reply(`Showcasing slowmodes for our two main categories (\`#${phasmophobiaCat.name}\` and \`#${otopicCat.name}\`):\n\n${mappedPCats}\n${mappedOCats}`);
 
