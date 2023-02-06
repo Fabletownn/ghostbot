@@ -6,6 +6,7 @@ const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildVoiceStates],
     partials: [Partials.User, Partials.Channel, Partials.Message, PartialGroupDMChannel],
     allowedMentions: {
+        parse: ['users'],
         repliedUser: false
     }
 });
