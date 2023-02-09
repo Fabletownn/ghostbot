@@ -16,8 +16,6 @@ module.exports = {
             await message.channel.setParent(moveCategoryID);
             await message.react('✅');
 
-            console.log(`Moved ticket #${message.channel.name} up to Admin/Mod Tickets. Change requested by ${message.author.tag}`);
-
         } else {
 
             await message.react('❓');
