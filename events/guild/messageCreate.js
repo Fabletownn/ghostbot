@@ -90,7 +90,14 @@ module.exports = async (Discord, client, message) => {
                         if (data) {
 
                             const waitFilter = m => m.author.bot;
+
                             let nameCount;
+                            let nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
+
+                            let userMention = `<@${args[0]}>`;
+                            let userTag = client.users.cache.get(args[0]).tag;
+
+                            let fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
 
                             if (data.usernames.length >= 3) nameCount = 'several';
                             if (data.usernames.length < 3) nameCount = data.usernames.length;
@@ -102,7 +109,7 @@ module.exports = async (Discord, client, message) => {
                                 errors: ['time']
                             }).then((collected) => {
 
-                                setTimeout(() => message.channel.send(`<@${args[0]}> (${client.users.cache.get(args[0]).tag} \`${args[0]}\`) has had ${nameCount} prior username(s) this week\n\nRecent username history: ${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`), 1000);
+                                setTimeout(() => message.channel.send(`${fullUserInfo} has had ${nameCount} prior username(s) this week\n\nRecent username history: ${nameList}`), 1000);
 
                             }).catch((collected) => {});
 

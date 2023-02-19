@@ -1,5 +1,7 @@
 const { Discord, ActivityType } = require('discord.js');
 const STATUS = require('../../models/statuses.js');
+const UNAME = require('../../models/username.js');
+
 const cron = require('node-cron');
 
 module.exports = (Discord, client) => {
@@ -16,6 +18,36 @@ module.exports = (Discord, client) => {
         searchAndChangeStatus(client);
 
     });
+
+    /*
+        Username history, added interval so the bot can check and clear name histories over 1 week old
+        Checks every hour, unlike cron this gets reset everytime the bot restarts so it's unreliable
+    */
+    setInterval(() => {
+
+        UNAME.find({
+
+            guildID: '435431947963990026'
+
+        }, (err, data) => {
+
+            if (err) return console.log(err);
+
+            if (data) {
+
+                data.forEach((d) => {
+
+                    let expiryTime = d.expireOn;
+
+                    if (Date.now() > expiryTime) d.delete().catch((err) => console.log(err));
+
+                });
+
+            }
+
+        });
+
+    }, (1000 * 60 * 60));
 
 };
 
