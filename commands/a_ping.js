@@ -1,3 +1,5 @@
+const sf = require('seconds-formater');
+
 module.exports = {
     name: 'ping',
     description: 'This command provides the bot\'s latency + API response times',
@@ -7,7 +9,12 @@ module.exports = {
 
         await message.reply('<:aghostping:1042254166736777286>').then((updatePing) => {
 
-            updatePing.edit(`Bot Latency (Edit): ${Math.round(updatePing.createdTimestamp - message.createdTimestamp).toLocaleString()}ms\nAPI (Response Time): ${client.ws.ping.toLocaleString()}ms`);
+            const tripLatency = Math.round(updatePing.createdTimestamp - message.createdTimestamp).toLocaleString();
+            const botHeartbeat = client.ws.ping.toLocaleString();
+
+            const uptimeInSeconds = (client.uptime / 1000) || 0;
+
+            updatePing.edit(`Roundtrip Latency (Edit): ${tripLatency}ms\nHeartbeat: ${botHeartbeat}ms\nUptime: ${sf.convert(uptimeInSeconds).format('Dd Hh Mm Ss')}`);
         
         });
 
