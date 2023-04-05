@@ -1,5 +1,6 @@
 const { Client, ChannelType } = require('discord.js');
 const CONFIG = require('../../models/config.js');
+const SUB = require('../../models/subs.js');
 
 module.exports = async (Discord, client, message) => {
 
@@ -69,60 +70,114 @@ module.exports = async (Discord, client, message) => {
 
         }
 
-        /*
-            Security/moderation measure for username or impersonation tracking
-            Lists last 3 username changes from the past week once they're looked up
-        */
-        if ((message.content.startsWith('-www')) && (args[0]) && (!isNaN(args[0]))) {
+    });
 
-            if ((execRoles.find((r) => modRoles.includes(r.id)))) {
+    /*
+        Security/moderation measure for username or impersonation tracking
+        Lists last 3 username changes from the past week once they're looked up
+    */
+    if ((message.content.startsWith('-www')) && (args[0]) && (!isNaN(args[0]))) {
 
-                message.guild.members.fetch(args[0]).then(() => {
+        if ((execRoles.find((r) => modRoles.includes(r.id)))) {
 
-                    UNAME.findOne({
+            message.guild.members.fetch(args[0]).then(() => {
 
-                        userID: args[0]
+                UNAME.findOne({
 
-                    }, (err, data) => {
+                    userID: args[0]
 
-                        if (err) return console.log(err);
+                }, (err, data) => {
 
-                        if (data) {
+                    if (err) return console.log(err);
 
-                            const waitFilter = m => m.author.bot;
+                    if (data) {
 
-                            let nameCount;
-                            let nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
+                        const waitFilter = m => m.author.bot;
 
-                            let userMention = `<@${args[0]}>`;
-                            let userTag = client.users.cache.get(args[0]).tag;
+                        let nameCount;
+                        let nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
 
-                            let fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
+                        let userMention = `<@${args[0]}>`;
+                        let userTag = client.users.cache.get(args[0]).tag;
 
-                            if (data.usernames.length >= 3) nameCount = 'several';
-                            if (data.usernames.length < 3) nameCount = data.usernames.length;
+                        let fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
 
-                            message.channel.awaitMessages({
-                                waitFilter,
-                                max: 2,
-                                time: 180_000,
-                                errors: ['time']
-                            }).then((collected) => {
+                        if (data.usernames.length >= 3) nameCount = 'several';
+                        if (data.usernames.length < 3) nameCount = data.usernames.length;
 
-                                setTimeout(() => message.channel.send(`${fullUserInfo} has had ${nameCount} prior username(s) this week\n\nRecent username history: ${nameList}`), 1000);
+                        message.channel.awaitMessages({
+                            waitFilter,
+                            max: 2,
+                            time: 180_000,
+                            errors: ['time']
+                        }).then((collected) => {
 
-                            }).catch((collected) => {});
+                            setTimeout(() => message.channel.send(`${fullUserInfo} has had ${nameCount} prior username(s) this week\n\nRecent username history: ${nameList}`), 1000);
 
-                        }
+                        }).catch((collected) => { });
 
-                    });
+                    }
 
                 });
 
-            }
+            });
 
         }
 
-    });
+    }
+
+    /*
+        Used for pinging staff members if they subscribed to a post in one of the following forums
+        tech-support, vr-tech-support, bug-reports, map-reports, vr-bug-reports
+    */
+    const triggeredChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
+
+    if (triggeredChannels.some((chID) => message.channel.parent.id === chID)) {
+
+        SUB.findOne({
+
+            guildID: message.guild.id,
+            postID: message.channel.id
+
+        }, async (err, data) => {
+
+            if (err) return console.log(err);
+            if (!data) return;
+
+            if ((data.subbedMembers.length > 0)) {
+
+                if (data.originalPoster === message.author.id) {
+
+                    if (data.alreadyPosted === false) {
+
+                        for (let i = 0; i < data.subbedMembers.length; i++) {
+
+                            client.users.cache.get(data.subbedMembers[i]).send(`<:PhasPin2:1091053595916517448> Your ${message.channel.parent.name} post <#${data.postID}> has received a response(s) from the poster.\n\nJump: ${message.url}`).catch((err) => { });
+
+                        }
+
+                        data.alreadyPosted = true;
+                        await data.save().catch((err) => console.log(err));
+
+                    }
+
+                }
+
+                if (data.subbedMembers.includes(message.author.id)) {
+
+                    if (data.alreadyPosted === true) {
+
+                        data.alreadyPosted = false;
+                        await data.save().catch((err) => console.log(err));
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
 
 };
