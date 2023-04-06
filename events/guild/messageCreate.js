@@ -180,4 +180,43 @@ module.exports = async (Discord, client, message) => {
 
     }
 
+    /*
+        Automatically applies the 'Being Helped' forum tag if a staff member replies to a thread in one of the following channels
+        tech-support, vr-tech-support
+    */
+    const techChannels = ['1082421799578521620', '1020011442205900870'];
+
+    if (techChannels.some((chID) => message.channel.parent.id === chID)) {
+
+        if ((execRoles.find((r) => staffRoles.includes(r.id)))) {
+
+            let parentChannel = message.channel.parent;
+            let currentAppliedTags = message.channel.appliedTags;
+
+            let beingHelpedTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'being helped');
+
+            if (beingHelpedTag) {
+
+                if (!(message.channel.appliedTags.some((tag) => tag.includes(beingHelpedTag.id)))) {
+
+                    const tagsToApply = [];
+
+                    for (let i = 0; i < currentAppliedTags.length; i++) {
+
+                        tagsToApply.push(currentAppliedTags[i]);
+
+                    }
+
+                    tagsToApply.push(beingHelpedTag.id);
+
+                    await message.channel.setAppliedTags(tagsToApply, 'Added the \'Being Helped\' tag automatically as a staff member replied.');
+
+                }
+
+            }
+
+        }
+
+    }
+
 };
