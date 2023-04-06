@@ -18,7 +18,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
                 }, (err, data) => {
 
                     if (err) return console.log(err);
-                    
+
                     if (!data) {
 
                         const newUserData = new UNAME({
@@ -36,13 +36,13 @@ module.exports = async (Discord, client, oldUser, newUser) => {
 
                             data.usernames.shift();
                             data.usernames.push(oldUsername);
-                            
+
                             data.save().catch((err) => console.log(err));
 
                         } else {
 
                             data.usernames.push(oldUsername);
-                            
+
                             data.save().catch((err) => console.log(err));
 
                         }

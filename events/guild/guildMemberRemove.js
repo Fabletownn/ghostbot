@@ -4,8 +4,8 @@ module.exports = async (Discord, client, member) => {
 
     if (member.roles.cache.size > 1) {
 
-        let memberID = member.user.id;
-        let memberNameDiscrim = member.user.tag;
+        const memberID = member.user.id;
+        const memberNameDiscrim = member.user.tag;
 
         const notifyRoles = ['761640195413377044', '759255791605383208', '756591038373691606'];
         const notifyUsers = ['338496408988418048', '219169741447626754', '177953924211408899', '366086664495562764'];

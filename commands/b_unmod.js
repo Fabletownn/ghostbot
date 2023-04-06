@@ -6,10 +6,10 @@ module.exports = {
     syntax: 'unmod',
     async execute(client, message, args) {
 
-        let execCategoryID = message.channel.parent.id;
+        const execCategoryID = message.channel.parent.id;
 
-        let ticketCategoryID = '1001261709882818691'; 
-        let moveCategoryID = '1043688169851338872';
+        const ticketCategoryID = '1001261709882818691';
+        const moveCategoryID = '1043688169851338872';
 
         if (execCategoryID == ticketCategoryID) {
 

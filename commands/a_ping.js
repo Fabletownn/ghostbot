@@ -5,7 +5,7 @@ module.exports = {
     description: 'This command provides the bot\'s latency + API response times',
     category: 'staff',
     syntax: 'ping',
-    async execute(client, message, args) {
+    async execute(client, message) {
 
         await message.reply('<:aghostping:1042254166736777286>').then((updatePing) => {
 
@@ -15,9 +15,9 @@ module.exports = {
             const uptimeInSeconds = (client.uptime / 1000) || 0;
 
             updatePing.edit(`Roundtrip Latency (Edit): ${tripLatency}ms\nHeartbeat: ${botHeartbeat}ms\nUptime: ${sf.convert(uptimeInSeconds).format('Dd Hh Mm Ss')}`);
-        
+
         });
 
     }
-    
+
 };

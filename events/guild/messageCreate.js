@@ -1,4 +1,5 @@
 const { Client, ChannelType } = require('discord.js');
+const UNAME = require('../../models/username.js');
 const CONFIG = require('../../models/config.js');
 const SUB = require('../../models/subs.js');
 
@@ -54,11 +55,11 @@ module.exports = async (Discord, client, message) => {
             Automatically publishes messages posted in announcement channels
             "!config autopublish off" disables this
         */
-        if (message.channel.type == ChannelType.GuildAnnouncement) {
+        if (message.channel.type === ChannelType.GuildAnnouncement) {
 
             if (data) {
 
-                if ((message.crosspostable) && data.autopublish === true) {
+                if ((message.crosspostable) && (data.autopublish == true)) {
 
                     await message.crosspost();
 
@@ -76,6 +77,8 @@ module.exports = async (Discord, client, message) => {
         Security/moderation measure for username or impersonation tracking
         Lists last 3 username changes from the past week once they're looked up
     */
+    const args = message.content.split(' ');
+
     if ((message.content.startsWith('-www')) && (args[0]) && (!isNaN(args[0]))) {
 
         if ((execRoles.find((r) => modRoles.includes(r.id)))) {
@@ -95,12 +98,12 @@ module.exports = async (Discord, client, message) => {
                         const waitFilter = m => m.author.bot;
 
                         let nameCount;
-                        let nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
+                        const nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
 
-                        let userMention = `<@${args[0]}>`;
-                        let userTag = client.users.cache.get(args[0]).tag;
+                        const userMention = `<@${args[0]}>`;
+                        const userTag = client.users.cache.get(args[0]).tag;
 
-                        let fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
+                        const fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
 
                         if (data.usernames.length >= 3) nameCount = 'several';
                         if (data.usernames.length < 3) nameCount = data.usernames.length;
@@ -148,7 +151,7 @@ module.exports = async (Discord, client, message) => {
 
                 if (data.originalPoster === message.author.id) {
 
-                    if (data.alreadyPosted === false) {
+                    if (data.alreadyPosted == false) {
 
                         for (let i = 0; i < data.subbedMembers.length; i++) {
 
@@ -165,7 +168,7 @@ module.exports = async (Discord, client, message) => {
 
                 if (data.subbedMembers.includes(message.author.id)) {
 
-                    if (data.alreadyPosted === true) {
+                    if (data.alreadyPosted == true) {
 
                         data.alreadyPosted = false;
                         await data.save().catch((err) => console.log(err));
@@ -190,10 +193,10 @@ module.exports = async (Discord, client, message) => {
 
         if ((execRoles.find((r) => staffRoles.includes(r.id)))) {
 
-            let parentChannel = message.channel.parent;
-            let currentAppliedTags = message.channel.appliedTags;
+            const parentChannel = message.channel.parent;
+            const currentAppliedTags = message.channel.appliedTags;
 
-            let beingHelpedTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'being helped');
+            const beingHelpedTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'being helped');
 
             if (beingHelpedTag) {
 

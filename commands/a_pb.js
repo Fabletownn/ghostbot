@@ -57,9 +57,9 @@ module.exports = {
 
                         if (userKick && message.guild.members.cache.get(userKick.id)) {
 
-                            let userChannel = message.guild.members.cache.get(userKick.id).voice.channel;
+                            const userChannel = message.guild.members.cache.get(userKick.id).voice.channel;
 
-                            if ((userChannel !== null && userChannel.name === `PartyBot Room`) && userKick.id !== message.author.id) {
+                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userKick.id !== message.author.id) {
 
                                 if (userChannel.id !== message.member.voice.channel.id) return;
 
@@ -88,9 +88,9 @@ module.exports = {
 
                         if (userBan && message.guild.members.cache.get(userBan.id)) {
 
-                            let userChannel = message.guild.members.cache.get(userBan.id).voice.channel;
+                            const userChannel = message.guild.members.cache.get(userBan.id).voice.channel;
 
-                            if ((userChannel !== null && userChannel.name === `PartyBot Room`) && userBan.id !== message.author.id) {
+                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userBan.id !== message.author.id) {
 
                                 if (userChannel.id !== message.member.voice.channel.id) return;
 
@@ -150,9 +150,9 @@ module.exports = {
 
                         if (newOwner && message.guild.members.cache.get(newOwner.id)) {
 
-                            let userChannel = message.guild.members.cache.get(newOwner.id).voice.channel;
+                            const userChannel = message.guild.members.cache.get(newOwner.id).voice.channel;
 
-                            if ((userChannel !== null && userChannel.name === `PartyBot Room`) && newOwner.id !== message.author.id) {
+                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && newOwner.id !== message.author.id) {
 
                                 if (userChannel.id !== message.member.voice.channel.id) return;
 

@@ -19,20 +19,20 @@ module.exports = async (Discord, client, reaction, user) => {
         })
         .setDescription('Below is a full list of all commands available.\n\nFor specific information on a command, try: `help info <command name>`\n``` ```')
         .addFields([{
-                name: 'PartyBot Commands',
-                value: 'React with the 🎉 emoji to get a list of PartyBot commands.',
-                inline: false
-            },
-            {
-                name: 'Staff Commands',
-                value: 'React with the 🔨 emoji to get a list of staff/moderator commands.',
-                inline: false
-            },
-            {
-                name: 'Admin Commands',
-                value: 'React with the 🔧 emoji to get a list of Admin commands.',
-                inline: false
-            },
+            name: 'PartyBot Commands',
+            value: 'React with the 🎉 emoji to get a list of PartyBot commands.',
+            inline: false
+        },
+        {
+            name: 'Staff Commands',
+            value: 'React with the 🔨 emoji to get a list of staff/moderator commands.',
+            inline: false
+        },
+        {
+            name: 'Admin Commands',
+            value: 'React with the 🔧 emoji to get a list of Admin commands.',
+            inline: false
+        },
         ])
         .setColor('ffffff')
         .setFooter({
@@ -41,7 +41,7 @@ module.exports = async (Discord, client, reaction, user) => {
                 dynamic: true
             })
         })
-        .setTimestamp()
+        .setTimestamp();
 
     const pbEmbed = new EmbedBuilder()
         .setAuthor({
@@ -52,35 +52,35 @@ module.exports = async (Discord, client, reaction, user) => {
         })
         .setDescription('Below is a full list of all category commands available.\n``` ```')
         .addFields([{
-                name: 'pb lock',
-                value: 'Locks your PartyBot channel',
-                inline: false
-            },
-            {
-                name: 'pb unlock',
-                value: 'Unlocks your PartyBot channel',
-                inline: false
-            },
-            {
-                name: 'pb owner <user>',
-                value: 'Transfers ownership to a user in your PartyBot channel',
-                inline: false
-            },
-            {
-                name: 'pb kick <user>',
-                value: 'Kicks a user out of your PartyBot channel',
-                inline: false
-            },
-            {
-                name: 'pb ban <user>',
-                value: 'Bans a user from your PartyBot channel',
-                inline: false
-            },
-            {
-                name: 'pb unban <user>',
-                value: 'Unbans a user from your PartyBot channel',
-                inline: false
-            }
+            name: 'pb lock',
+            value: 'Locks your PartyBot channel',
+            inline: false
+        },
+        {
+            name: 'pb unlock',
+            value: 'Unlocks your PartyBot channel',
+            inline: false
+        },
+        {
+            name: 'pb owner <user>',
+            value: 'Transfers ownership to a user in your PartyBot channel',
+            inline: false
+        },
+        {
+            name: 'pb kick <user>',
+            value: 'Kicks a user out of your PartyBot channel',
+            inline: false
+        },
+        {
+            name: 'pb ban <user>',
+            value: 'Bans a user from your PartyBot channel',
+            inline: false
+        },
+        {
+            name: 'pb unban <user>',
+            value: 'Unbans a user from your PartyBot channel',
+            inline: false
+        }
         ])
         .setColor('ffffff')
         .setFooter({
@@ -89,7 +89,7 @@ module.exports = async (Discord, client, reaction, user) => {
                 dynamic: true
             })
         })
-        .setTimestamp()
+        .setTimestamp();
 
     const baseEmbed = new EmbedBuilder()
         .setAuthor({
@@ -106,7 +106,7 @@ module.exports = async (Discord, client, reaction, user) => {
                 dynamic: true
             })
         })
-        .setTimestamp()
+        .setTimestamp();
 
     if ((message.author.id === client.user.id) && (reaction.message.channel.isDMBased())) {
 

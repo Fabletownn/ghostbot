@@ -1,5 +1,5 @@
 const SUB = require('../models/subs.js');
-const { EmbedBuilder, ChannelType } = require('discord.js');
+const { ChannelType } = require('discord.js');
 
 module.exports = {
     name: 'unsubscribe',
@@ -7,8 +7,8 @@ module.exports = {
     aliases: ['unsub'],
     category: 'staff',
     syntax: 'unsubscribe',
-    async execute(client, message, args) {
-        
+    async execute(client, message) {
+
         const allowedChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
 
         if (message.channel.type !== ChannelType.PublicThread) return message.reply('Invalid channel, or channel not found. Please make sure the channel is a proper type (forum/thread).');

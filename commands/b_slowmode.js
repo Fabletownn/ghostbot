@@ -27,8 +27,8 @@ module.exports = {
                 const phasmophobiaParent = phasmophobiaCat.children.cache.filter((channel) => channel.rateLimitPerUser !== 0);
                 const otopicParent = otopicCat.children.cache.filter((channel) => channel.rateLimitPerUser !== 0);
 
-                let mappedPCats = phasmophobiaParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((pChan) => `<#${pChan.id}>: **${sf.convert(pChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
-                let mappedOCats = otopicParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((oChan) => `<#${oChan.id}>: **${sf.convert(oChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
+                const mappedPCats = phasmophobiaParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((pChan) => `<#${pChan.id}>: **${sf.convert(pChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
+                const mappedOCats = otopicParent.sort((a, b) => a.rawPosition - b?.rawPosition).map((oChan) => `<#${oChan.id}>: **${sf.convert(oChan.rateLimitPerUser || 0).format('MM:SS')}** slowmode`).join('\n');
 
                 message.reply(`Showcasing slowmodes for our two main categories (\`#${phasmophobiaCat.name}\` and \`#${otopicCat.name}\`):\n\n${mappedPCats}\n${mappedOCats}`);
 
@@ -38,7 +38,7 @@ module.exports = {
 
                 if (!toChannelChange || !message.guild.channels.cache.get(toChannelChange.id)) return message.reply('Invalid channel, or channel not found. Please make sure the channel is a proper type (text/voice).');
                 if ((toChannelChange.type !== ChannelType.GuildText) && (toChannelChange.type !== ChannelType.GuildVoice)) return message.reply('Invalid channel, or channel type is not text/voice-based. Please make sure the channel is a proper type.');
-                
+
                 if (isNaN(parseInt(rateLimitPerUser)) || parseInt(rateLimitPerUser) > 21600) return message.reply('Invalid integer (not a number, or not through 1 to 21600).');
 
                 toChannelChange.setRateLimitPerUser(rateLimitPerUser).then(() => {

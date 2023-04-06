@@ -11,7 +11,7 @@ module.exports = {
     async execute(client, message, args) {
 
         const parametersAvailable = ['view', 'prefix', 'autopublish', 'pb_vc_id', 'pb_default_limit'];
-        let paramList = 'The following parameters can be configured.\n```\nview <all>\nprefix <value>\nautopublish <on/off>\npb_vc_id <channel id>\npb_default_limit <1-99>```';
+        const paramList = 'The following parameters can be configured.\n```\nview <all>\nprefix <value>\nautopublish <on/off>\npb_vc_id <channel id>\npb_default_limit <1-99>```';
 
         const configEmbed = new EmbedBuilder()
             .setAuthor({
@@ -71,7 +71,7 @@ module.exports = {
 
                 if (configVal === 'on' || configVal === 'true') {
 
-                    if (data && data.autopublish === true) return fc.ErrorMessage(message, 'Auto-publishing is already enabled.');
+                    if (data && data.autopublish == true) return fc.ErrorMessage(message, 'Auto-publishing is already enabled.');
 
                     if (data) {
 
@@ -82,7 +82,7 @@ module.exports = {
 
                 } else if (configVal === 'off' || configVal === 'false') {
 
-                    if (data && data.autopublish === false) return fc.ErrorMessage(message, 'Auto-publishing is already disabled.');
+                    if (data && data.autopublish == false) return fc.ErrorMessage(message, 'Auto-publishing is already disabled.');
 
                     if (data) {
 

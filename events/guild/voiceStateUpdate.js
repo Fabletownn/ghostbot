@@ -14,8 +14,8 @@ module.exports = async (Discord, client, oldState, newState) => {
 
     if (oldVoiceGuild !== null && newVoiceGuild !== null) {
 
-        let oldChannel = oldState.channel;
-        let newChannel = newState.channel;
+        const oldChannel = oldState.channel;
+        const newChannel = newState.channel;
 
         CONFIG.findOne({
 
@@ -28,7 +28,7 @@ module.exports = async (Discord, client, oldState, newState) => {
 
             if ((newChannel !== null) && (newChannel.id === c_data.pbvcid)) {
 
-                let newMember = newState.member;
+                const newMember = newState.member;
 
                 if (!newMember.user.bot) {
 

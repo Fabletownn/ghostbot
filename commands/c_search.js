@@ -16,14 +16,14 @@ module.exports = {
 
         await message.reply('Searching..').then(async (searchMessage) => {
 
-            let userFetch = await client.guilds.cache.get(message.guild.id).members.search({
+            const userFetch = await client.guilds.cache.get(message.guild.id).members.search({
                 query: nameSearch,
                 limit: queryLimit,
                 cache: false
             });
 
-            let resultTags = userFetch.map((m) => ` ${m.user}`);
-            let fetchedResults = userFetch.map((m) => `${m.user.tag} | ${m.user.id} | Created ${m.user.createdAt}`).join('\n');
+            const resultTags = userFetch.map((m) => ` ${m.user}`);
+            const fetchedResults = userFetch.map((m) => `${m.user.tag} | ${m.user.id} | Created ${m.user.createdAt}`).join('\n');
 
             if (fetchedResults) {
 
@@ -70,7 +70,7 @@ module.exports = {
                                 value: '<t:' + joinDateTS + ':F>',
                                 inline: false
                             },
-                            ])
+                            ]);
 
                         await searchMessage.edit({
                             content: 'Only one result found. Showing information for **' + m.user.tag + '**:',
@@ -81,7 +81,7 @@ module.exports = {
 
                 } else if (userFetch.size > 1) {
 
-                    let fResults = `Fetched:${resultTags || ' None.'}\n\`\`\`fix\n${fetchedResults || `None`}`;
+                    const fResults = `Fetched:${resultTags || ' None.'}\n\`\`\`fix\n${fetchedResults || 'None'}`;
 
                     if (fResults.length < 1500) {
 
@@ -97,7 +97,7 @@ module.exports = {
 
             } else {
 
-                await searchMessage.edit(`No results found.`);
+                await searchMessage.edit('No results found.');
 
             }
 

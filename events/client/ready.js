@@ -37,7 +37,7 @@ module.exports = (Discord, client) => {
 
                 data.forEach((d) => {
 
-                    let expiryTime = d.expireOn;
+                    const expiryTime = d.expireOn;
 
                     if (Date.now() > expiryTime) d.delete().catch((err) => console.log(err));
 
@@ -77,8 +77,8 @@ function searchAndChangeStatus(client) {
 
         } else if (data) {
 
-            let statusIndexes = data.statuses.filter((status) => status !== null);
-            let randomStatus = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
+            const statusIndexes = data.statuses.filter((status) => status !== null);
+            const randomStatus = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
 
             client.user.setPresence({
                 activities: [{

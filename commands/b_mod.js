@@ -4,12 +4,12 @@ module.exports = {
     description: 'This command moves the current ModMail thread up to Admin/Mod Tickets',
     category: 'staff',
     syntax: 'mod',
-    async execute(client, message, args) {
+    async execute(client, message) {
 
-        let execCategoryID = message.channel.parent.id;
+        const execCategoryID = message.channel.parent.id;
 
-        let ticketCategoryID = '1043688169851338872';
-        let moveCategoryID = '1001261709882818691';
+        const ticketCategoryID = '1043688169851338872';
+        const moveCategoryID = '1001261709882818691';
 
         if (execCategoryID == ticketCategoryID) {
 

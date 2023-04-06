@@ -37,16 +37,16 @@ module.exports = {
                     });
 
                     await newStatusData.save().catch((err) => console.log(err)).then(async () => {
-                        
+
                         await message.reply(`Successfully added status \`${contentArg}\` at **index ${newStatusData.statuses.indexOf(contentArg) || '?'}**.`);
-                        
+
                     });
 
                 } else if (data) {
 
                     data.statuses.push(contentArg);
                     data.save().catch((err) => console.log(err)).then(async () => {
-                        
+
                         await message.reply(`Successfully added status \`${contentArg}\` at **index ${data.statuses.indexOf(contentArg) || '?'}**.`);
 
                     });

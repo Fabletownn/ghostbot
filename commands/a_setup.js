@@ -8,7 +8,7 @@ module.exports = {
     description: 'This creates or resets data for the server when the Phas bot initially gets invited',
     category: 'admin',
     syntax: 'setup',
-    async execute(client, message, args) {
+    async execute(client, message) {
 
         const resetEmbed = new EmbedBuilder()
             .setAuthor({
@@ -18,7 +18,7 @@ module.exports = {
                 })
             })
             .setDescription('This server has already been set up. Reset data?')
-            .setColor('ffffff')
+            .setColor('ffffff');
 
         CONFIG.findOne({
 
@@ -34,7 +34,7 @@ module.exports = {
 
                     const newData = new CONFIG({
                         guildID: message.guild.id,
-                        prefix: "!",
+                        prefix: '!',
                         autopublish: false,
                         pbvcid: '761671691960188949',
                         pbvclimit: 4
@@ -42,7 +42,7 @@ module.exports = {
 
                     newData.save().catch(err => console.log(err)).then(async () => {
 
-                        await setupMessage.edit(`Successfully created data.`);
+                        await setupMessage.edit('Successfully created data.');
 
                         fc.ConfigSuccess(message, `Data has been set up for the server.\n\nThe following are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\`\`\``);
 
@@ -80,7 +80,7 @@ module.exports = {
                                         pbvclimit: 4
                                     });
 
-                                    newData.save().catch(err => console.log(err)).then(async () => {
+                                    newData.save().catch((err) => console.log(err)).then(async () => {
 
                                         fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\`\`\``);
 

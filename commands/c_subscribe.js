@@ -1,5 +1,5 @@
 const SUB = require('../models/subs.js');
-const { EmbedBuilder, ChannelType } = require('discord.js');
+const { ChannelType } = require('discord.js');
 
 module.exports = {
     name: 'subscribe',
@@ -7,7 +7,7 @@ module.exports = {
     aliases: ['sub'],
     category: 'staff',
     syntax: 'subscribe',
-    async execute(client, message, args) {
+    async execute(client, message) {
 
         const allowedChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
 
@@ -34,11 +34,11 @@ module.exports = {
                         originalPoster: message.channel.ownerId || '',
                         subbedMembers: [message.author.id],
                         alreadyPosted: false
-    
+
                     });
-    
+
                     await newSubData.save().catch((err) => console.log(err));
-    
+
                     await message.react('✅');
                     setTimeout(() => message.delete(), 2500);
 

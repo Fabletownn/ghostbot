@@ -6,9 +6,9 @@ function ConfigSuccess(message, content) {
         .setTitle('Configuration Success')
         .setDescription(content)
         .setColor('ffffff')
-    
+
     message.reply({ embeds: [configEmbed] });
-    
+
     console.log(`${content} Change requested by ${message.author.tag}`);
 
 }
@@ -19,7 +19,7 @@ function ErrorMessage(message, err) {
         .setTitle('Error')
         .setDescription(err)
         .setColor('ffffff')
-    
+
     message.reply({ embeds: [errorEmbed] });
 
     console.log(err);
@@ -32,4 +32,4 @@ function InsufficientArgs(message, expectation, args, syntax) {
 
 }
 
-module.exports = {ConfigSuccess, ErrorMessage, InsufficientArgs};
+module.exports = { ConfigSuccess, ErrorMessage, InsufficientArgs };

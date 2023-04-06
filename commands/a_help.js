@@ -1,4 +1,4 @@
-const { Discord, EmbedBuilder } = require('discord.js');
+const { EmbedBuilder } = require('discord.js');
 const fc = require('../handlers/global_functions.js');
 
 module.exports = {
@@ -18,20 +18,20 @@ module.exports = {
             })
             .setDescription('Below is a full list of all commands available.\n\nFor specific information on a command, try: `help info <command name>`\n``` ```')
             .addFields([{
-                    name: 'PartyBot Commands',
-                    value: 'React with the 🎉 emoji to get a list of PartyBot commands.',
-                    inline: false
-                },
-                {
-                    name: 'Staff Commands',
-                    value: 'React with the 🔨 emoji to get a list of staff commands.',
-                    inline: false
-                },
-                {
-                    name: 'Admin Commands',
-                    value: 'React with the 🔧 emoji to get a list of Admin commands.',
-                    inline: false
-                },
+                name: 'PartyBot Commands',
+                value: 'React with the 🎉 emoji to get a list of PartyBot commands.',
+                inline: false
+            },
+            {
+                name: 'Staff Commands',
+                value: 'React with the 🔨 emoji to get a list of staff commands.',
+                inline: false
+            },
+            {
+                name: 'Admin Commands',
+                value: 'React with the 🔧 emoji to get a list of Admin commands.',
+                inline: false
+            },
             ])
             .setColor('ffffff')
             .setFooter({
@@ -40,7 +40,7 @@ module.exports = {
                     dynamic: true
                 })
             })
-            .setTimestamp()
+            .setTimestamp();
 
         if (args[0] && !args[1]) return fc.InsufficientArgs(message, 2, args, module.exports.syntax);
 
@@ -90,27 +90,27 @@ module.exports = {
                         .setTitle('Command Help')
                         .setDescription('Below is additional information for the command `' + commandInfo.name + '`.')
                         .addFields([{
-                                name: 'Syntax',
-                                value: '```' + (commandInfo.syntax || 'None') + '```',
-                                inline: false
-                            },
-                            {
-                                name: 'Description',
-                                value: '```' + (commandInfo.description || 'None') + '```',
-                                inline: false
-                            },
-                            {
-                                name: 'Alias(es)',
-                                value: '```' + (commandInfo.aliases || 'None') + '```',
-                                inline: false
-                            },
-                            {
-                                name: 'Category',
-                                value: '```' + (commandInfo.category.charAt(0).toUpperCase() + commandInfo.category.slice(1) || 'None') + '```',
-                                inline: false
-                            }
+                            name: 'Syntax',
+                            value: '```' + (commandInfo.syntax || 'None') + '```',
+                            inline: false
+                        },
+                        {
+                            name: 'Description',
+                            value: '```' + (commandInfo.description || 'None') + '```',
+                            inline: false
+                        },
+                        {
+                            name: 'Alias(es)',
+                            value: '```' + (commandInfo.aliases || 'None') + '```',
+                            inline: false
+                        },
+                        {
+                            name: 'Category',
+                            value: '```' + (commandInfo.category.charAt(0).toUpperCase() + commandInfo.category.slice(1) || 'None') + '```',
+                            inline: false
+                        }
                         ])
-                        .setColor('ffffff')
+                        .setColor('ffffff');
 
                     await message.reply({
                         embeds: [syntaxEmbed]
