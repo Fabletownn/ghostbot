@@ -2,6 +2,7 @@ const { Client, ChannelType } = require('discord.js');
 const UNAME = require('../../models/username.js');
 const CONFIG = require('../../models/config.js');
 const SUB = require('../../models/subs.js');
+const KICKS = require('../../models/kicks.js');
 
 module.exports = async (Discord, client, message) => {
 
@@ -11,7 +12,7 @@ module.exports = async (Discord, client, message) => {
     if (message.guild.id !== '435431947963990026') return;
 
     /*
-        Used for not executing a commannd if the user doesn't have one of the below roles
+        Used for not executing a command if the user doesn't have one of the below roles
         Community Helper, Trial Mod, Moderator, Admin, Kinetic Games
     */
     const staffRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '759265333600190545', '749029859048816651'];
@@ -62,8 +63,6 @@ module.exports = async (Discord, client, message) => {
                 if ((message.crosspostable) && (data.autopublish == true)) {
 
                     await message.crosspost();
-
-                    console.log(`Published message in #${message.channel.name} by user ${message.author.tag}`);
 
                 }
 
@@ -126,6 +125,41 @@ module.exports = async (Discord, client, message) => {
             });
 
         }
+
+    }
+
+    /*
+        Tracks users who have been kicked for their profile pictures
+        Sends a message in #ch-reports when they rejoin the server
+    */
+    if ((message.content.match(/^(-kick)/g) && message.content.match(/(profile pic|avatar)/g)) && (args[1]) && (!isNaN(args[1]))) {
+
+        if (!client.users.cache.get(args[1])) return;
+
+        KICKS.findOne({
+
+            guildID: message.guild.id,
+            userID: args[1]
+
+        }, async (err, data) => {
+
+            if (err) return console.log(err);
+
+            if (!data) {
+
+                const newTrackerData = new KICKS({
+                    guildID: message.guild.id,
+                    userID: args[1],
+                    username: client.users.cache.get(args[1]).username
+                });
+
+                await newTrackerData.save().catch((err) => console.log(err));
+
+                await message.react('👁️');
+
+            }
+
+        });
 
     }
 
@@ -219,6 +253,27 @@ module.exports = async (Discord, client, message) => {
             }
 
         }
+
+    }
+
+    /*
+       Automatically creates a thread under messages in suggestion channels
+       suggestion-voting, staff-suggestion-voting, content-creator-suggestions, cc-voting
+    */
+    const suggestionChannels = ['771924501645754408', '762935209377005569', '973337178979598406', '1052149463675846686'];
+
+    if (suggestionChannels.some((chID) => message.channel.id === chID)) {
+
+        const threadTitle = `${message.author.username} - Discussion`;
+
+        await message.channel.threads.create({
+
+            startMessage: message.id,
+            name: threadTitle,
+            autoArchiveDuration: 10080,
+            reason: 'Created thread automatically as member posted in a suggestion channel.'
+
+        });
 
     }
 

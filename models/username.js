@@ -8,3 +8,6 @@ const usernameSchema = mongoose.Schema({
 });
 
 module.exports = mongoose.model('username', usernameSchema);
+
+// This model is meant to members changing their username for moderation purposes, and removes it after 1 week
+// messageCreate.js, d_names.js

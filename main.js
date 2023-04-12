@@ -1,3 +1,4 @@
+// G.H.O.S.T. - Ghost Hunter's Optimal Security Tool
 require('dotenv').config();
 
 const { Discord, Client, Collection, GatewayIntentBits, Partials, PartialGroupDMChannel } = require('discord.js');

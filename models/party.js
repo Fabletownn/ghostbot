@@ -6,3 +6,6 @@ const partySchema = mongoose.Schema({
 });
 
 module.exports = mongoose.model('party', partySchema);
+
+// This model is meant to track PartyBot channels and owners
+// voiceStateUpdate.js & a_pb.js
