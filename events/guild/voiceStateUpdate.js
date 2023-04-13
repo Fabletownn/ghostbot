@@ -4,11 +4,6 @@ const CONFIG = require('../../models/config.js');
 
 module.exports = async (Discord, client, oldState, newState) => {
 
-    /*
-        Handles everything for PartyBot (excluding the command management)
-        Creates a voice channel, boots them back to it if they try and spam open one, transfers ownership if they abandon it, disbands if they leave with nobody else in the channel
-    */
-
     const oldVoiceGuild = oldState.guild;
     const newVoiceGuild = newState.guild;
 

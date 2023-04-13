@@ -84,7 +84,7 @@ module.exports = {
 
             } else {
 
-                return message.reply('Unknown parameter(s). The prefix is `' + module.exports.syntax + '`.');
+                return message.reply('Unknown parameter(s). The syntax is `' + module.exports.syntax + '`.');
 
             }
 

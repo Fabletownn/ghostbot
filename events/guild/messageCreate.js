@@ -164,7 +164,7 @@ module.exports = async (Discord, client, message) => {
     }
 
     /*
-        Used for pinging staff members if they subscribed to a post in one of the following forums
+        Used for messaging staff members if they subscribed to a post in one of the following forums
         tech-support, vr-tech-support, bug-reports, map-reports, vr-bug-reports
     */
     const triggeredChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
@@ -258,7 +258,7 @@ module.exports = async (Discord, client, message) => {
 
     /*
        Automatically creates a thread under messages in suggestion channels
-       suggestion-voting, staff-suggestion-voting, content-creator-suggestions, cc-voting
+       suggestion-voting, staff-candidate-voting, content-creator-suggestions, cc-voting
     */
     const suggestionChannels = ['771924501645754408', '762935209377005569', '973337178979598406', '1052149463675846686'];
 
