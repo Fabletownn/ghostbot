@@ -262,19 +262,57 @@ module.exports = async (Discord, client, message) => {
     */
     const suggestionChannels = ['771924501645754408', '762935209377005569', '973337178979598406', '1052149463675846686'];
 
+    let threadTitle = message.author.username;
+
     if (suggestionChannels.some((chID) => message.channel.id === chID)) {
 
-        const threadTitle = `${message.author.username} - Discussion`;
+        switch (message.channel.id) {
 
-        await message.channel.threads.create({
+            case '771924501645754408':
+                threadTitle += ' - Suggestion Discussion';
 
-            startMessage: message.id,
-            name: threadTitle,
-            autoArchiveDuration: 10080,
-            reason: 'Created thread automatically as member posted in a suggestion channel.'
+                createThread(message, threadTitle);
+                break;
 
-        });
+            case '762935209377005569':
+                threadTitle += ' - Staff Candidate Discussion';
+
+                createThread(message, threadTitle);
+                break;
+
+            case '973337178979598406':
+                threadTitle += ' - Suggestion Discussion';
+
+                createThread(message, threadTitle);
+                break;
+
+            case '1052149463675846686':
+                threadTitle += ' - Suggestion Discussion';
+
+                createThread(message, threadTitle);
+                break;
+
+            default:
+                threadTitle += ' - Discussion';
+
+                createThread(message, threadTitle);
+                break;
+
+        }
 
     }
 
 };
+
+async function createThread(message, title) {
+
+    await message.channel.threads.create({
+
+        startMessage: message.id,
+        name: title,
+        autoArchiveDuration: 10080,
+        reason: 'Created thread automatically as member posted in a suggestion channel.'
+
+    });
+
+}
