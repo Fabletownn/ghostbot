@@ -42,11 +42,9 @@ module.exports = {
                 if (pErr) return console.log(pErr);
                 if (pData) return message.reply('Failed to pullroom the specified member. This user already has a pullroom session open (<#' + pData.channelID + '>).');
 
-                const pullChannel = message.guild.channels.cache.get(data.pullcategoryid);
+                const pullCategory = message.guild.channels.cache.get(data.pullcategoryid);
 
-                await message.guild.members.cache.get(UI.id).roles.add(data.pullroleid);
-
-                if (pullChannel) {
+                if (pullCategory) {
 
                     await message.guild.channels.create({
 
@@ -80,7 +78,7 @@ module.exports = {
                                     dynamic: true
                                 })
                             })
-                            .setDescription(`${UI.username} has been pulled by ${message.author.username}.\n\nWhen pulled, remember that server <#757083765108637696> still apply to your messages and media.`)
+                            .setDescription(`${UI.username} has been pulled by ${message.author.username}.\n\n${data.pullmsg}`)
                             .setColor('ffffff');
 
                         if (message.guild.members.cache.get(pulledUser.id)) {
@@ -101,9 +99,9 @@ module.exports = {
 
                             await pullroom.send({ content: `The moderation team would like to talk to you, <@${UI.id}>.`, embeds: [pullEmbed] });
 
-                            await pullroom.send(`<@${message.author.id}>`).then((m) => m.delete());
-
                             await message.reply(`📤 Pulled \`${UI.tag}\` into <#${newPullData.channelID}>`);
+
+                            await pullroom.send(`<@${message.author.id}>`).then((m) => m.delete());
 
                         }
 

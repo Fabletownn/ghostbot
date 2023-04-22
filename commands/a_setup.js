@@ -37,14 +37,18 @@ module.exports = {
                         prefix: '!',
                         autopublish: false,
                         pbvcid: '761671691960188949',
-                        pbvclimit: 4
+                        pbvclimit: 4,
+                        pullcategoryid: '1001261709882818691',
+                        pullroleid: '1098937543833165824',
+                        pulllogid: '854003047746764800',
+                        pullmsg: 'When pulled, remember that server rules still apply to your messages and media.'
                     });
 
                     newData.save().catch(err => console.log(err)).then(async () => {
 
                         await setupMessage.edit('Successfully created data.');
 
-                        fc.ConfigSuccess(message, `Data has been set up for the server.\n\nThe following are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\`\`\``);
+                        fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
 
                     });
 
@@ -74,15 +78,19 @@ module.exports = {
 
                                     const newData = new CONFIG({
                                         guildID: message.guild.id,
-                                        prefix: "!",
+                                        prefix: '!',
                                         autopublish: false,
                                         pbvcid: '761671691960188949',
-                                        pbvclimit: 4
+                                        pbvclimit: 4,
+                                        pullcategoryid: '1001261709882818691',
+                                        pullroleid: '1098937543833165824',
+                                        pulllogid: '854003047746764800',
+                                        pullmsg: 'When pulled, remember that server rules still apply to your messages and media.'
                                     });
 
                                     newData.save().catch((err) => console.log(err)).then(async () => {
 
-                                        fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\`\`\``);
+                                        fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
 
                                     });
 

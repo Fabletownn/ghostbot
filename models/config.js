@@ -5,7 +5,11 @@ const configSchema = mongoose.Schema({
     prefix: String,
     autopublish: Boolean,
     pbvcid: String,
-    pbvclimit: Number
+    pbvclimit: Number,
+    pullcategoryid: String,
+    pullroleid: String,
+    pulllogid: String,
+    pullmsg: String
 });
 
 module.exports = mongoose.model('config', configSchema);

@@ -19,7 +19,8 @@ module.exports = {
             ['pb_default_limit', '<1-99>'],
             ['pullroom_category', '<category ID>'],
             ['pullroom_role', '<role>'],
-            ['pullroom_logs', '<channel>']
+            ['pullroom_logs', '<channel>'],
+            ['pullroom_message', '<message>']
         ]);
 
         for (let config of availableConfigs) {
@@ -49,7 +50,7 @@ module.exports = {
             .setColor('ffffff');
 
         if (args[0] === 'view') return ViewConfigs(message);
-        if ((args.length < 2)) return message.reply({ embeds: [configEmbed] });
+        if (args.length < 2) return message.reply({ embeds: [configEmbed] });
 
         let configParam = args[0].toLowerCase();
         let configVal = args[1].toLowerCase();
@@ -197,6 +198,23 @@ module.exports = {
                     break;
 
 
+                case 'pullroom_message':
+
+                    const starterMessage = args.slice(1).join(' ') || null;
+
+                    if ((data) && (data.pullmsg === starterMessage)) return fc.ErrorMessage(message, 'That message is already in use.');
+                    if (starterMessage.length > 3500) return fc.ErrorMessage(message, 'Please try and condense the message into something shorter (want max 3500, got ' + starterMessage.length + ').');
+
+                    if (data) {
+
+                        data.pullmsg = starterMessage;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the pullroom starter message to:\n```\n' + starterMessage + '\n```'));
+
+                    }
+
+                    break;
+
+
                 default:
 
                     message.reply({ embeds: [unknownEmbed] });
@@ -231,7 +249,8 @@ function ViewConfigs(message) {
             ['pb_default_limit', data.pbvclimit],
             ['pullroom_category', data.pullcategoryid],
             ['pullroom_role', data.pullroleid],
-            ['pullroom_logs', data.pulllogid]
+            ['pullroom_logs', data.pulllogid],
+            ['pullroom_message', `"${data.pullmsg}"`]
         ]);
 
         for (let config of allConfigs) {

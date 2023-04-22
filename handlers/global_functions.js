@@ -9,8 +9,6 @@ function ConfigSuccess(message, content) {
 
     message.reply({ embeds: [configEmbed] });
 
-    console.log(`${content} Change requested by ${message.author.tag}`);
-
 }
 
 function ErrorMessage(message, err) {
