@@ -70,6 +70,33 @@ module.exports = async (Discord, client, message) => {
 
         }
 
+        /*
+            Used for logging messages sent in pullroom sessions
+            "!config pullroom_logs <channel>" changes where this gets sent
+        */
+        if (data) {
+
+            if (message.channel.parent.id === data.pullcategoryid) {
+
+                PULL.findOne({
+
+                    guildID: message.guild.id,
+                    channelID: message.channel.id
+
+                }, (pErr, pData) => {
+
+                    if (pErr) return;
+                    if (!pData) return;
+
+                    pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.tag} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
+                    pData.save().catch((err) => console.log(err));
+
+                });
+
+            }
+
+        }
+
     });
 
     /*

@@ -7,11 +7,26 @@ module.exports = {
     aliases: ['configurate', 'configuration'],
     description: 'This command changes configuration settings within the bot',
     category: 'admin',
-    syntax: 'config <setting> <value>',
+    syntax: 'config <param> <value>',
     async execute(client, message, args) {
 
-        const parametersAvailable = ['view', 'prefix', 'autopublish', 'pb_vc_id', 'pb_default_limit'];
-        const paramList = 'The following parameters can be configured.\n```\nview <all>\nprefix <value>\nautopublish <on/off>\npb_vc_id <channel id>\npb_default_limit <1-99>```';
+        let paramList = '';
+
+        const availableConfigs = new Map([
+            ['prefix', '<value>'],
+            ['autopublish', '<on/off>'],
+            ['pb_vc_id', '<channel>'],
+            ['pb_default_limit', '<1-99>'],
+            ['pullroom_category', '<category ID>'],
+            ['pullroom_role', '<role>'],
+            ['pullroom_logs', '<channel>']
+        ]);
+
+        for (let config of availableConfigs) {
+
+            paramList += `${config[0]} ${config[1]}\n`;
+
+        }
 
         const configEmbed = new EmbedBuilder()
             .setAuthor({
@@ -20,8 +35,8 @@ module.exports = {
                     dynamic: true
                 })
             })
-            .setDescription('Insufficient arguments (want 2; got ' + args.length.toString() + '). Syntax is `config <param> <value>`.\n\n' + paramList)
-            .setColor('ffffff')
+            .setDescription('Insufficient arguments (want 2; got ' + args.length.toString() + '). Syntax is `' + module.exports.syntax + '`.\n\n```\nview\n' + paramList + '```')
+            .setColor('ffffff');
 
         const unknownEmbed = new EmbedBuilder()
             .setAuthor({
@@ -30,19 +45,16 @@ module.exports = {
                     dynamic: true
                 })
             })
-            .setDescription('Unknown config parameter or value. Syntax is `config <param> <value>`.\n\n' + paramList)
-            .setColor('ffffff')
+            .setDescription('Unknown config parameter or value. Syntax is `' + module.exports.syntax + '`.\n\n```\nview\n' + paramList + '```')
+            .setColor('ffffff');
 
-        if (args.length < 2) return message.reply({
-            embeds: [configEmbed]
-        });
+        if (args[0] === 'view') return ViewConfigs(message);
+        if ((args.length < 2)) return message.reply({ embeds: [configEmbed] });
 
         let configParam = args[0].toLowerCase();
         let configVal = args[1].toLowerCase();
 
-        if (parametersAvailable.find((conf) => configVal.includes(conf.id))) return message.reply({
-            embeds: [unknownEmbed]
-        });
+        if (!availableConfigs.get(configParam)) return message.reply({ embeds: [unknownEmbed] });
 
         CONFIG.findOne({
 
@@ -53,102 +65,143 @@ module.exports = {
             if (err) return fc.ErrorMessage(message, err);
             if (!data) return fc.ErrorMessage(message, 'There is no data yet created for the server. Use the `setup` command.');
 
-            if (configParam === 'prefix') {
+            switch (configParam) {
 
-                if (data && data.prefix === configVal) return fc.ErrorMessage(message, 'That prefix is already being used.');
-                if (configVal.length > 2) return fc.ErrorMessage(message, 'Please try and condense the prefix `' + configVal + '` into something shorter (want max 2, got ' + configVal.length + ').');
+                case 'prefix':
 
-                if (data) {
-
-                    const oldPrefix = data.prefix;
-
-                    data.prefix = configVal;
-                    data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the bot prefix (formerly ' + oldPrefix + ').\n```' + data.prefix + '```'));
-
-                }
-
-            } else if (configParam === 'autopublish') {
-
-                if (configVal === 'on' || configVal === 'true') {
-
-                    if (data && data.autopublish == true) return fc.ErrorMessage(message, 'Auto-publishing is already enabled.');
+                    if (data && data.prefix === configVal) return fc.ErrorMessage(message, 'That prefix is already being used.');
+                    if (configVal.length > 2) return fc.ErrorMessage(message, 'Please try and condense the prefix `' + configVal + '` into something shorter (want max 2, got ' + configVal.length + ').');
 
                     if (data) {
 
-                        data.autopublish = true;
-                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully enabled auto-publishing.'));
+                        const oldPrefix = data.prefix;
+
+                        data.prefix = configVal;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the bot prefix (formerly ' + oldPrefix + ').\n```' + data.prefix + '```'));
 
                     }
 
-                } else if (configVal === 'off' || configVal === 'false') {
+                    break;
 
-                    if (data && data.autopublish == false) return fc.ErrorMessage(message, 'Auto-publishing is already disabled.');
+
+                case 'autopublish':
+
+                    if ((configVal !== 'off' && configVal !== 'false' && configVal !== 'on' && configVal !== 'true')) return message.reply({ embeds: [unknownEmbed] });
+
+                    if (configVal === 'on' || configVal === 'true') {
+
+                        if ((data) && (data.autopublish === true)) return fc.ErrorMessage(message, 'Auto-publishing is already enabled.');
+
+                        if (data) {
+
+                            data.autopublish = true;
+                            data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully enabled auto-publishing.'));
+
+                        }
+
+                    } else if (configVal === 'off' || configVal === 'false') {
+
+                        if ((data) && (data.autopublish === false)) return fc.ErrorMessage(message, 'Auto-publishing is already disabled.');
+
+                        if (data) {
+
+                            data.autopublish = false;
+                            data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully disabled auto-publishing.'));
+
+                        }
+
+                    }
+
+                    break;
+
+
+                case 'pb_vc_id':
+
+                    const partyChannel = message.mentions.channels.first() || message.guild.channels.cache.get(configVal);
+
+                    if ((data) && (data.pbvcid === partyChannel.id)) return fc.ErrorMessage(message, 'That channel is already in use.');
+                    if ((!partyChannel) || (partyChannel && partyChannel.type !== ChannelType.GuildVoice)) return fc.ErrorMessage(message, 'Invalid channel (doesn\'t exist or is not a voice channel).');
 
                     if (data) {
 
-                        data.autopublish = false;
-                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully disabled auto-publishing.'));
+                        data.pbvcid = partyChannel.id;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the PartyBot creation channel to <#' + partyChannel.id + '>.'));
 
                     }
 
-                } else {
+                    break;
 
-                    return message.reply({
-                        embeds: [unknownEmbed]
-                    });
 
-                }
+                case 'pb_default_limit':
 
-            } else if (configParam === 'pb_vc_id') {
+                    if (!configVal.match(/^[1-9][0-9]?$/)) return fc.ErrorMessage(message, 'Invalid integer (not a number, or not through 1 to 99).');
 
-                const vChannel = message.guild.channels.cache.get(configVal);
+                    if (data) {
 
-                if (data && data.pbvcid === configVal) return fc.ErrorMessage(message, 'Invalid channel (doesn\'t exist or is not a voice channel).');
-                if (!vChannel || (vChannel && vChannel.type !== ChannelType.GuildVoice)) return fc.ErrorMessage(message, 'Invalid channel (doesn\'t exist or is not a voice channel).');
+                        data.pbvclimit = parseInt(configVal);
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the PartyBot member limit to ' + configVal + '.'));
 
-                if (data) {
+                    }
 
-                    data.pbvcid = configVal;
-                    data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the PartyBot creation channel to <#' + configVal + '>.'));
+                    break;
 
-                }
 
-            } else if (configParam === 'pb_default_limit') {
+                case 'pullroom_category':
 
-                if (!configVal.match(/^[1-9][0-9]?$/)) return fc.ErrorMessage(message, 'Invalid integer (not a number, or not through 1 to 99).');
+                    const pullParent = message.guild.channels.cache.get(configVal);
 
-                if (data) {
+                    if ((!pullParent) || (pullParent && pullParent.type !== ChannelType.GuildCategory)) return fc.ErrorMessage(message, 'Invalid category (doesn\'t exist or is not a channel parent).');
+                    if ((data) && (data.pullcategoryid === pullParent.id)) return fc.ErrorMessage(message, 'That category is already set.');
 
-                    data.pbvclimit = parseInt(configVal);
-                    data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the PartyBot member limit to ' + configVal + '.'));
+                    if (data) {
 
-                }
+                        data.pullcategoryid = pullParent.id;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the pullroom category to <#' + pullParent.id + '>.'));
 
-            } else if (configParam === 'view') {
+                    }
 
-                if (data) {
+                    break;
 
-                    const currentConfigEmbed = new EmbedBuilder()
-                        .setAuthor({
-                            name: 'Configuration',
-                            iconURL: message.guild.iconURL({
-                                dynamic: true
-                            })
-                        })
-                        .setDescription(`Below are the configuration settings for ${message.guild.name}.\n\`\`\`\nprefix: ${data.prefix || '!'}\nautopublish: ${data.autopublish || 'false'}\npb_vc_id: ${data.pbvcid}\npb_default_limit: ${data.pbvclimit}\`\`\``)
-                        .setColor('ffffff')
 
-                    message.reply({
-                        embeds: [currentConfigEmbed]
-                    });
+                case 'pullroom_role':
 
-                }
+                    const pullRole = message.mentions.roles.first() || message.guild.roles.cache.get(configVal);
 
-            } else {
+                    if ((!pullRole) || (pullRole && pullRole.position > message.guild.members.resolve(client.user).roles.highest.position)) return fc.ErrorMessage(message, 'Invalid role (doesn\'t exist or role hierachy is higher than mine).');
+                    if ((data) && (data.pullroleid === pullRole.id)) return fc.ErrorMessage(message, 'That role is already in use.');
 
-                return message.reply({
-                    embeds: [unknownEmbed]
-                });
+                    if (data) {
+
+                        data.pullroleid = pullRole.id;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the pullroom role to <@&' + pullRole.id + '>.'));
+
+                    }
+
+                    break;
+
+
+                case 'pullroom_logs':
+
+                    const logsChannel = message.mentions.channels.first() || message.guild.channels.cache.get(configVal);
+
+                    if ((data) && (data.pulllogid === logsChannel.id)) return fc.ErrorMessage(message, 'That channel is already in use.');
+                    if ((!logsChannel) || (logsChannel && logsChannel.type !== ChannelType.GuildText)) return fc.ErrorMessage(message, 'Invalid channel (doesn\'t exist or is not a text channel).');
+
+                    if (data) {
+
+                        data.pulllogid = logsChannel.id;
+                        data.save().catch((err) => console.log(err)).then(() => fc.ConfigSuccess(message, 'Successfully set the pullroom logs channel to <#' + logsChannel.id + '>.'));
+
+                    }
+
+                    break;
+
+
+                default:
+
+                    message.reply({ embeds: [unknownEmbed] });
+
+                    break;
 
             }
 
@@ -157,3 +210,48 @@ module.exports = {
     }
 
 };
+
+function ViewConfigs(message) {
+
+    CONFIG.findOne({
+
+        guildID: message.guild.id
+
+    }, (err, data) => {
+
+        if (err) return;
+        if (!data) return fc.ErrorMessage(message, 'There is no data yet created for the server. Use the `setup` command.');
+
+        let configViews = '';
+
+        const allConfigs = new Map([
+            ['prefix', data.prefix],
+            ['autopublish', data.autopublish],
+            ['pb_vc_id', data.pbvcid],
+            ['pb_default_limit', data.pbvclimit],
+            ['pullroom_category', data.pullcategoryid],
+            ['pullroom_role', data.pullroleid],
+            ['pullroom_logs', data.pulllogid]
+        ]);
+
+        for (let config of allConfigs) {
+
+            configViews += `${config[0]}: ${config[1] ? config[1] : 'false'}\n`;
+
+        }
+
+        const currentConfigEmbed = new EmbedBuilder()
+            .setAuthor({
+                name: 'Configuration',
+                iconURL: message.guild.iconURL({
+                    dynamic: true
+                })
+            })
+            .setDescription(`Below are the configuration settings for ${message.guild.name}.\n\`\`\`\n${configViews}\`\`\``)
+            .setColor('ffffff')
+
+        message.reply({ embeds: [currentConfigEmbed] });
+
+    });
+
+}
