@@ -150,6 +150,10 @@ module.exports = async (Discord, client, message) => {
 
                 });
 
+            }).catch((err) => {
+
+                return;
+
             });
 
         }

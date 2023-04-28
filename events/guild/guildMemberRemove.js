@@ -21,6 +21,10 @@ module.exports = async (Discord, client, member) => {
 
                     await client.users.cache.get(notifyUsers[i]).send(`⚠️ **Staff Leave Alert**\n\nA staff member has just left the server (<@${memberID || '???'}> | ${memberNameDiscrim || 'Unknown#0000'}).\n\nRoles: **${roleNames}**`).catch((err) => { return });
 
+                }).catch((err) => {
+
+                    return;
+    
                 });
 
             }
