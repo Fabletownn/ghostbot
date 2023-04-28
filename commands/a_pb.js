@@ -68,6 +68,10 @@ module.exports = {
 
                         }
 
+                    }).catch((err) => {
+                    
+                        return;
+                    
                     });
 
                 } else if (partyCommand == 'ban') {
@@ -102,6 +106,10 @@ module.exports = {
 
                         }
 
+                    }).catch((err) => {
+                    
+                        return;
+                    
                     });
 
                 } else if (partyCommand == 'unban') {
@@ -120,6 +128,10 @@ module.exports = {
 
                         }
 
+                    }).catch((err) => {
+                    
+                        return;
+                    
                     });
 
                 } else if (partyCommand == 'owner') {
@@ -147,6 +159,10 @@ module.exports = {
 
                         }
 
+                    }).catch((err) => {
+                    
+                        return;
+                    
                     });
 
                 }
