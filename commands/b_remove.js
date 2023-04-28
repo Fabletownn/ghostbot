@@ -7,17 +7,15 @@ module.exports = {
     name: 'remove',
     description: 'This command removes a user from their pullroom session',
     category: 'mod',
-    syntax: 'remove <User>',
+    syntax: 'remove <User ID>',
     async execute(client, message, args) {
 
-        const pulledUser = message.mentions.users.first() || message.guild.members.cache.get(args[0]);
-
         if (args.length < 1) return message.reply('Insufficient arguments (want 1; got ' + args.length.toString() + '). Syntax is `' + module.exports.syntax + '`.');
-        if ((!pulledUser) || (!message.guild.members.cache.get(pulledUser.id))) return message.reply('Invalid member, or user not found. Please make sure the specified user is in the server!');
+
+        const removeID = args[0].replace(/[^0-9]/g, '');
 
         if (!message.channel.topic) return message.reply('Failed to remove the specified member (invalid or not a pullroom channel).');
 
-        const UI = message.mentions.users.first() || message.guild.members.cache.get(args[0]);
         const execChannelID = message.channel.id;
 
         CONFIG.findOne({
@@ -32,20 +30,30 @@ module.exports = {
             PULL.findOne({
 
                 guildID: message.guild.id,
-                userID: UI.id
+                userID: removeID
 
             }, async (pErr, pData) => {
 
                 if (pErr) return console.log(pErr);
                 if (!pData) return message.reply('Failed to remove the specified member (no pullroom data found).');
 
-                if (pulledUser.id !== UI.id) return message.reply('Failed to remove the specified user ' + client.users.cache.get(pulledUser.id).tag + '. This is not their pullroom thread.');
+                if (pData.userID !== removeID) return message.reply('Failed to remove the specified user ' +  pData.userTag + '. This is not their pullroom thread.');
 
                 const fileName = `phasmophobia-${pData.roomName}-transcript.txt`;
 
-                const botResponse = await message.reply('📥 Removing `' + client.users.cache.get(pulledUser.id).tag + '` from their pullroom..');
+                const botResponse = await message.reply('📥 Removing `' + pData.userTag + '` from their pullroom..');
 
-                if (message.guild.members.cache.get(pData.userID)) await message.guild.members.cache.get(pData.userID).roles.remove(data.pullroleid);
+                await message.guild.members.fetch(pData.userID).then(() => {
+
+                    if (!message.guild.members.cache.get(pData.userID)) return;
+
+                    message.guild.members.cache.get(pData.userID).roles.remove(data.pullroleid)
+
+                }).catch((err) => {
+                    
+                    return;
+                
+                });
 
                 fs.writeFile(fileName, pData.transcript, async function (err) {
 
@@ -53,7 +61,7 @@ module.exports = {
 
                     const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
 
-                    await client.channels.cache.get(data.pulllogid).send({ content: `Pullroom session with \`${client.users.cache.get(pData.userID).tag} (${pData.userID})\` has ended, logs are provided below (${fileName}).`, files: [transcriptFile] }).then(() => {
+                    await client.channels.cache.get(data.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
 
                         fs.unlink(`./${fileName}`, (err) => {
 
@@ -65,9 +73,9 @@ module.exports = {
 
                     await message.guild.channels.cache.get(pData.channelID).delete();
 
-                    await pData.delete();
+                    if (message.guild.channels.cache.get(execChannelID)) botResponse.edit('📥 Removed `' + pData.userTag + '` from their pullroom.');
 
-                    if (message.guild.channels.cache.get(execChannelID)) botResponse.edit('📥 Removed `' + client.users.cache.get(pulledUser.id).tag + '` from their pullroom.');
+                    await pData.delete();
 
                 });
 

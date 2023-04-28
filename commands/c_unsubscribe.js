@@ -12,7 +12,7 @@ module.exports = {
         const allowedChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
 
         if (message.channel.type !== ChannelType.PublicThread) return message.reply('Invalid channel, or channel not found. Please make sure the channel is a proper type (forum/thread).');
-        if (allowedChannels.some((chID) => message.channel.parent.id !== chID)) return message.react('❓');
+        if (!(allowedChannels.some((chID) => message.channel.parent.id === chID))) return message.react('❓');
 
         SUB.findOne({
 

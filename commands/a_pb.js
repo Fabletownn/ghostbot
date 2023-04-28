@@ -6,7 +6,7 @@ module.exports = {
     aliases: ['partybot', 'myvc'],
     description: 'These commands allow members to control their PartyBot rooms',
     category: 'user',
-    syntax: 'pb <parameter e.g. kick> <value e.g. user>',
+    syntax: 'pb <lock|unlock|kick|ban|unban|owner> <User>',
     async execute(client, message, args) {
 
         const voiceConnected = message.member.voice.channel;
@@ -23,7 +23,7 @@ module.exports = {
 
                 voiceID: voiceID
 
-            }, (err, data) => {
+            }, async (err, data) => {
 
                 if (err) return console.log(err);
                 if (!data) return;
@@ -48,126 +48,106 @@ module.exports = {
 
                     if (!args[1]) return;
 
-                    const optCommandArg = args[1].toLowerCase();
-                    const userKick = message.mentions.users.first() || client.users.cache.get(args[1]);
+                    const userKick = args[1].replace(/[^0-9]/g, '');
 
-                    if (!userKick) return;
+                    await message.guild.members.fetch(userKick).then(() => {
 
-                    if (optCommandArg.startsWith('<@') || (!isNaN(optCommandArg) && optCommandArg.length >= 17)) {
+                        if (!message.guild.members.cache.get(userKick)) return;
 
-                        if (userKick && message.guild.members.cache.get(userKick.id)) {
+                        const userChannel = message.guild.members.cache.get(userKick).voice.channel;
 
-                            const userChannel = message.guild.members.cache.get(userKick.id).voice.channel;
+                        if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userKick !== message.author.id) {
 
-                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userKick.id !== message.author.id) {
+                            if (userChannel.id !== message.member.voice.channel.id) return;
 
-                                if (userChannel.id !== message.member.voice.channel.id) return;
+                            message.guild.members.cache.get(userKick).voice.setChannel(null, {
 
-                                message.guild.members.cache.get(userKick.id).voice.setChannel(null, {
+                                reason: 'Disconnected from voice channel by PartyBot owner ' + message.author.tag
 
-                                    reason: 'Disconnected from voice channel by PartyBot owner ' + message.author.tag
-
-                                });
-
-                            }
+                            });
 
                         }
 
-                    }
+                    });
 
                 } else if (partyCommand == 'ban') {
 
                     if (!args[1]) return;
 
-                    const optCommandArg = args[1].toLowerCase();
-                    const userBan = message.mentions.users.first() || client.users.cache.get(args[1]);
+                    const userBan = args[1].replace(/[^0-9]/g, '');
 
-                    if (!userBan) return;
+                    await message.guild.members.fetch(userBan).then(() => {
 
-                    if (optCommandArg.startsWith('<@') || (!isNaN(optCommandArg) && optCommandArg.length >= 17)) {
+                        if (!message.guild.members.cache.get(userBan)) return;
 
-                        if (userBan && message.guild.members.cache.get(userBan.id)) {
+                        const userChannel = message.guild.members.cache.get(userBan).voice.channel;
 
-                            const userChannel = message.guild.members.cache.get(userBan.id).voice.channel;
+                        if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userBan !== message.author.id) {
 
-                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && userBan.id !== message.author.id) {
+                            if (userChannel.id !== message.member.voice.channel.id) return;
 
-                                if (userChannel.id !== message.member.voice.channel.id) return;
+                            message.guild.members.cache.get(userBan).voice.channel.permissionOverwrites.edit(userBan, {
 
-                                message.guild.members.cache.get(userBan.id).voice.channel.permissionOverwrites.edit(userBan.id, {
+                                Connect: false
 
-                                    Connect: false
+                            }).then(() => {
 
-                                }).then(() => {
+                                message.guild.members.cache.get(userBan).voice.setChannel(null, {
 
-                                    message.guild.members.cache.get(userBan.id).voice.setChannel(null, {
-
-                                        reason: 'Banned from voice channel by PartyBot owner ' + message.author.tag
-
-                                    });
+                                    reason: 'Banned from voice channel by PartyBot owner ' + message.author.tag
 
                                 });
 
-                            }
+                            });
 
                         }
 
-                    }
+                    });
 
                 } else if (partyCommand == 'unban') {
 
                     if (!args[1]) return;
 
-                    const optCommandArg = args[1].toLowerCase();
-                    const userUnban = message.mentions.users.first() || client.users.cache.get(args[1]);
+                    const userUnban = args[1].replace(/[^0-9]/g, '');
 
-                    if (!userUnban) return;
+                    await message.guild.members.fetch(userUnban).then(() => {
 
-                    if (optCommandArg.startsWith('<@') || (!isNaN(optCommandArg) && optCommandArg.length >= 17)) {
+                        if (!message.guild.members.cache.get(userUnban)) return;
 
-                        if (userUnban && message.guild.members.cache.get(userUnban.id)) {
+                        if (userUnban !== message.author.id) {
 
-                            if (userUnban.id !== message.author.id) {
-
-                                message.guild.members.cache.get(data.ownerID).voice.channel.permissionOverwrites.delete(userUnban.id);
-
-                            }
+                            message.guild.members.cache.get(data.ownerID).voice.channel.permissionOverwrites.delete(userUnban);
 
                         }
 
-                    }
+                    });
 
                 } else if (partyCommand == 'owner') {
 
                     if (!args[1]) return;
 
-                    const optCommandArg = args[1].toLowerCase();
-                    const newOwner = message.mentions.users.first() || client.users.cache.get(args[1]);
+                    const newOwner = args[1].replace(/[^0-9]/g, '');
 
-                    if (!newOwner) return;
+                    await message.guild.members.fetch(newOwner).then(() => {
 
-                    if (optCommandArg.startsWith('<@') || (!isNaN(optCommandArg) && optCommandArg.length >= 17)) {
+                        if (!message.guild.members.cache.get(newOwner)) return;
 
-                        if (newOwner && message.guild.members.cache.get(newOwner.id)) {
+                        const userChannel = message.guild.members.cache.get(newOwner).voice.channel;
 
-                            const userChannel = message.guild.members.cache.get(newOwner.id).voice.channel;
+                        if ((userChannel !== null && userChannel.name === 'PartyBot Room') && newOwner !== message.author.id) {
 
-                            if ((userChannel !== null && userChannel.name === 'PartyBot Room') && newOwner.id !== message.author.id) {
+                            if (userChannel.id !== message.member.voice.channel.id) return;
 
-                                if (userChannel.id !== message.member.voice.channel.id) return;
+                            if (data) {
 
-                                if (data) {
-
-                                    data.ownerID = newOwner.id;
-                                    data.save().catch((err) => console.log(err));
-
-                                }
+                                data.ownerID = newOwner;
+                                data.save().catch((err) => console.log(err));
 
                             }
 
                         }
 
-                    }
+                    });
 
                 }
 

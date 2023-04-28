@@ -48,7 +48,7 @@ module.exports = {
 
                         await setupMessage.edit('Successfully created data.');
 
-                        fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
+                        fc.ConfigSuccess(message, `Data has been set up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
 
                     });
 

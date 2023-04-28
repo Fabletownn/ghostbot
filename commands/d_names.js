@@ -6,21 +6,20 @@ module.exports = {
     aliases: ['usernames', 'namehistory', 'usernamehistory'],
     description: 'This command provides the 3 most recent username changes from a member in the past week if any',
     category: 'staff',
-    syntax: 'names <user>',
+    syntax: 'names <User>',
     async execute(client, message, args) {
 
         if (!args[0]) return fc.InsufficientArgs(message, 1, args, module.exports.syntax);
 
-        const reqArg = args[0];
-        const userSearch = message.mentions.users.first() || client.users.cache.get(reqArg);
+        const userSearch = args[0].replace(/[^0-9]/g, '');
 
-        if (!userSearch || !message.guild.members.cache.get(userSearch.id)) return message.reply('Invalid user, or user not found. Please make sure the user exists and is in the server.');
+        await message.guild.members.fetch(userSearch).then(() => {
 
-        message.guild.members.fetch(userSearch.id).then(() => {
+            if (!message.guild.members.cache.get(userSearch)) return message.reply('Invalid user, or user not found. Please make sure the user exists and is in the server.');
 
             UNAME.findOne({
 
-                userID: userSearch.id
+                userID: userSearch
 
             }, async (err, data) => {
 
@@ -29,12 +28,12 @@ module.exports = {
                 if (data) {
 
                     let nameCount;
-                    const nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(userSearch.id).username}`;
+                    const nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(userSearch).username}`;
 
-                    const userMention = `<@${userSearch.id}>`;
-                    const userTag = client.users.cache.get(userSearch.id).tag;
+                    const userMention = `<@${userSearch}>`;
+                    const userTag = client.users.cache.get(userSearch).tag;
 
-                    const fullUserInfo = `${userMention} (${userTag} \`${userSearch.id}\`)`;
+                    const fullUserInfo = `${userMention} (${userTag} \`${userSearch}\`)`;
 
                     if (data.usernames.length >= 3) nameCount = 'several';
                     if (data.usernames.length < 3) nameCount = data.usernames.length;
@@ -48,6 +47,10 @@ module.exports = {
                 }
 
             });
+
+        }).catch((err) => {
+
+            return message.reply('Invalid user, or user not found. Please make sure the user exists and is in the server. ');
 
         });
 

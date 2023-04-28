@@ -15,6 +15,7 @@ module.exports = {
         const channelMention = message.mentions.channels.first() || message.guild.channels.cache.get(chanArg);
 
         if (!args[1]) return fc.InsufficientArgs(message, 2, args, module.exports.syntax);
+        if (!channelMention) return message.reply('Invalid channel (unknown channel, or unknown type).');
 
         const messageSend = args.slice(1).join(' ');
 

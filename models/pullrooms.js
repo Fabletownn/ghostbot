@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const pullSchema = mongoose.Schema({
     guildID: String,
     userID: String,
+    userTag: String,
     channelID: String,
     roomName: String,
     transcript: String

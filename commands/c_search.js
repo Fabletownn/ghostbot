@@ -81,7 +81,7 @@ module.exports = {
 
                 } else if (userFetch.size > 1) {
 
-                    const fResults = `Fetched:${resultTags || ' None.'}\n\`\`\`fix\n${fetchedResults || 'None'}`;
+                    const fResults = `Fetched:${resultTags || ' None.'}\n\`\`\`fix\n${fetchedResults || 'None'}\`\`\``;
 
                     if (fResults.length < 1500) {
 

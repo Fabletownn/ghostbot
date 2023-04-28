@@ -3,6 +3,7 @@ const UNAME = require('../../models/username.js');
 const CONFIG = require('../../models/config.js');
 const SUB = require('../../models/subs.js');
 const KICKS = require('../../models/kicks.js');
+const PULL = require('../../models/pullrooms.js');
 
 module.exports = async (Discord, client, message) => {
 
@@ -159,7 +160,7 @@ module.exports = async (Discord, client, message) => {
         Tracks users who have been kicked for their profile pictures
         Sends a message in #ch-reports when they rejoin the server
     */
-    if ((message.content.match(/^(-kick)/g) && message.content.match(/(profile pic|avatar)/g)) && (args[1]) && (!isNaN(args[1]))) {
+    if ((message.content.match(/^(-kick)/g) && message.content.match(/(profile pic|avatar|pfp)/g)) && (args[1]) && (!isNaN(args[1]))) {
 
         if (!client.users.cache.get(args[1])) return;
 
