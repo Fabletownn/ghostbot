@@ -79,7 +79,7 @@ module.exports = {
 
                             const pullEmbed = new EmbedBuilder()
                                 .setAuthor({
-                                    name: UI.tag + ' Pullroom',
+                                    name: UI.username + ' Pullroom',
                                     iconURL: client.users.cache.get(UI.id).displayAvatarURL({
                                         dynamic: true
                                     })
@@ -93,10 +93,10 @@ module.exports = {
 
                                     guildID: message.guild.id,
                                     userID: UI.id,
-                                    userTag: UI.tag,
+                                    userTag: UI.username,
                                     channelID: pullroom.id,
                                     roomName: roomName,
-                                    transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${message.author.tag} with ${UI.tag} opened..\n`
+                                    transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${message.author.username} with ${UI.username} opened..\n`
 
                                 });
 
@@ -106,7 +106,7 @@ module.exports = {
 
                                 await pullroom.send({ content: `The moderation team would like to talk to you, <@${UI.id}>.`, embeds: [pullEmbed] });
 
-                                await message.reply(`📤 Pulled \`${UI.tag}\` into <#${newPullData.channelID}>`);
+                                await message.reply(`📤 Pulled \`${UI.username}\` into <#${newPullData.channelID}>`);
 
                                 await pullroom.send(`<@${message.author.id}>`).then((m) => m.delete());
 

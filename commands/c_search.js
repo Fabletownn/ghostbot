@@ -23,7 +23,7 @@ module.exports = {
             });
 
             const resultTags = userFetch.map((m) => ` ${m.user}`);
-            const fetchedResults = userFetch.map((m) => `${m.user.tag} | ${m.user.id} | Created ${m.user.createdAt}`).join('\n');
+            const fetchedResults = userFetch.map((m) => `${m.user.username} | ${m.user.id} | Created ${m.user.createdAt}`).join('\n');
 
             if (fetchedResults) {
 
@@ -40,7 +40,7 @@ module.exports = {
 
                         const infoEmbed = new EmbedBuilder()
                             .setAuthor({
-                                name: 'User ' + m.user.tag,
+                                name: 'User ' + m.user.username,
                                 iconURL: m.user.displayAvatarURL({
                                     dynamic: true
                                 })
@@ -73,7 +73,7 @@ module.exports = {
                             ]);
 
                         await searchMessage.edit({
-                            content: 'Only one result found. Showing information for **' + m.user.tag + '**:',
+                            content: 'Only one result found. Showing information for **' + m.user.username + '**:',
                             embeds: [infoEmbed]
                         });
 

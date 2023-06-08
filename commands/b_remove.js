@@ -7,7 +7,7 @@ module.exports = {
     name: 'remove',
     description: 'This command removes a user from their pullroom session',
     category: 'mod',
-    syntax: 'remove <User ID>',
+    syntax: 'remove <User>',
     async execute(client, message, args) {
 
         if (args.length < 1) return message.reply('Insufficient arguments (want 1; got ' + args.length.toString() + '). Syntax is `' + module.exports.syntax + '`.');

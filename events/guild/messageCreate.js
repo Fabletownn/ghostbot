@@ -89,7 +89,7 @@ module.exports = async (Discord, client, message) => {
                     if (pErr) return;
                     if (!pData) return;
 
-                    pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.tag} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
+                    pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.username} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
                     pData.save().catch((err) => console.log(err));
 
                 });
@@ -128,7 +128,7 @@ module.exports = async (Discord, client, message) => {
                         const nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(args[0]).username}`;
 
                         const userMention = `<@${args[0]}>`;
-                        const userTag = client.users.cache.get(args[0]).tag;
+                        const userTag = client.users.cache.get(args[0]).username;
 
                         const fullUserInfo = `${userMention} (${userTag} \`${args[0]}\`)`;
 

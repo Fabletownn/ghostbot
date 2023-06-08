@@ -31,7 +31,7 @@ module.exports = {
                     const nameList = `${data.usernames.toString().replace(/,/g, ', ')}, ${client.users.cache.get(userSearch).username}`;
 
                     const userMention = `<@${userSearch}>`;
-                    const userTag = client.users.cache.get(userSearch).tag;
+                    const userTag = client.users.cache.get(userSearch).username;
 
                     const fullUserInfo = `${userMention} (${userTag} \`${userSearch}\`)`;
 

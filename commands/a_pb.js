@@ -62,7 +62,7 @@ module.exports = {
 
                             message.guild.members.cache.get(userKick).voice.setChannel(null, {
 
-                                reason: 'Disconnected from voice channel by PartyBot owner ' + message.author.tag
+                                reason: 'Disconnected from voice channel by PartyBot owner @' + message.author.username + ' (' + message.author.id + ')'
 
                             });
 
@@ -98,7 +98,7 @@ module.exports = {
 
                                 message.guild.members.cache.get(userBan).voice.setChannel(null, {
 
-                                    reason: 'Banned from voice channel by PartyBot owner ' + message.author.tag
+                                    reason: 'Banned from voice channel by PartyBot owner @' + message.author.username + ' (' + message.author.id + ')'
 
                                 });
 

@@ -5,7 +5,7 @@ module.exports = async (Discord, client, member) => {
     if (member.roles.cache.size > 1) {
 
         const memberID = member.user.id;
-        const memberNameDiscrim = member.user.tag;
+        const memberName = member.user.username;
 
         const notifyRoles = ['761640195413377044', '759255791605383208', '756591038373691606'];
         const notifyUsers = ['338496408988418048', '219169741447626754', '177953924211408899', '366086664495562764'];
@@ -19,7 +19,7 @@ module.exports = async (Discord, client, member) => {
 
                 await member.guild.members.fetch(notifyUsers[i]).then(async () => {
 
-                    await client.users.cache.get(notifyUsers[i]).send(`⚠️ **Staff Leave Alert**\n\nA staff member has just left the server (<@${memberID || '???'}> | ${memberNameDiscrim || 'Unknown#0000'}).\n\nRoles: **${roleNames}**`).catch((err) => { return });
+                    await client.users.cache.get(notifyUsers[i]).send(`⚠️ **Staff Leave Alert**\n\nA staff member has just left the server (<@${memberID || '???'}> | ${memberName || 'Unknown'}).\n\nRoles: **${roleNames}**`).catch((err) => { return });
 
                 }).catch((err) => {
 
