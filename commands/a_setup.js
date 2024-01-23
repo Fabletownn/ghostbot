@@ -5,11 +5,10 @@ const fc = require('../handlers/global_functions.js');
 module.exports = {
     name: 'setup',
     aliases: ['createdata'],
-    description: 'This creates or resets data for the server when the Phas bot initially gets invited',
+    description: 'Creates or resets data for the server when the bot initially gets invited',
     category: 'admin',
     syntax: 'setup',
     async execute(client, message) {
-
         const resetEmbed = new EmbedBuilder()
             .setAuthor({
                 name: 'Configuration',
@@ -21,17 +20,12 @@ module.exports = {
             .setColor('ffffff');
 
         CONFIG.findOne({
-
             guildID: message.guild.id
-
         }, (err, data) => {
-
             message.reply(`Creating configuration data for ${message.guild.name}..`).then(async (setupMessage) => {
-
                 if (err) return setupMessage.edit(`Failed to create data for the server: \`${err}\``);
 
                 if (!data) {
-
                     const newData = new CONFIG({
                         guildID: message.guild.id,
                         prefix: '!',
@@ -45,19 +39,13 @@ module.exports = {
                     });
 
                     newData.save().catch(err => console.log(err)).then(async () => {
-
                         await setupMessage.edit('Successfully created data.');
-
                         fc.ConfigSuccess(message, `Data has been set up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
-
                     });
-
                 } else if (data) {
-
                     await message.reply({
                         embeds: [resetEmbed]
                     }).then(async (resetPrompt) => {
-
                         await resetPrompt.react('✅');
                         await resetPrompt.react('❌');
 
@@ -69,13 +57,10 @@ module.exports = {
                         });
 
                         promptCollector.on('collect', async (r) => {
-
                             if (r.emoji.name === '✅') {
-
                                 await resetPrompt.delete();
 
                                 await data.delete().then(async () => {
-
                                     const newData = new CONFIG({
                                         guildID: message.guild.id,
                                         prefix: '!',
@@ -89,31 +74,18 @@ module.exports = {
                                     });
 
                                     newData.save().catch((err) => console.log(err)).then(async () => {
-
                                         fc.ConfigSuccess(message, `Data has been set back up for the server.\n\nBelow are the default configuration settings. Use the \`config\` command to edit this.\n\`\`\`prefix: ${newData.prefix}\nautopublish: ${newData.autopublish}\npb_vc_id: ${newData.pbvcid}\npb_default_limit: ${newData.pbvclimit}\npullroom_category: ${newData.pullcategoryid}\npullroom_role: ${newData.pullroleid}\npullroom_logs: ${newData.pulllogid}\npullroom_message: "${newData.pullmsg}"\`\`\``);
-
                                     });
-
                                 });
-
                             } else if (r.emoji.name === '❌') {
-
                                 await resetPrompt.delete();
 
                                 return message.channel.send('Data reset cancelled.');
-
                             }
-
                         });
-
                     });
-
                 }
-
             });
-
         });
-
     }
-
 };

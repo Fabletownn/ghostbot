@@ -5,7 +5,6 @@ const UNAME = require('../../models/username.js');
 const cron = require('node-cron');
 
 module.exports = (Discord, client) => {
-
     const currentTime = new Date().toLocaleTimeString();
     const clientUsername = client.user.username;
 
@@ -14,9 +13,7 @@ module.exports = (Discord, client) => {
     searchAndChangeStatus(client);
 
     cron.schedule('1 * * * *', () => {
-
         searchAndChangeStatus(client);
-
     });
 
     /*
@@ -24,31 +21,20 @@ module.exports = (Discord, client) => {
         Checks every hour, unlike cron this gets reset everytime the bot restarts so it's unreliable
     */
     setInterval(() => {
-
         UNAME.find({
-
             guildID: '435431947963990026'
-
         }, (err, data) => {
-
             if (err) return console.log(err);
 
             if (data) {
-
                 data.forEach((d) => {
-
                     const expiryTime = d.expireOn;
 
                     if (Date.now() > expiryTime) d.delete().catch((err) => console.log(err));
-
                 });
-
             }
-
         });
-
     }, (1000 * 60 * 60));
-
 };
 
 /*
@@ -56,17 +42,12 @@ module.exports = (Discord, client) => {
     Searches through and changes it every hour if there is one
 */
 function searchAndChangeStatus(client) {
-
     STATUS.findOne({
-
         guildID: '435431947963990026'
-
     }, (err, data) => {
-
         if (err) return console.log(err);
 
         if (!data) {
-
             client.user.setPresence({
                 activities: [{
                     name: 'Phasmophobia',
@@ -74,9 +55,7 @@ function searchAndChangeStatus(client) {
                 }],
                 status: 'online'
             });
-
         } else if (data) {
-
             const statusIndexes = data.statuses.filter((status) => status !== null);
             const randomStatus = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
 
@@ -87,9 +66,6 @@ function searchAndChangeStatus(client) {
                 }],
                 status: 'online'
             });
-
         }
-
     });
-
 }
