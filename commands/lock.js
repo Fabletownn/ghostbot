@@ -5,7 +5,7 @@ module.exports = {
         .setName('lock')
         .setDescription('(Moderator) Locks a channel with optional reasoning')
         .setDMPermission(false)
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')
                 .setDescription('The channel that will be locked')

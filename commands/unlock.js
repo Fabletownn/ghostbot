@@ -5,7 +5,7 @@ module.exports = {
         .setName('unlock')
         .setDescription('(Moderator) Unlocks a locked channel')
         .setDMPermission(false)
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')
                 .setDescription('The channel that will be unlocked')

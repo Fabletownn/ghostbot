@@ -10,7 +10,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
     const cTimestamp = Math.round((Date.now()) / 1000);
 
     LCONFIG.findOne({
-        guildID: newUser.guild.id
+        guildID: '435431947963990026'
     }, async (err, data) => {
         if (err) return console.log(err);
         if (!data) return;
