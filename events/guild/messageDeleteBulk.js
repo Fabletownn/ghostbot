@@ -2,9 +2,11 @@ const { Client, ChannelType, EmbedBuilder, WebhookClient } = require('discord.js
 const { PasteClient, Publicity, ExpireDate } = require('pastebin-api');
 const pastebinClient = new PasteClient(process.env.PASTEBIN_API_DEVKEY);
 const LCONFIG = require('../../models/logconfig.js');
+const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = async (Discord, client, messages, channel) => {
     var bulkDeleteInformation = [];
+    var bulkDeleteUserIDs = [];
 
     const guild = channel.guild;
 
@@ -18,17 +20,7 @@ module.exports = async (Discord, client, messages, channel) => {
         if (data.ignoredchannels == null) return;
         if (data.ignoredcategories == null) return;
         if (data.deletewebhook == null) return;
-
-        const deleteWebhookID = data.deletewebhook.split(/\//)[5];
-        const deleteWebhookToken = data.deletewebhook.split(/\//)[6];
-        
-        const fetchDeleteWebhooks = await client.channels.cache.get(data.deletechannel).fetchWebhooks();
-        const fetchedDeleteWebhook = fetchDeleteWebhooks.find((wh) => wh.id === deleteWebhookID);
-
-        if (!fetchedDeleteWebhook) return console.log('No delete webhook found.');
-
-        const deleteWebhook = new WebhookClient({ id: deleteWebhookID, token: deleteWebhookToken });
-
+    
         if (data.ignoredchannels.some((ignored_channel) => channel.id === ignored_channel)) return;
         if (data.ignoredcategories.some((ignored_cat) => channel.parent.id === ignored_cat)) return;
 
@@ -44,13 +36,15 @@ module.exports = async (Discord, client, messages, channel) => {
             const channelName = channel.name;
 
             let addString = `${authorTag} (${authorDisplayName}) [${authorID}] | (#${channelName}): ${(deleted.content > 2000) ? `${deleted.content.slice(0, 2000)}...` : deleted.content}`;
+            let userString = `${authorID}`;
             bulkDeleteInformation.push(addString);
+            if (!bulkDeleteUserIDs.includes(userString)) bulkDeleteUserIDs.push(userString);
         });
 
         const pasteURL = await pastebinClient.createPaste({
             code: `If a deleted message's author was a bot, the message is not cached by the bot, or similar, some messages may not be logged. Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged.\n`
                 + `Phasmophobia Message Bulk Delete Log @ ${currentDate} UTC:\n----------------------------------------------------------------------\n${bulkDeleteInformation.join('\n')}`,
-            expireDate: ExpireDate.TenMinutes,
+            expireDate: ExpireDate.OneMonth,
             format: "javascript",
             name: "Bulk Delete Log",
             publicity: Publicity.Unlisted,
@@ -61,13 +55,13 @@ module.exports = async (Discord, client, messages, channel) => {
 
         const rawPasteURL = pasteURL.replace('.com/', '.com/raw/');
         const bulkDeleteEmbed = new EmbedBuilder()
-            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.`)
+            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
             .addFields(
                 { name: 'Link', value: rawPasteURL }
             )
             .setTimestamp()
             .setColor('#ED498D');
         
-        await deleteWebhook.send({ embeds: [bulkDeleteEmbed] });
+        await wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
     });
 }
