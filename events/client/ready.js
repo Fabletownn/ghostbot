@@ -1,15 +1,17 @@
-const { Discord, ActivityType } = require('discord.js');
+const { Discord, ActivityType, WebhookClient } = require('discord.js');
 const STATUS = require('../../models/statuses.js');
-const UNAME = require('../../models/username.js');
-
+const LCONFIG = require('../../models/logconfig.js');
+const DELETES = require('../../models/deletes.js');
+const EDITS = require('../../models/edits.js');
 const cron = require('node-cron');
+const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = (Discord, client) => {
-    const currentTime = new Date().toLocaleTimeString();
-    const clientUsername = client.user.username;
+    console.log(`${client.user.username} is online and running (in ${client.guilds.cache.size} servers).`);
 
-    console.log(`[${currentTime}] ${clientUsername} - Online and running (in ${client.guilds.cache.size} servers).`);
-
+    /*
+        Change bot status upon start/restart, and schedule a status change every hour
+    */
     searchAndChangeStatus(client);
 
     cron.schedule('1 * * * *', () => {
@@ -17,30 +19,32 @@ module.exports = (Discord, client) => {
     });
 
     /*
-        Username history, added interval so the bot can check and clear name histories over 1 week old
-        Checks every hour, unlike cron this gets reset everytime the bot restarts so it's unreliable
+        Send message logs every 7.5 seconds
     */
-    setInterval(() => {
-        UNAME.find({
+    setInterval(async () => {
+        LCONFIG.findOne({
             guildID: '435431947963990026'
-        }, (err, data) => {
-            if (err) return console.log(err);
+        }, async (err, data) => {
+            if (err) return;
+            if (!data) return;
 
-            if (data) {
-                data.forEach((d) => {
-                    const expiryTime = d.expireOn;
-
-                    if (Date.now() > expiryTime) d.delete().catch((err) => console.log(err));
+            DELETES.find({ guildID: '435431947963990026' }).then((deletelogs) => {
+                deletelogs.forEach((d) => {
+                    wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
+                        .then(() => d.delete().catch((err) => console.log(err)));
                 });
-            }
+            });
+            
+            EDITS.find({ guildID: '435431947963990026' }).then((editlogs) => {
+                editlogs.forEach((d) => {
+                    wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
+                        .then(() => d.delete().catch((err) => console.log(err)));
+                });
+            });
         });
-    }, (1000 * 60 * 60));
+    }, (7500));
 };
 
-/*
-    Staff fun command, they're able to put phrases for the bot to use as a status
-    Searches through and changes it every hour if there is one
-*/
 function searchAndChangeStatus(client) {
     STATUS.findOne({
         guildID: '435431947963990026'

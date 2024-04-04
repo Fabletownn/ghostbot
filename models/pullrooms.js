@@ -12,4 +12,4 @@ const pullSchema = mongoose.Schema({
 module.exports = mongoose.model('pullroom', pullSchema);
 
 // This model is meant to keep information on pullrooms, such as who opened one, and the channel so the bot knows which one to delete when it is closed
-// b_pull.js & b_remove.js
+// pull.js, unpull.js, messageCreate.js

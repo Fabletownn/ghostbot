@@ -1,44 +1,61 @@
-/*
-    Automatically adds past 3 usernames to a tracker
-*/
-const UNAME = require('../../models/username.js');
+const { EmbedBuilder } = require('discord.js');
+const LCONFIG = require('../../models/logconfig.js');
+const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = async (Discord, client, oldUser, newUser) => {
-    if (oldUser.username !== newUser.username) {
+    if (oldUser.partial) return;
+    if (oldUser.bot || newUser.bot) return;
+    if (oldUser.username === newUser.username && oldUser.displayName === newUser.displayName) return;
 
-        const oldUsername = oldUser.username;
-        const newUsername = newUser.username;
+    const cTimestamp = Math.round((Date.now()) / 1000);
 
-        if ((!oldUser.partial) && (oldUsername !== null && newUsername !== null)) {
-            if ((oldUsername !== newUsername)) {
-                UNAME.findOne({
-                    userID: newUser.id
-                }, (err, data) => {
-                    if (err) return console.log(err);
+    LCONFIG.findOne({
+        guildID: newUser.guild.id
+    }, async (err, data) => {
+        if (err) return console.log(err);
+        if (!data) return;
+        if (!data.usernamechannel) return;
 
-                    if (!data) {
-                        const newUserData = new UNAME({
-                            guildID: '435431947963990026',
-                            userID: newUser.id,
-                            usernames: [oldUsername],
-                            expireOn: Date.now() + 1000 * 60 * 60 * 168
-                        });
+        ///////////////////////////// Display Name
+        if (oldUser.displayName !== newUser.displayName) {
+            const oldDisplay = oldUser.displayName;
+            const newDisplay = newUser.displayName;
 
-                        newUserData.save().catch((err) => console.log(err));
-                    } else if (data) {
-                        if (data.usernames.length >= 3) {
-                            data.usernames.shift();
-                            data.usernames.push(oldUsername);
+            if (oldDisplay === null) return;
 
-                            data.save().catch((err) => console.log(err));
-                        } else {
-                            data.usernames.push(oldUsername);
+            const displayNameEmbed = new EmbedBuilder()
+                .setAuthor({ name: `${newUser.tag} updated their display name`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setDescription(`<@${newUser.id}>'s display name was updated`)
+                .addFields([
+                    { name: 'New', value: oldDisplay || 'Unknown', inline: true },
+                    { name: 'Previous', value: newDisplay || 'Unknown', inline: true },
+                    { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
+                    { name: 'ID', value: `\`\`\`ini\nUser = ${newUser.id}\`\`\`` }
+                ])
+                .setTimestamp()
 
-                            data.save().catch((err) => console.log(err));
-                        }
-                    }
-                });
-            }
+            await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, displayNameEmbed);
         }
-    }
+
+        ///////////////////////////// Username
+        if (oldUser.username !== newUser.username) {
+            const oldUsername = oldUser.username;
+            const newUsername = newUser.username;
+
+            if (oldUsername === null) return;
+
+            const usernameEmbed = new EmbedBuilder()
+                .setAuthor({ name: `${newUser.tag} updated their username`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setDescription(`<@${newUser.id}>'s username was updated`)
+                .addFields([
+                    { name: 'New', value: newUsername || 'Unknown', inline: true },
+                    { name: 'Previous', value: oldUsername || 'Unknown', inline: true },
+                    { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
+                    { name: 'ID', value: `\`\`\`ini\nUser = ${newUser.id}\`\`\`` }
+                ])
+                .setTimestamp()
+
+            await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, usernameEmbed);
+        }
+    });
 };
