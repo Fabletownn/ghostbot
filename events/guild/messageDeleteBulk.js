@@ -55,7 +55,7 @@ module.exports = async (Discord, client, messages, channel) => {
 
         const rawPasteURL = pasteURL.replace('.com/', '.com/raw/');
         const bulkDeleteEmbed = new EmbedBuilder()
-            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
+            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
             .addFields(
                 { name: 'Link', value: rawPasteURL }
             )

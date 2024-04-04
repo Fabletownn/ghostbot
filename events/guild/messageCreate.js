@@ -1,6 +1,7 @@
 const { ChannelType } = require('discord.js');
 const CONFIG = require('../../models/config.js');
 const PULL = require('../../models/pullrooms.js');
+const SUB = require('../../models/subscriptions.js');
 
 module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
