@@ -32,7 +32,7 @@ module.exports = async (Discord, client, oldState, newState) => {
 
         if (oldChannel === null && newChannel !== null) {
             const joinedEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${newUser.tag}`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> joined a voice channel (${newChannel.name})`)
                 .addFields([
                     { name: 'Channel', value: `<#${newChannel.id}> (${newChannel.name})` },
@@ -44,8 +44,10 @@ module.exports = async (Discord, client, oldState, newState) => {
 
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
         } else if (oldChannel !== null && newChannel !== null) {
+            if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
+
             const movedEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${newUser.tag}`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> moved voice channels (${newChannel.name})`)
                 .addFields([
                     { name: 'New Channel', value: `<#${newChannel.id}> (${newChannel.name})`, inline: true },
@@ -59,7 +61,7 @@ module.exports = async (Discord, client, oldState, newState) => {
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
         } else if (oldChannel !== null && newChannel === null) {
             const leftEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${newUser.tag}`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> left a voice channel (${oldChannel.name})`)
                 .addFields([
                     { name: 'Channel', value: `<#${oldChannel.id}> (${oldChannel.name})` },

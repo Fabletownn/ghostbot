@@ -26,21 +26,21 @@ module.exports = async (Discord, client, message) => {
         const deletedChannelID = message.channel.id;
         const deletedAuthorID = message.author.id;
         const deletedTime = Math.round((message.createdTimestamp) / 1000);
-        const deletedAuthorTag = client.users.cache.get(deletedAuthorID).discriminator;
+        const deletedAuthorTag = client.users.cache.get(deletedAuthorID).tag;
 
         const embedCharacterLimit = 1000;
         const contentFieldsNeeded = Math.ceil(deletedEditedContent.length / embedCharacterLimit);
         let overloadedEmbed = 0;
 
         const deletedEmbed = new EmbedBuilder()
-            .setAuthor({ name: `${client.users.cache.get(deletedAuthorID).username}#${deletedAuthorTag}`, iconURL: message.guild.members.cache.get(deletedAuthorID).displayAvatarURL({ dynamic: true }) })
+            .setAuthor({ name: deletedAuthorTag, iconURL: message.guild.members.cache.get(deletedAuthorID).displayAvatarURL({ dynamic: true }) })
             .setDescription(`Message deleted in <#${deletedChannelID}>`)
             .setTimestamp()
             .setColor('#822AED');
 
         if (contentFieldsNeeded <= 1) {
             deletedEmbed.setFields(
-                { name: `Content`, value: deletedEditedContent },
+                { name: `Content`, value: deletedEditedContent || 'None' },
                 { name: `Date`, value: `<t:${deletedTime}:F> (<t:${deletedTime}:R>)` },
                 { name: `ID`, value: `\`\`\`ini\nUser = ${deletedAuthorID}\nMessage = ${deletedID}\`\`\`` }
             )

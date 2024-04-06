@@ -24,7 +24,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
             if (oldDisplay === null) return;
 
             const displayNameEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${newUser.tag} updated their display name`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newUser.id}>'s display name was updated`)
                 .addFields([
                     { name: 'New', value: oldDisplay || 'Unknown', inline: true },
@@ -45,7 +45,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
             if (oldUsername === null) return;
 
             const usernameEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${newUser.tag} updated their username`, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
+                .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newUser.id}>'s username was updated`)
                 .addFields([
                     { name: 'New', value: newUsername || 'Unknown', inline: true },

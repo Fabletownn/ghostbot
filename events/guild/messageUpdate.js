@@ -27,7 +27,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         const editedChannelID = newMessage.channel.id;
         const editedAuthorID = newMessage.author.id;
         const editedNewTime = Math.round((Date.now()) / 1000);
-        const editedAuthorTag = client.users.cache.get(editedAuthorID).discriminator;
+        const editedAuthorTag = client.users.cache.get(editedAuthorID).tag;
         const editedLink = newMessage.url;
 
         const embedCharacterLimit = 1000;
@@ -35,9 +35,10 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         let overloadedEmbed = 0;
 
         if (editedEditedOldContent == editedEditedNewContent) return;
+        if (!editedEditedNewContent || editedEditedNewContent == null) return;
 
         const editedEmbed = new EmbedBuilder()
-            .setAuthor({ name: `${client.users.cache.get(editedAuthorID).username}#${editedAuthorTag}`, iconURL: newMessage.guild.members.cache.get(editedAuthorID).displayAvatarURL({ dynamic: true }) })
+            .setAuthor({ name: editedAuthorTag, iconURL: newMessage.guild.members.cache.get(editedAuthorID).displayAvatarURL({ dynamic: true }) })
             .setDescription(`Message updated in <#${editedChannelID}> ([jump to message](${editedLink}))`)
             .setTimestamp()
             .setColor('#E62AED');
@@ -48,8 +49,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
 
         if (contentFieldsNeeded <= 1) {
             editedEmbed.setFields(
-                { name: `Now`, value: editedEditedNewContent },
-                { name: `Previous`, value: editedEditedOldContent },
+                { name: `Now`, value: editedEditedNewContent || 'None'  },
+                { name: `Previous`, value: editedEditedOldContent || 'None' },
                 { name: `Date`, value: `<t:${editedNewTime}:F> (<t:${editedNewTime}:R>)` },
                 { name: `ID`, value: `\`\`\`ini\nUser = ${editedAuthorID}\nMessage = ${editedID}\`\`\`` }
             )

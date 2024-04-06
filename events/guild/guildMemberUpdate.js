@@ -24,7 +24,7 @@ module.exports = async (Discord, client, oldMember, newMember) => {
         if (oldNick === null) return;
 
         const nickNameEmbed = new EmbedBuilder()
-            .setAuthor({ name: `${newMember.user.tag} updated their nickname`, iconURL: newMember.user.displayAvatarURL({ size: 512, dynamic: true }) })
+            .setAuthor({ name: newMember.user.tag, iconURL: newMember.user.displayAvatarURL({ size: 512, dynamic: true }) })
             .setDescription(`<@${newMember.user.id}>'s server nickname was updated`)
             .addFields([
                 { name: 'New', value: (newNick === newMember.user.displayName) ? 'None' : newNick, inline: true },

@@ -7,6 +7,15 @@ module.exports = {
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
+        const firstNames = ['Karen', 'Mary', 'Heather', 'Shannon', 'Marcia', 'Robin', 'Tim', 'Donald', 'William', 'Charles', 'Anthony', 'Gregory'];
+        const lastNames = ['Brown', 'Williams', 'White', 'Jackson', 'Thompson', 'Garcia', 'Martinez', 'Clarke'];
+
+        const randomFirstName = firstNames[Math.floor(Math.random() * firstNames.length)];
+        const randomLastName = lastNames[Math.floor(Math.random() * lastNames.length)];
+
+        const possiblePlaceholders = ['I like long walks on the beach', 'The Tanglewood mailbox really intrigues me', 'Revenants don\'t scare me', `I got killed by ${randomFirstName} ${randomLastName}`, 'I got killed by Dk\'s pet rock'];
+        const randomPlaceholder = possiblePlaceholders[Math.floor(Math.random() * possiblePlaceholders.length)];
+
         const sayModal = new ModalBuilder()
             .setCustomId('say-modal')
             .setTitle('Mimic Message')
@@ -15,7 +24,7 @@ module.exports = {
                     new TextInputBuilder()
                         .setCustomId('say-msg')
                         .setLabel('Message Content')
-                        .setPlaceholder('Jace\'s microwave will soon take over')
+                        .setPlaceholder(randomPlaceholder)
                         .setStyle(TextInputStyle.Paragraph)
                         .setRequired(true)
                         .setMaxLength(1500)

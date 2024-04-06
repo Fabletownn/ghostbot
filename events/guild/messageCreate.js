@@ -58,7 +58,7 @@ module.exports = async (Discord, client, message) => {
                     if (sData.op === message.author.id) {
                         if (sData.posted == false) {
                             for (let i = 0; i < sData.subbed.length; i++) {
-                                client.users.cache.get(sData.subbed[i]).send(`<:PhasPin2:1091053595916517448> Your ${message.channel.parent.name} post <#${sData.postID}> has received a response(s) from the poster.\n\nJump: ${message.url}`).catch((err) => { });
+                                client.users.cache.get(sData.subbed[i]).send(`📌 Your ${message.channel.parent.name} post "**${client.channels.cache.get(sData.postID).name || 'Unknown'}**" has received a response(s) from the poster.\n\nJump: ${message.url}`).catch((err) => { });
                             }
 
                             sData.posted = true;

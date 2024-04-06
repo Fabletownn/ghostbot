@@ -24,7 +24,7 @@ module.exports = async (Discord, client, channel) => {
             const executorID = (!executor || executor === null) ? 'Unknown' : executor.id;
 
             const createEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${executorTag} created a channel`, iconURL: executorAvatar })
+                .setAuthor({ name: executorTag, iconURL: executorAvatar })
                 .setDescription(`${channelType} channel has been created: <#${channel.id}> (${channel.name})`)
                 .addFields([
                     { name: 'Name', value: channel.name },

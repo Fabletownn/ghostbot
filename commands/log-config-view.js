@@ -14,11 +14,11 @@ module.exports = {
             if (err) return console.log(err);
             if (!data) return interaction.reply({ content: 'There is no data set up for the server. Use `/config-setup` first!' });
 
-            const configDeleteChannel = (data.deletechannel !== null) ? `<#${data.deletechannel}> (${data.deletechannel})` : 'Unset';
-            const configEditChannel = (data.editchannel !== null) ? `<#${data.editchannel}> (${data.editchannel})` : 'Unset';
-            const configUsernameChannel = (data.usernamechannel !== null) ? `<#${data.usernamechannel}> (${data.usernamechannel})` : 'Unset';
-            const configVCChannel = (data.vcchannel !== null) ? `<#${data.vcchannel}> (${data.vcchannel})` : 'Unset';
-            const configUpdateChannel = (data.chanupchannel !== null) ? `<#${data.chanupchannel}> (${data.chanupchannel})` : 'Unset';
+            const configDeleteChannel = (data.deletechannel !== '') ? `<#${data.deletechannel}> (${data.deletechannel})` : 'Unset';
+            const configEditChannel = (data.editchannel !== '') ? `<#${data.editchannel}> (${data.editchannel})` : 'Unset';
+            const configUsernameChannel = (data.usernamechannel !== '') ? `<#${data.usernamechannel}> (${data.usernamechannel})` : 'Unset';
+            const configVCChannel = (data.vcchannel !== '') ? `<#${data.vcchannel}> (${data.vcchannel})` : 'Unset';
+            const configUpdateChannel = (data.chanupchannel !== '') ? `<#${data.chanupchannel}> (${data.chanupchannel})` : 'Unset';
             const configIgnoredCategories = (data.ignoredcategories.length !== 0) ? `${data.ignoredcategories.map((c) => `<#${c}>`).join('\n')}` : 'None';
             const configIgnoredChannels = (data.ignoredchannels.length !== 0) ? `${data.ignoredchannels.map((c) => `<#${c}>`).join('\n')}` : 'None';
 

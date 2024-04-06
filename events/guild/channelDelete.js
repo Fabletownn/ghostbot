@@ -24,7 +24,7 @@ module.exports = async (Discord, client, channel) => {
             const executorID = (!executor || executor === null) ? 'Unknown' : executor.id;
 
             const deleteEmbed = new EmbedBuilder()
-                .setAuthor({ name: `${executorTag} deleted a channel`, iconURL: executorAvatar })
+                .setAuthor({ name: executorTag, iconURL: executorAvatar })
                 .setDescription(`${channelType} channel has been deleted: ${channel.name}`)
                 .addFields([
                     { name: 'Name', value: channel.name },

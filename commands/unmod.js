@@ -17,7 +17,7 @@ module.exports = {
 
             if (interaction.channel.parent.id == data.ammcategoryid) {
                 await interaction.channel.setParent(data.mmcategoryid);
-                await interaction.reply({ content: `Moved the ticket up to the <#${data.mmcategoryid}> category.` });
+                await interaction.reply({ content: `Moved the ticket down to the <#${data.mmcategoryid}> category.` });
             } else {
                 await interaction.reply({ content: `That command does not work here.` });
             }
