@@ -61,7 +61,7 @@ module.exports = {
                         await voiceChannel.setUserLimit(cData.pbvclimit);
                         await interaction.reply({ content: 'Your PartyBot room has been unlocked.', ephemeral: true });
                         break;
-                    case "kickuser":
+                    case "kickuser": {
                         const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -74,7 +74,8 @@ module.exports = {
 
                         await interaction.reply({ content: `Kicked <@${userOption.id}> out of your PartyBot room.`, ephemeral: true });
                         break;
-                    case "banuser":
+                    }
+                    case "banuser": {
                         const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -90,7 +91,8 @@ module.exports = {
                             await interaction.reply({ content: `Banned <@${userOption.id}> from your PartyBot room.`, ephemeral: true });
                         });
                         break;
-                    case "unbanuser":
+                    }
+                    case "unbanuser": {
                         const unbanVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -98,7 +100,8 @@ module.exports = {
                         await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
                         await interaction.reply({ content: `Unbanned <@${userOption.id}> from your PartyBot room.`, ephemeral: true });
                         break;
-                    case "transferowner":
+                    }
+                    case "transferowner": {
                         const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -108,6 +111,7 @@ module.exports = {
                         pData.ownerID = userOption.id;
                         pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred PartyBot ownership to <@${userOption.id}>.`, ephemeral: true }));
                         break;
+                    }
                     default:
                         break;
                 }

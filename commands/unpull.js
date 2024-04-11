@@ -37,12 +37,9 @@ module.exports = {
                 fs.writeFile(fileName, pData.transcript, async function (err) {
                     if (err) return console.log(err);
 
-                    const transcriptFile = new AttachmentBuilder(`./${fileName}`,
-                        {
-                            name: fileName
-                        });
+                    const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
 
-                    await interaction.client.channels.cache.get(data.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
+                    await interaction.client.channels.cache.get(pData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
                         fs.unlink(`./${fileName}`, (err) => {
                             if (err) return console.log(err);
                         });

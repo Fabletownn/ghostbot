@@ -17,11 +17,11 @@ module.exports = {
             const steamModeratorRoleID = '766063761060528138';
 
             if (interaction.channel.parent.id === data.ammcategoryid) {
-                interaction.channel.permissionOverwrites.delete(steamModeratorRoleID);
+                await interaction.channel.permissionOverwrites.delete(steamModeratorRoleID);
 
-                await interaction.reply({ content: `Removed <@&${steamModeratorRoleID}> permission overwrites from this ModMail ticket.` });
+                await interaction.reply({ content: `Removed <@&${steamModeratorRoleID}> permission overwrites from this ModMail ticket.`, allowedMentions: { parse: [] } });
             } else {
-                await interaction.reply({ content: `That command does not work here.` });
+                return interaction.reply({ content: `That command does not work here.`, ephemeral: true });
             }
         });
     },

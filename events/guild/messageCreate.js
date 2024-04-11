@@ -7,6 +7,9 @@ module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
     if (message.guild === null) return;
 
+    const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
+    const techRoles = ['1145866363479523358', '761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
+
     CONFIG.findOne({
         guildID: '435431947963990026'
     }, async (cErr, cData) => {
@@ -41,6 +44,19 @@ module.exports = async (Discord, client, message) => {
         }
 
         /*
+            Used for automatically deleting polls (new Discord feature that everyone can use, can bypass words and fill chat)
+            "/config-edit value:Delete Polls boolean:True" enables this
+        */
+        if (!message.content && message.attachments.size <= 0 && message.stickers.size <= 0) { // No content, no images, no stickers - means it's probably a poll
+            if (!invulRoles.some((role) => message.member.roles.cache.has(role))) {
+                if (cData.autopoll === true) {
+                    await message.reply({ content: 'Polls have been disallowed for posting!' }).then((m) => setTimeout(() => m.delete(), 4000));
+                    await message.delete();
+                }
+            }
+        }
+
+        /*
             Used for messaging staff members if they subscribed to a post in one of the following forums
             tech-support, vr-tech-support, bug-reports, map-reports, vr-bug-reports
         */
@@ -58,7 +74,7 @@ module.exports = async (Discord, client, message) => {
                     if (sData.op === message.author.id) {
                         if (sData.posted == false) {
                             for (let i = 0; i < sData.subbed.length; i++) {
-                                client.users.cache.get(sData.subbed[i]).send(`📌 Your ${message.channel.parent.name} post "**${client.channels.cache.get(sData.postID).name || 'Unknown'}**" has received a response(s) from the poster.\n\nJump: ${message.url}`).catch((err) => { });
+                                client.users.cache.get(sData.subbed[i]).send({ content: `📌 Your ${message.channel.parent.name} post "**${client.channels.cache.get(sData.postID).name || 'Unknown'}**" has received a response(s) from the poster.\n\nJump: ${message.url}` }).catch(() => { });
                             }
 
                             sData.posted = true;
@@ -77,30 +93,32 @@ module.exports = async (Discord, client, message) => {
         }
 
         /*
-            Automatically applies the 'Being Helped' forum tag if a staff member replies to a thread in one of the following channels
+            Automatically applies the 'Being Helped' forum tag and removes 'Need Help' if a staff member
+            replies to a thread in one of the following channels
             tech-support, vr-tech-support
         */
         const techChannels = ['1082421799578521620', '1020011442205900870'];
 
         if (cData.tagapply === true) {
             if (techChannels.some((chID) => message.channel.parent.id === chID)) {
-                if ((execRoles.find((r) => staffRoles.includes(r.id)))) {
+                if (techRoles.some((role) => message.member.roles.cache.has(role))) {
                     const parentChannel = message.channel.parent;
                     const currentAppliedTags = message.channel.appliedTags;
 
                     const beingHelpedTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'being helped');
+                    const needsHelpTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'needs help');
 
-                    if (beingHelpedTag) {
+                    if (beingHelpedTag && needsHelpTag) {
                         if (!(message.channel.appliedTags.some((tag) => tag.includes(beingHelpedTag.id)))) {
                             const tagsToApply = [];
 
                             for (let i = 0; i < currentAppliedTags.length; i++) {
-                                tagsToApply.push(currentAppliedTags[i]);
+                                if (currentAppliedTags[i] !== needsHelpTag.id) tagsToApply.push(currentAppliedTags[i]);
                             }
 
                             tagsToApply.push(beingHelpedTag.id);
 
-                            await message.channel.setAppliedTags(tagsToApply, 'Added the \'Being Helped\' tag automatically as a staff member replied.');
+                            await message.channel.setAppliedTags(tagsToApply, 'Edited \'Being Helped\' and \'Needs Help\' tags automatically as a staff member replied.');
                         }
                     }
                 }

@@ -19,7 +19,7 @@ module.exports = {
                 await interaction.channel.setParent(data.ammcategoryid);
                 await interaction.reply({ content: `Moved the ticket up to the <#${data.ammcategoryid}> category.` });
             } else {
-                await interaction.reply({ content: `That command does not work here.` });
+                return interaction.reply({ content: `That command does not work here.`, ephemeral: true });
             }
         });
     },

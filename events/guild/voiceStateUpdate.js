@@ -40,7 +40,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                     { name: 'ID', value: `\`\`\`ini\nUser = ${newState.id}\nChannel = ${newChannel.id}\`\`\`` }
                 ])
                 .setTimestamp()
-                .setColor('#00FF00')
+                .setColor('#66FF66')
 
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
         } else if (oldChannel !== null && newChannel !== null) {
@@ -69,7 +69,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                     { name: 'ID', value: `\`\`\`ini\nUser = ${newState.id}\nChannel = ${oldChannel.id}\`\`\`` }
                 ])
                 .setTimestamp()
-                .setColor('#FA0404')
+                .setColor('#FF6666')
 
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
         }

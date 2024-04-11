@@ -1,4 +1,4 @@
-const { Discord, WebhookClient } = require('discord.js');
+const { WebhookClient } = require('discord.js');
 
 async function useWebhookIfExisting(client, channel, webhook, embed) {
     const useChannel = client.channels.cache.get(channel);

@@ -15,6 +15,6 @@ module.exports = {
 
         const uptimeInSeconds = (interaction.client.uptime / 1000) || 0;
 
-        await interaction.editReply(`Uptime: ${sf.convert(uptimeInSeconds).format('**Dd Hh Mm** and **Ss**')}\nTrip Latency: **${tripLatency}ms**\nHeartbeat: **${(botHeartbeat < 0) ? 'Unable to determine' : `${botHeartbeat}ms`}**`);
+        await interaction.editReply({ content: `Uptime: ${sf.convert(uptimeInSeconds).format('**Dd Hh Mm** and **Ss**')}\nTrip Latency: **${tripLatency}ms**\nHeartbeat: **${(botHeartbeat < 0) ? 'Unable to determine' : `${botHeartbeat}ms`}**` });
     },
 };

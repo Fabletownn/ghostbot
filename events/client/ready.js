@@ -1,4 +1,4 @@
-const { Discord, ActivityType, WebhookClient } = require('discord.js');
+const { ActivityType } = require('discord.js');
 const STATUS = require('../../models/statuses.js');
 const LCONFIG = require('../../models/logconfig.js');
 const DELETES = require('../../models/deletes.js');

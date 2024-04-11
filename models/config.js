@@ -5,6 +5,7 @@ const configSchema = mongoose.Schema({
     autopublish: Boolean,
     threadcreate: Boolean,
     tagapply: Boolean,
+    autopoll: Boolean,
     pbvcid: String,
     pbvclimit: Number,
     pullcategoryid: String,

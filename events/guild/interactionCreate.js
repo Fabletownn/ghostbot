@@ -15,7 +15,7 @@ module.exports = async (Discord, client, interaction) => {
             ///////////////////////// Buttons
             if (interaction.isButton()) {
                 switch (interaction.customId) {
-                    case "setup-reset":
+                    case "setup-reset": {
                         if (cData) await cData.delete();
                         if (lData) await lData.delete();
 
@@ -24,6 +24,7 @@ module.exports = async (Discord, client, interaction) => {
                             autopublish: false,
                             threadcreate: false,
                             tagapply: false,
+                            autopoll: false,
                             pbvcid: '',
                             pbvclimit: 4,
                             pullcategoryid: '',
@@ -54,8 +55,8 @@ module.exports = async (Discord, client, interaction) => {
                         await newData.save().catch((err) => console.log(err));
 
                         await interaction.update({ content: 'Data has been set back up for the server. Use the `/config` and `/log-config` commands to view and edit these values.', components: [] });
-
                         break;
+                    }
                     case "setup-cancel":
                         await interaction.update({ content: 'Data will not be reset for the server.', components: [] });
 
@@ -68,14 +69,14 @@ module.exports = async (Discord, client, interaction) => {
             ///////////////////////// Modals
             else if (interaction.isModalSubmit()) {
                 switch (interaction.customId) {
-                    case "say-modal":
+                    case "say-modal": {
                         const sayMessage = interaction.fields.getTextInputValue('say-msg');
 
                         await interaction.channel.send(sayMessage);
 
                         await interaction.reply({ content: 'Your message has been ghostified.', ephemeral: true });
-
                         break;
+                    }
                     default:
                         break;
                 }

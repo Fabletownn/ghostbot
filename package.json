@@ -10,5 +10,10 @@
     "node-cron": "^3.0.2",
     "pastebin-api": "^7.0.0",
     "seconds-formater": "^2.0.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "globals": "^15.0.0"
   }
 }

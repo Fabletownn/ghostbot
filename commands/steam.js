@@ -24,9 +24,9 @@ module.exports = {
                     AttachFiles: true
                 });
 
-                await interaction.reply({ content: `Allowed <@&${steamModeratorRoleID}> access to this ModMail ticket.` });
+                await interaction.reply({ content: `Allowed <@&${steamModeratorRoleID}> access to this ModMail ticket.`, allowedMentions: { parse: [] } });
             } else {
-                await interaction.reply({ content: `That command does not work here.` });
+                return interaction.reply({ content: `That command does not work here.`, ephemeral: true });
             }
         });
     },

@@ -24,6 +24,7 @@ module.exports = {
         const channelOption = interaction.options.getChannel('channel');
         const secondsOption = interaction.options.getInteger('seconds');
 
-        await channelOption.setRateLimitPerUser(secondsOption).then(() => interaction.reply(`Successfully ${(secondsOption === 0) ? `disabled <#${channelOption.id}>'s slowmode` : `set <#${channelOption.id}>'s slowmode`} (${sf.convert(secondsOption || 0).format('MM:SS')}).`));
+        await channelOption.setRateLimitPerUser(secondsOption);
+        await interaction.reply({ content: `Successfully ${(secondsOption === 0) ? `disabled <#${channelOption.id}>'s slowmode` : `set <#${channelOption.id}>'s slowmode`} (${sf.convert(secondsOption || 0).format('MM:SS')}).` });
     },
 };

@@ -1,3 +1,5 @@
 .env
 node_modules
 .vs
+.vscode
+eslint.config.mjs

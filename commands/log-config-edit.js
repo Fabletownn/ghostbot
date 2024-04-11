@@ -66,7 +66,7 @@ module.exports = {
                     data.ignoredchannels.push(channelOption.id);
                     data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Set the <#${channelOption.id}> channel to be omitted from message logs.` }));
                     break;
-                case "unignorecategory":
+                case "unignorecategory": {
                     if (!categoryOption) return interaction.reply({ content: 'This configuration value requires a `category` option to be filled out.' });
                     if (!data.ignoredcategories.includes(categoryOption.id)) return interaction.reply({ content: 'That category is not being ignored.' });
 
@@ -77,7 +77,8 @@ module.exports = {
                     data.ignoredcategories.splice(ignoredCategoryIndex, 1);
                     data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `The <#${categoryOption.id}> category will no longer be omitted from message logs.` }));
                     break;
-                case "unignorechannel":
+                }
+                case "unignorechannel": {
                     if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
                     if (!data.ignoredchannels.includes(categoryOption.id)) return interaction.reply({ content: 'That category is not being ignored.' });
 
@@ -88,6 +89,7 @@ module.exports = {
                     data.ignoredchannels.splice(ignoredChannelIndex, 1);
                     data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `The <#${channelOption.id}> channel will no longer be omitted from message logs.` }));
                     break;
+                }
                 case "deletedchannel":
                     if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
 
