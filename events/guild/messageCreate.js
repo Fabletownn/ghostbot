@@ -50,6 +50,8 @@ module.exports = async (Discord, client, message) => {
         if (!message.content && message.attachments.size <= 0 && message.stickers.size <= 0) { // No content, no images, no stickers - means it's probably a poll
             if (!invulRoles.some((role) => message.member.roles.cache.has(role))) {
                 if (cData.autopoll === true) {
+                    if (message.channel.id === '1067061056867938386') return; // Ignore automod channel
+
                     await message.reply({ content: 'Polls have been disallowed for posting!' }).then((m) => setTimeout(() => m.delete(), 4000));
                     await message.delete();
                 }
