@@ -30,7 +30,7 @@ module.exports = async (Discord, client, messages, channel) => {
             if (deleted.partial) return;
             if (deleted.author.bot) return;
 
-            const authorTag = `${deleted.author.username}${deleted.author.discriminator == 0 ? "" : `#${deleted.author.discriminator}`}`;
+            const authorTag = deleted.author.tag;
             const authorDisplayName = deleted.author.displayName;
             const authorID = deleted.author.id;
             const channelName = channel.name;
@@ -50,8 +50,8 @@ module.exports = async (Discord, client, messages, channel) => {
             publicity: Publicity.Unlisted,
         });
 
-        if (pasteURL === null) return console.log('null link')
-        if (bulkDeleteInformation.length <= 0) return console.log('no msgs');
+        if (pasteURL === null) return;
+        if (bulkDeleteInformation.length <= 0) return;
 
         const rawPasteURL = pasteURL.replace('.com/', '.com/raw/');
         const bulkDeleteEmbed = new EmbedBuilder()

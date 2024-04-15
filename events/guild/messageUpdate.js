@@ -38,7 +38,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         if (!editedEditedNewContent || editedEditedNewContent == null) return;
 
         const editedEmbed = new EmbedBuilder()
-            .setAuthor({ name: editedAuthorTag, iconURL: newMessage.guild.members.cache.get(editedAuthorID).displayAvatarURL({ dynamic: true }) })
+            .setAuthor({ name: editedAuthorTag, iconURL: client.users.cache.get(editedAuthorID).displayAvatarURL({ dynamic: true }) || 'https://i.imgur.com/NZzCLrw.png' })
             .setDescription(`Message updated in <#${editedChannelID}> ([jump to message](${editedLink}))`)
             .setTimestamp()
             .setColor('#E62AED');
