@@ -17,7 +17,6 @@ module.exports = {
             const configAutoPublish = (data.autopublish === true) ? 'Enabled' : (data.autopublish === false) ? 'Disabled' : 'Unset';
             const configThreadCreate = (data.threadcreate === true) ? 'Enabled' : (data.threadcreate === false) ? 'Disabled' : 'Unset';
             const configTagApply = (data.tagapply === true) ? 'Enabled' : (data.tagapply === false) ? 'Disabled' : 'Unset';
-            const configDeletePoll = (data.autopoll === true) ? 'Enabled' : (data.autopoll === false) ? 'Disabled' : 'Unset';
 
             const configPBVCID = (data.pbvcid !== '') ? `<#${data.pbvcid}>` : 'Unset';
             const configPullCategory = (data.pullcategoryid !== '') ? `<#${data.pullcategoryid}>` : 'Unset';
@@ -35,7 +34,6 @@ module.exports = {
                     { name: 'Autopublishing', value: configAutoPublish, inline: true },
                     { name: 'Thread Creation', value: configThreadCreate, inline: true },
                     { name: 'Tag Application', value: configTagApply, inline: true },
-                    { name: 'Poll Deletion', value: configDeletePoll, inline: true },
                     { name: '\u200b', value: '\u200b', inline: true },
                     { name: '\u200b', value: '\u200b', inline: true }
                 ]);

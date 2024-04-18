@@ -24,7 +24,6 @@ module.exports = async (Discord, client, interaction) => {
                             autopublish: false,
                             threadcreate: false,
                             tagapply: false,
-                            autopoll: false,
                             pbvcid: '',
                             pbvclimit: 4,
                             pullcategoryid: '',

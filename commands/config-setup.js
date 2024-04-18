@@ -27,7 +27,6 @@ module.exports = {
                         autopublish: false,
                         threadcreate: false,
                         tagapply: false,
-                        autopoll: false,
                         pbvcid: '',
                         pbvclimit: 4,
                         pullcategoryid: '',

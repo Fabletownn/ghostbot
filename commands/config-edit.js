@@ -5,7 +5,6 @@ const configOptions = ([
     { name: 'Autopublish (Boolean)', value: 'autopublish' },
     { name: 'Discussion Thread Creation (Boolean)', value: 'threadcreation' },
     { name: 'Being Helped Tag Application (Boolean)', value: 'tagapply' },
-    { name: 'Automatic Poll Deletion (Boolean)', value: 'autopoll' },
     { name: 'PartyBot Creation Voice Channel (Channel)', value: 'pbvcid' },
     { name: 'PartyBot Default User Limit (Number)', value: 'pbvclimit' },
     { name: 'Pullroom Category (Category)', value: 'pullcategory' },
@@ -103,14 +102,6 @@ module.exports = {
 
                     data.tagapply = boolOption;
                     data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption == true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
-
-                    break;
-                case "autopoll":
-                    if (boolOption === null) return interaction.reply({ content: 'This configuration value requires a `boolean` option to be filled out.' });
-                    if (data.autopoll === boolOption) return interaction.reply({ content: 'Poll deletion is already set to that value.' });
-
-                    data.autopoll = boolOption;
-                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All polls posted by non-staff members will ${(boolOption == true) ? 'now be deleted automatically (enabled)' : 'no longer be deleted automatically (disabled)'}.` }));
 
                     break;
                 case "pbvcid":

@@ -7,7 +7,7 @@ module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
     if (message.guild === null) return;
 
-    const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
+    //const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
     const techRoles = ['1145866363479523358', '761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
 
     CONFIG.findOne({
@@ -41,19 +41,6 @@ module.exports = async (Discord, client, message) => {
                 pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.username} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
                 pData.save().catch((err) => console.log(err));
             });
-        }
-
-        /*
-            Used for automatically deleting polls (new Discord feature that everyone can use, can bypass words and fill chat)
-            "/config-edit value:Delete Polls boolean:True" enables this
-        */
-        if (!message.content && message.attachments.size <= 0 && message.stickers.size <= 0 && message.embeds.length <= 0) { // No content, no images, no stickers, no stickers - means it's probably a poll
-            if (!invulRoles.some((role) => message.member.roles.cache.has(role))) {
-                if (cData.autopoll === true) {
-                    await message.reply({ content: 'Polls have been disallowed for posting!' }).then((m) => setTimeout(() => m.delete(), 4000));
-                    await message.delete();
-                }
-            }
         }
 
         /*
