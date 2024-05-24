@@ -1,8 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
-const { PasteClient, Publicity, ExpireDate } = require('pastebin-api');
-const pastebinClient = new PasteClient(process.env.PASTEBIN_API_DEVKEY);
 const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
+const superagent = require('superagent');
 
 module.exports = async (Discord, client, messages, channel) => {
     var bulkDeleteInformation = [];
@@ -20,7 +19,7 @@ module.exports = async (Discord, client, messages, channel) => {
         if (data.ignoredchannels == null) return;
         if (data.ignoredcategories == null) return;
         if (data.deletewebhook == null) return;
-    
+
         if (data.ignoredchannels.some((ignored_channel) => channel.id === ignored_channel)) return;
         if (data.ignoredcategories.some((ignored_cat) => channel.parent.id === ignored_cat)) return;
 
@@ -41,27 +40,36 @@ module.exports = async (Discord, client, messages, channel) => {
             if (!bulkDeleteUserIDs.includes(userString)) bulkDeleteUserIDs.push(userString);
         });
 
-        const pasteURL = await pastebinClient.createPaste({
-            code: `If a deleted message's author was a bot, the message is not cached by the bot, or similar, some messages may not be logged. Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged.\n`
-                + `Phasmophobia Message Bulk Delete Log @ ${currentDate} UTC:\n----------------------------------------------------------------------\n${bulkDeleteInformation.join('\n')}`,
-            expireDate: ExpireDate.OneMonth,
-            format: "javascript",
-            name: "Bulk Delete Log",
-            publicity: Publicity.Unlisted,
-        });
-
-        if (pasteURL === null) return;
         if (bulkDeleteInformation.length <= 0) return;
 
-        const rawPasteURL = pasteURL.replace('.com/', '.com/raw/');
-        const bulkDeleteEmbed = new EmbedBuilder()
-            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
-            .addFields(
-                { name: 'Link', value: rawPasteURL }
-            )
-            .setTimestamp()
-            .setColor('#ED498D');
-        
-        await wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
+        const sendContent = `If a deleted message's author was a bot, the message is not cached by the bot, or similar, some messages may not be logged. Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged.\n`
+            + `Phasmophobia Message Bulk Delete Log @ ${currentDate} UTC:\n----------------------------------------------------------------------\n${bulkDeleteInformation.join('\n')}`;
+
+        try {
+            superagent
+                .post('https://hastebin.com/documents')
+                .set('content-type', 'text/plain')
+                .set('Authorization', process.env.HASTEBIN_API_KEY)
+                .send(sendContent)
+                .end((err, res) => {
+                    if (err) return console.log(err);
+
+                    if (res.ok) {
+                        const bulkDeleteEmbed = new EmbedBuilder()
+                            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
+                            .addFields(
+                                { name: 'Link', value: `https://hastebin.com/share/${res.body.key}` }
+                            )
+                            .setTimestamp()
+                            .setColor('#ED498D');
+
+                        wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
+                    } else {
+                        return console.log(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
+                    }
+                });
+        } catch (error) {
+            return console.log(`Error uploading bulk delete log: ${error}`);
+        }
     });
 }
