@@ -8,7 +8,6 @@
     "mongodb": "^4.13.0",
     "mongoose": "^6.8.4",
     "node-cron": "^3.0.2",
-    "pastebin-api": "^7.0.0",
     "seconds-formater": "^2.0.3"
   },
   "devDependencies": {
