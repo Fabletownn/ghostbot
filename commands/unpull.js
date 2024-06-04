@@ -45,11 +45,11 @@ module.exports = {
                         });
                     });
 
-                    await interaction.guild.channels.cache.get(pData.channelID).delete();
+                    await interaction.guild.channels.cache.get(pData.channelID).delete().catch((err) => {});
 
-                    await interaction.reply({ content: `Removed <@${pData.userID}> from their pullroom.` });
+                    await interaction.reply({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch((err) => {});
 
-                    await pData.delete();
+                    await pData.delete().catch((err) => {});
                 });
             });
         });
