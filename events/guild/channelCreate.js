@@ -23,6 +23,8 @@ module.exports = async (Discord, client, channel) => {
             const executorAvatar = (!executor || executor === null) ? 'https://i.imgur.com/cguNuyW.png' : executor.displayAvatarURL({ size: 512, dynamic: true });
             const executorID = (!executor || executor === null) ? 'Unknown' : executor.id;
 
+            if (executorID == '1043623513669513266') return; // ignore ModMail
+
             const createEmbed = new EmbedBuilder()
                 .setAuthor({ name: executorTag, iconURL: executorAvatar })
                 .setDescription(`${channelType} channel has been created: <#${channel.id}> (${channel.name})`)

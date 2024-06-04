@@ -26,9 +26,9 @@ module.exports = {
                 subbedthreads.forEach(async (d) => {
                     await d.delete().catch((err) => console.log(err)).then(() => unsubCounter++);
                 });
+            }).then(() => {
+                interaction.reply({ content: `You have been unsubscribed from **${unsubCounter} threads** successfully.`, ephemeral: true });
             });
-
-            await interaction.reply({ content: `You have been unsubscribed from **${unsubCounter} threads** successfully.`, ephemeral: true })
         }
         else if (nukeOption === null || nukeOption === false) {
             SUB.findOne({

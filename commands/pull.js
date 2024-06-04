@@ -82,7 +82,7 @@ module.exports = {
 
                         newPullData.save().catch((err) => console.log(err));
 
-                        await interaction.guild.members.cache.get(userOption).roles.add(cData.pullroleid);
+                        await interaction.guild.members.cache.get(userOption.id).roles.add(cData.pullroleid);
 
                         await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                         await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
