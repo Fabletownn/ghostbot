@@ -3,6 +3,9 @@ const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = async (Discord, client, oldChannel, newChannel) => {
+    // TO FIX SOON
+    
+    /*
     LCONFIG.findOne({
         guildID: newChannel.guild.id
     }, async (err, data) => {
@@ -88,4 +91,5 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
             });
         }
     });
+    */
 }

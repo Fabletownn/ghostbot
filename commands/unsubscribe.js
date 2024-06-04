@@ -20,14 +20,12 @@ module.exports = {
         if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || interaction.channel.type !== ChannelType.PublicThread) return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
 
         if (nukeOption !== null && nukeOption === true) {
-            let unsubCounter = 0;
-
             SUB.find({ subbed: interaction.user.id }).then((subbedthreads) => {
                 subbedthreads.forEach(async (d) => {
-                    await d.delete().catch((err) => console.log(err)).then(() => unsubCounter++);
+                    await d.delete().catch((err) => console.log(err));
                 });
             }).then(() => {
-                interaction.reply({ content: `You have been unsubscribed from **${unsubCounter} threads** successfully.`, ephemeral: true });
+                interaction.reply({ content: 'You have been unsubscribed from all threads successfully.', ephemeral: true });
             });
         }
         else if (nukeOption === null || nukeOption === false) {

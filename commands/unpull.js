@@ -39,7 +39,7 @@ module.exports = {
 
                     const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
 
-                    await interaction.client.channels.cache.get(pData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
+                    await interaction.client.channels.cache.get(cData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
                         fs.unlink(`./${fileName}`, (err) => {
                             if (err) return console.log(err);
                         });

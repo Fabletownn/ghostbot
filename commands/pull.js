@@ -40,6 +40,7 @@ module.exports = {
                     await interaction.guild.channels.create({
                         name: roomName,
                         topic: `User ID: ${userOption.id}`,
+                        parent: pullCategory.id,
                         permissionOverwrites: [
                             {
                                 id: interaction.guild.id,
