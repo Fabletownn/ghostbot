@@ -3,9 +3,6 @@ const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = async (Discord, client, oldChannel, newChannel) => {
-    // TO FIX SOON
-    
-    /*
     LCONFIG.findOne({
         guildID: newChannel.guild.id
     }, async (err, data) => {
@@ -52,44 +49,63 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
         ///////////////////////////// Permissions
         if (oldPermissions !== newPermissions) {
             await newChannel.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.ChannelOverwriteUpdate }).then(async (audit) => {
-                const { executor } = audit.entries.first();
+                const entry = audit.entries.first();
+                if (!entry) return;
 
-                const executorTag = (!executor || executor === null) ? 'Unknown' : executor.tag;
-                const executorAvatar = (!executor || executor === null) ? 'https://i.imgur.com/cguNuyW.png' : executor.displayAvatarURL({ size: 512, dynamic: true });
-                const executorID = (!executor || executor === null) ? 'Unknown' : executor.id;
+                const oldPermsString = oldChannel.permissionOverwrites.cache.map(perm => perm.allow.toArray().concat(perm.deny.toArray()).join('')).join('');
+                const newPermsString = newChannel.permissionOverwrites.cache.map(perm => perm.allow.toArray().concat(perm.deny.toArray()).join('')).join('');
+                
+                if (oldPermsString === newPermsString) return;
 
-                if (executor.bot) return;
+                const { executor, changes, extra } = entry;
+                const executorTag = executor ? executor.tag : 'Unknown';
+                const executorAvatar = executor ? executor.displayAvatarURL({ size: 512, dynamic: true }) : 'https://i.imgur.com/cguNuyW.png';
+                const executorID = executor ? executor.id : 'Unknown';
+                if (executor && executor.bot) return;
 
-                let permissionChanges = {};
-                let updateID = audit.entries.first().extra.id;
-                let updateType = (newChannel.guild.roles.cache.get(updateID) ? 'Role' : (newChannel.guild.members.cache.get(updateID) ? 'User' : 'Unknown'));
-                let updateMention = (updateID === newChannel.guild.id ? 'Everyone' : newChannel.guild.roles.cache.get(updateID) ? `<@&${updateID}>` : (newChannel.guild.members.cache.get(updateID) ? `<@${updateID}>` : updateID));
-                let allow;
-                let deny;
+                let updateID = extra.id;
+                let updateType = newChannel.guild.roles.cache.has(updateID) ? 'Role' : (newChannel.guild.members.cache.has(updateID) ? 'User' : 'Unknown');
+                let updateMention = updateID === newChannel.guild.id ? 'Everyone' : newChannel.guild.roles.cache.has(updateID) ? `<@&${updateID}>` : `<@${updateID}>`;
 
-                for (let change of audit.entries.first().changes || []) {
-                    permissionChanges[change.key] = [change.old, change.new];
+                let allowChanges = new Set();
+                let denyChanges = new Set();
+
+                for (let change of changes) {
+                    if (change.key === 'allow' || change.key === 'deny') {
+                        const oldPerms = new PermissionsBitField(change.old);
+                        const newPerms = new PermissionsBitField(change.new);
+
+                        const addedPerms = newPerms.toArray().filter(perm => !oldPerms.has(perm));
+                        const removedPerms = oldPerms.toArray().filter(perm => !newPerms.has(perm));
+
+                        if (change.key === 'allow') {
+                            addedPerms.forEach(perm => allowChanges.add(perm));
+                            removedPerms.forEach(perm => denyChanges.add(perm));
+                        } else if (change.key === 'deny') {
+                            addedPerms.forEach(perm => denyChanges.add(perm));
+                            removedPerms.forEach(perm => allowChanges.add(perm));
+                        }
+                    }
                 }
 
-                allow = (permissionChanges.allow) ? new PermissionsBitField(`${permissionChanges.allow[1]}`).toArray() : 'None';
-                deny = (permissionChanges.deny) ? new PermissionsBitField(`${permissionChanges.deny[1]}`).toArray() : 'None';
+                const allowNames = allowChanges.size > 0 ? Array.from(allowChanges).join('\n').replace(/(?<=[a-z])([A-Z])/g, ' $1').trim() : 'None';
+                const denyNames = denyChanges.size > 0 ? Array.from(denyChanges).join('\n').replace(/(?<=[a-z])([A-Z])/g, ' $1').trim() : 'None';
 
                 const permEmbed = new EmbedBuilder()
                     .setAuthor({ name: `${executorTag} updated a channel`, iconURL: executorAvatar })
                     .setDescription(`${channelType} channel permissions have been updated: <#${newChannel.id}> (${newChannel.name})`)
                     .addFields([
-                        { name: 'Updated', value: `${updateType} ${updateMention}`, inline: true },
-                        { name: 'Allowed', value: (allow !== 'None' && allow !== null) ? allow.join('\n').replace(/(?<=[a-z])([A-Z])/g, ' $1').trim() : 'None', inline: true },
-                        { name: 'Denied', value: (deny !== 'None' && allow !== null) ? deny.join('\n').replace(/(?<=[a-z])([A-Z])/g, ' $1').trim() : 'None', inline: true },
+                        { name: 'Updated', value: `${updateType || 'Unknown'} ${updateMention || 'Unknown'}`, inline: true },
+                        { name: 'Allowed', value: allowNames !== 'None' ? allowNames : 'None', inline: true },
+                        { name: 'Denied', value: denyNames !== 'None' ? denyNames : 'None', inline: true },
                         { name: '\u200b', value: '\u200b', inline: true },
-                        { name: 'Date', value: `<t:${cTimestamp}:F>` },
+                        { name: 'Date', value: `<t:${Math.floor(Date.now() / 1000)}:F>` },
                         { name: 'ID', value: `\`\`\`ini\nExecutor = ${executorID}\nChannel = ${newChannel.id}\`\`\`` }
                     ])
-                    .setTimestamp()
+                    .setTimestamp();
 
                 await wf.useWebhookIfExisting(client, data.chanupchannel, data.chanupwebhook, permEmbed);
             });
         }
     });
-    */
 }

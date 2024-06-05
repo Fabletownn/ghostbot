@@ -37,6 +37,8 @@ module.exports = {
                     const modifiedUsername = userOption.username.replace(/[^a-zA-Z]+/g, '').toLowerCase();
                     const roomName = `pullroom-${modifiedUsername}`;
 
+                    await interaction.deferReply();
+
                     await interaction.guild.channels.create({
                         name: roomName,
                         topic: `User ID: ${userOption.id}`,
@@ -87,7 +89,7 @@ module.exports = {
 
                         await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                         await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
-                        await interaction.reply({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
+                        await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
                     });
                 } else {
                     return interaction.reply({ content: 'The pullroom category no longer exists.' });

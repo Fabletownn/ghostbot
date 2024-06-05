@@ -68,14 +68,22 @@ module.exports = async (Discord, client, interaction) => {
             ///////////////////////// Modals
             else if (interaction.isModalSubmit()) {
                 switch (interaction.customId) {
-                    case "say-modal": {
+                    case "say-modal":
                         const sayMessage = interaction.fields.getTextInputValue('say-msg');
+                        const sayEmbed = new EmbedBuilder()
+                            .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true, size: 512 })})
+                            .setDescription(`${interaction.user} ghostified a message in ${interaction.channel}`)
+                            .addFields([
+                                { name: 'Content', value: sayMessage }
+                            ])
+                            .setTimestamp()
 
                         await interaction.channel.send(sayMessage);
+                        await interaction.guild.channels.cache.get(lData.chanupchannel).send({ embeds: [sayEmbed] });
 
                         await interaction.reply({ content: 'Your message has been ghostified.', ephemeral: true });
+
                         break;
-                    }
                     default:
                         break;
                 }

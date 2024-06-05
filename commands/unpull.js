@@ -9,13 +9,13 @@ module.exports = {
         .setDescription('(Moderator) Removes a user from their pullroom')
         .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
-        .addUserOption((option) =>
-            option.setName('user')
-                .setDescription('The user that will be pullroomed')
+        .addStringOption((option) =>
+            option.setName('user-id')
+                .setDescription('The User ID of the pullroomed user')
                 .setRequired(true)
         ),
     async execute(interaction) {
-        const userOption = interaction.options.getUser('user');
+        const idOption = interaction.options.getString('user-id');
 
         CONFIG.findOne({
             guildID: interaction.guild.id
@@ -25,32 +25,35 @@ module.exports = {
 
             PULL.findOne({
                 guildID: interaction.guild.id,
-                userID: userOption.id
+                userID: idOption
             }, async (pErr, pData) => {
                 if (pErr) return console.log(pErr);
                 if (!pData) return interaction.reply({ content: 'That user does not have a pullroom session open.' });
 
                 const fileName = `phasmophobia-${pData.roomName}-transcript.txt`;
+                const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID);
 
-                await interaction.guild.members.cache.get(userOption.id).roles.remove(cData.pullroleid);
+                await interaction.deferReply();
 
-                fs.writeFile(fileName, pData.transcript, async function (err) {
+                await interaction.guild.members.cache.get(pData.userID).roles.remove(cData.pullroleid).catch((err) => {});
+
+                fs.writeFile(fileName, pData.transcript || 'Unknown', async function (err) {
                     if (err) return console.log(err);
 
                     const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
 
-                    await interaction.client.channels.cache.get(cData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag} (${pData.userID})\` has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
+                    await interaction.client.channels.cache.get(cData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag}\` (\`${pData.userID}\`) has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
                         fs.unlink(`./${fileName}`, (err) => {
                             if (err) return console.log(err);
                         });
                     });
-
-                    await interaction.guild.channels.cache.get(pData.channelID).delete().catch((err) => {});
-
-                    await interaction.reply({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch((err) => {});
-
-                    await pData.delete().catch((err) => {});
                 });
+
+                if (pullroomChannel) await pullroomChannel.delete().catch((err) => {});
+
+                await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` });
+
+                await pData.delete().catch((err) => {});
             });
         });
     },

@@ -106,11 +106,21 @@ module.exports = async (Discord, client, oldState, newState) => {
                             });
 
                             newVoice.save().catch((err) => console.log(err)).then(() => {
-                                newMember.voice.setChannel(pRoom.id);
+                                newMember.voice.setChannel(pRoom.id).catch(async () => {
+                                    if (!newMember.voice.channel) {
+                                        await newVoice.delete();
+                                        await pRoom.delete();
+                                    }
+                                });
                             });
                         });
                     } else {
-                        newMember.voice.setChannel(data.voiceID);
+                        newMember.voice.setChannel(data.voiceID).catch(async () => {
+                            if (!newMember.voice.channel) {
+                                await newVoice.delete();
+                                await pRoom.delete();
+                            }
+                        });
                     }
                 });
             }

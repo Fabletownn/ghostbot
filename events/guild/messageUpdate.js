@@ -56,7 +56,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
             )
         } else {
             editedEmbed.setDescription(`Message updated in <#${editedChannelID}> ([jump to message](${editedLink}))\n\n**Now**:\n${(editedEditedNewContent.length > 3800 ? `${editedEditedNewContent.slice(0, 3700)}...` : editedEditedNewContent)}`);
-            editedEmbedContinued.setDescription(`**Previous**:\n${(editedEditedOldContent.length > 3800 ? `${editedEditedOldContent.slice(0, 3700)}...` : editedEditedNewContent)}`);
+            editedEmbedContinued.setDescription(`**Previous**:\n${(editedEditedOldContent.length > 3800 ? `${editedEditedOldContent.slice(0, 3700)}...` : editedEditedOldContent)}`);
 
             editedEmbed.setFields(
                 { name: `Date`, value: `<t:${editedNewTime}:F> (<t:${editedNewTime}:R>)` },

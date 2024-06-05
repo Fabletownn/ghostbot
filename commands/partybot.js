@@ -50,7 +50,6 @@ module.exports = {
                 if (pErr) return interaction.reply({ content: 'An unknown issue occurred. If this keeps happening, please message ModMail.', ephemeral: true });
                 if (!pData || voiceChannel.name !== 'PartyBot Room') return interaction.reply({ content: 'You are not connected to any PartyBot rooms.', ephemeral: true });
                 if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this PartyBot room. Ask <@${pData.ownerID}> to run these commands!`, ephemeral: true });
-                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                 switch (actionOption) {
                     case "lockroom":
@@ -65,8 +64,9 @@ module.exports = {
                         const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
-                        if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
+                        if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
                         if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
+                        if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
                             reason: `Disconnected from voice channel by PartyBot host ${interaction.user.username} (${interaction.user.displayName})`
@@ -79,7 +79,8 @@ module.exports = {
                         const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
-                        if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
+                        if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
+                        if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await banVoiceChannel.permissionOverwrites.edit(userOption.id, {
                             Connect: false
@@ -96,6 +97,7 @@ module.exports = {
                         const unbanVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+                        if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
                         await interaction.reply({ content: `Unbanned <@${userOption.id}> from your PartyBot room.`, ephemeral: true });
@@ -107,6 +109,7 @@ module.exports = {
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                         if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
+                        if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         pData.ownerID = userOption.id;
                         pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred PartyBot ownership to <@${userOption.id}>.`, ephemeral: true }));
