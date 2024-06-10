@@ -1,9 +1,9 @@
 const { ActivityType } = require('discord.js');
+const cron = require('node-cron');
 const STATUS = require('../../models/statuses.js');
 const LCONFIG = require('../../models/logconfig.js');
 const DELETES = require('../../models/deletes.js');
 const EDITS = require('../../models/edits.js');
-const cron = require('node-cron');
 const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = (Discord, client) => {
@@ -14,7 +14,7 @@ module.exports = (Discord, client) => {
     */
     searchAndChangeStatus(client);
 
-    cron.schedule('1 * * * *', () => {
+    cron.schedule('0 * * * *', () => {
         searchAndChangeStatus(client);
     });
 
@@ -34,7 +34,7 @@ module.exports = (Discord, client) => {
                         .then(() => d.delete().catch((err) => console.log(err)));
                 });
             });
-            
+
             EDITS.find({ guildID: '435431947963990026' }).then((editlogs) => {
                 editlogs.forEach((d) => {
                     wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
@@ -53,23 +53,24 @@ function searchAndChangeStatus(client) {
 
         if (!data) {
             client.user.setPresence({
-                activities: [{
-                    name: 'Phasmophobia',
-                    type: ActivityType.Playing
-                }],
-                status: 'online'
+                activities: [
+                    { name: 'Phasmophobia', type: ActivityType.Playing },
+                ],
             });
-        } else if (data) {
+        } else {
             const statusIndexes = data.statuses.filter((status) => status !== null);
-            const randomStatus = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
+            const randomize = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
+            const randomStatus = randomize !== 'Phasmophobia' ? randomize : 'Playing Phasmophobia'; // default "Phasmophobia" no longer makes sense with user status
 
-            client.user.setPresence({
-                activities: [{
-                    name: randomStatus || 'Phasmophobia',
-                    type: ActivityType.Playing
-                }],
-                status: 'online'
-            });
+            try {
+                client.user.setPresence({
+                    activities: [
+                        { name: 'custom', type: ActivityType.Custom, state: randomStatus },
+                    ],
+                });
+            } catch (err) {
+                console.log(err)
+            }
         }
     });
 }
