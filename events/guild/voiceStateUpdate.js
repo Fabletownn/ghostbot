@@ -31,6 +31,8 @@ module.exports = async (Discord, client, oldState, newState) => {
         const newUser = client.users.cache.get(newState.id);
 
         if (oldChannel === null && newChannel !== null) {
+            if (newChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
+
             const joinedEmbed = new EmbedBuilder()
                 .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> joined a voice channel (${newChannel.name})`)
@@ -45,6 +47,7 @@ module.exports = async (Discord, client, oldState, newState) => {
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
         } else if (oldChannel !== null && newChannel !== null) {
             if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
+            if (oldChannel.id === '1253056675531722772' || newChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
 
             const movedEmbed = new EmbedBuilder()
                 .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -60,6 +63,8 @@ module.exports = async (Discord, client, oldState, newState) => {
 
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
         } else if (oldChannel !== null && newChannel === null) {
+            if (oldChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
+            
             const leftEmbed = new EmbedBuilder()
                 .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> left a voice channel (${oldChannel.name})`)
