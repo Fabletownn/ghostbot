@@ -32,10 +32,11 @@ module.exports = {
 
                 const fileName = `phasmophobia-${pData.roomName}-transcript.txt`;
                 const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID);
+                const pullMember = interaction.guild.members.cache.get(pData.userID);
 
                 await interaction.deferReply();
 
-                await interaction.guild.members.cache.get(pData.userID).roles.remove(cData.pullroleid).catch((err) => {});
+                if (pullMember) await pullMember.roles.remove(cData.pullroleid).catch((err) => {});
 
                 fs.writeFile(fileName, pData.transcript || 'Unknown', async function (err) {
                     if (err) return console.log(err);

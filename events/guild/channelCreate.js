@@ -35,6 +35,8 @@ module.exports = async (Discord, client, channel) => {
                 ])
                 .setTimestamp()
 
+            if (channel.type !== ChannelType.GuildCategory) createEmbed.setFooter({ text: `Channel created in the category "${channel?.parent?.name || 'None'}"` });
+
             await wf.useWebhookIfExisting(client, data.chanupchannel, data.chanupwebhook, createEmbed);
         });
     });

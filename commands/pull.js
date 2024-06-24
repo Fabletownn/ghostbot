@@ -53,11 +53,11 @@ module.exports = {
                                 allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks]
                             },
                             {
-                                id: '756591038373691606',
+                                id: '756591038373691606', // Moderator
                                 allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
                             },
                             {
-                                id: '759255791605383208',
+                                id: '759255791605383208', // Trial Mod
                                 allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
                             }
                         ]
@@ -83,7 +83,7 @@ module.exports = {
                             transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${interaction.user.username} with ${userOption.username} opened..\n`
                         });
 
-                        newPullData.save().catch((err) => console.log(err));
+                        await newPullData.save().catch((err) => console.log(err));
 
                         await interaction.guild.members.cache.get(userOption.id).roles.add(cData.pullroleid);
 
