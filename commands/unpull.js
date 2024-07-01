@@ -1,7 +1,7 @@
 const CONFIG = require('../models/config.js');
 const PULL = require('../models/pullrooms.js');
 const fs = require('fs');
-const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder, EmbedBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -42,8 +42,14 @@ module.exports = {
                     if (err) return console.log(err);
 
                     const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
+                    const transcriptEmbed = new EmbedBuilder()
+                        .setTitle(`${pData.userTag} (\`${pData.userID}\`)`)
+                        .setDescription('Pullroom session ended, transcript log attached')
+                        .setFooter({ iconURL: interaction.user.displayAvatarURL({ dynamic: true }), text: `Pullroom Closed by ${interaction.user.tag} (${interaction.user.id})`})
+                        .setTimestamp()
+                        .setColor('#58B9FF')
 
-                    await interaction.client.channels.cache.get(cData.pulllogid).send({ content: `Pullroom session with \`${pData.userTag}\` (\`${pData.userID}\`) has ended, logs are provided below.`, files: [transcriptFile] }).then(() => {
+                    await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], files: [transcriptFile] }).then(() => {
                         fs.unlink(`./${fileName}`, (err) => {
                             if (err) return console.log(err);
                         });

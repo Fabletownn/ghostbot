@@ -6,9 +6,9 @@ const SUB = require('../../models/subscriptions.js');
 module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
     if (message.guild === null) return;
+    if (message.channel.parent === null) return;
 
     //const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
-    const techRoles = ['1145866363479523358', '761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
 
     CONFIG.findOne({
         guildID: '435431947963990026'
@@ -85,6 +85,7 @@ module.exports = async (Discord, client, message) => {
             tech-support, vr-tech-support
         */
         const techChannels = ['1082421799578521620', '1020011442205900870'];
+        const techRoles = ['1145866363479523358', '761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
 
         if (cData.tagapply === true) {
             if (techChannels.some((chID) => message.channel.parent.id === chID)) {

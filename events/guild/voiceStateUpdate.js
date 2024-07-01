@@ -60,6 +60,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                     { name: 'ID', value: `\`\`\`ini\nUser = ${newState.id}\nChannel = ${newChannel.id}\`\`\`` }
                 ])
                 .setTimestamp()
+                .setColor('#58B9FF')
 
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
         } else if (oldChannel !== null && newChannel === null) {
