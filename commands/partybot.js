@@ -61,9 +61,10 @@ module.exports = {
                         await interaction.reply({ content: 'Your PartyBot room has been unlocked.', ephemeral: true });
                         break;
                     case "kickuser": {
+                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+                        
                         const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
                         if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
@@ -76,9 +77,10 @@ module.exports = {
                         break;
                     }
                     case "banuser": {
+                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+
                         const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
@@ -104,9 +106,10 @@ module.exports = {
                         break;
                     }
                     case "transferowner": {
+                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+
                         const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                        if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                         if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
