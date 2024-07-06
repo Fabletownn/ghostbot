@@ -98,7 +98,7 @@ module.exports = async (Discord, client, interaction) => {
                             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true, size: 512 }) })
                             .setDescription(`${interaction.user} ghostified a message in ${interaction.channel}`)
                             .addFields([
-                                { name: 'Content', value: sayMessage }
+                                { name: 'Content', value: sayMessage || 'Unknown' }
                             ])
                             .setTimestamp()
 

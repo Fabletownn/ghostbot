@@ -29,7 +29,7 @@ module.exports = async (Discord, client, channel) => {
                 .setAuthor({ name: executorTag, iconURL: executorAvatar })
                 .setDescription(`${channelType} channel has been deleted: ${channel.name}`)
                 .addFields([
-                    { name: 'Name', value: channel.name },
+                    { name: 'Name', value: channel.name || 'Unknown' },
                     { name: 'Date', value: `<t:${cTimestamp}:F>` },
                     { name: 'ID', value: `\`\`\`ini\nExecutor = ${executorID}\`\`\`` }
                 ])

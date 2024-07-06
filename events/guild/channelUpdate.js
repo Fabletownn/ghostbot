@@ -34,8 +34,8 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
                     .setAuthor({ name: executorTag, iconURL: executorAvatar })
                     .setDescription(`${channelType} channel name has been updated: <#${newChannel.id}> (${newChannel.name})`)
                     .addFields([
-                        { name: 'New', value: newChannel.name, inline: true },
-                        { name: 'Previous', value: oldChannel.name, inline: true },
+                        { name: 'New', value: newChannel.name || 'Unknown', inline: true },
+                        { name: 'Previous', value: oldChannel.name || 'Unknown', inline: true },
                         { name: '\u200b', value: '\u200b', inline: true },
                         { name: 'Date', value: `<t:${cTimestamp}:F>` },
                         { name: 'ID', value: `\`\`\`ini\nExecutor = ${executorID}\nChannel = ${newChannel.id}\`\`\`` }

@@ -69,7 +69,7 @@ function searchAndChangeStatus(client) {
                     ],
                 });
             } catch (err) {
-                console.log(err)
+                return console.error(`Failed to change bot status: ${err}`);
             }
         }
     });

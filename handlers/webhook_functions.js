@@ -8,6 +8,7 @@ async function useWebhookIfExisting(client, channel, webhook, embed) {
 
     const webhookID = webhook.split(/\//)[5];
     const webhookToken = webhook.split(/\//)[6];
+
     const tryFetchWebhook = await useChannel.fetchWebhooks();
     const fetchedWebhook = tryFetchWebhook.find((wh) => wh.id === webhookID);
 
@@ -16,9 +17,9 @@ async function useWebhookIfExisting(client, channel, webhook, embed) {
     const webhookClient = new WebhookClient({ id: webhookID, token: webhookToken });
 
     if (Array.isArray(embed)) {
-        webhookClient.send({ embeds: embed }).catch((err) => { console.log('Error uploading log:\n' + err) });
+        webhookClient.send({ embeds: embed }).catch((err) => { console.error('Error uploading log:\n' + err) });
     } else {
-        webhookClient.send({ embeds: [embed] }).catch((err) => { console.log('Error uploading log:\n' + err) });
+        webhookClient.send({ embeds: [embed] }).catch((err) => { console.error('Error uploading log:\n' + err) });
     }
 }
 

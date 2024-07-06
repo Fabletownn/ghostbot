@@ -42,34 +42,38 @@ module.exports = async (Discord, client, messages, channel) => {
 
         if (bulkDeleteInformation.length <= 0) return;
 
-        const sendContent = `If a deleted message's author was a bot, the message is not cached by the bot, or similar, some messages may not be logged. Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged.\n`
-            + `Phasmophobia Message Bulk Delete Log @ ${currentDate} UTC:\n----------------------------------------------------------------------\n${bulkDeleteInformation.join('\n')}`;
+        const lineLength = bulkDeleteInformation[bulkDeleteInformation.length - 1].replace(/./g, '-');
+        const sendContent = `Phasmophobia Bulk Delete @ ${currentDate} UTC:\n\n${bulkDeleteInformation.join('\n')}\n\n${lineLength}\n`
+        + `Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged. Messages are not logged if they are uncached, sent by a bot, or similar.`;
 
         try {
             superagent
-                .post('https://hastebin.com/documents')
-                .set('content-type', 'text/plain')
-                .set('Authorization', process.env.HASTEBIN_API_KEY)
-                .send(sendContent)
+                .post('https://sourceb.in/api/bins')
+                .send({
+                    files: [{
+                        name: 'Phasmophobia Bulkdelete Sourcebin Log',
+                        content: sendContent
+                    }]
+                })
                 .end((err, res) => {
                     if (err) return console.log(err);
 
                     if (res.ok) {
                         const bulkDeleteEmbed = new EmbedBuilder()
-                            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(' ') : 'Unknown'}`)
+                            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(', ') : 'Unknown'}`)
                             .addFields(
-                                { name: 'Link', value: `https://hastebin.com/share/${res.body.key}` }
+                                { name: 'Link', value: `https://cdn.sourceb.in/bins/${res.body.key}/0` }
                             )
                             .setTimestamp()
                             .setColor('#ED498D');
 
                         wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
                     } else {
-                        return console.log(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
+                        return console.error(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
                     }
                 });
         } catch (error) {
-            return console.log(`Error uploading bulk delete log: ${error}`);
+            return console.error(`Error uploading bulk delete log: ${error}`);
         }
     });
 }
