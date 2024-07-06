@@ -98,11 +98,11 @@ module.exports = async (Discord, client, interaction) => {
                             .setAuthor({ name: interaction.user.username, iconURL: interaction.user.displayAvatarURL({ dynamic: true, size: 512 }) })
                             .setDescription(`${interaction.user} ghostified a message in ${interaction.channel}`)
                             .addFields([
-                                { name: 'Content', value: sayMessage || 'Unknown' }
+                                { name: 'Content', value: sayMessage }
                             ])
                             .setTimestamp()
 
-                        await interaction.channel.send(sayMessage);
+                        await interaction.channel.send({ content: sayMessage });
                         await interaction.guild.channels.cache.get(lData.chanupchannel).send({ embeds: [sayEmbed] });
 
                         await interaction.reply({ content: 'Your message has been ghostified.', ephemeral: true });
