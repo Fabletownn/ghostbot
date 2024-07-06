@@ -60,7 +60,7 @@ module.exports = async (Discord, client, messages, channel) => {
 
                     if (res.ok) {
                         const bulkDeleteEmbed = new EmbedBuilder()
-                            .setDescription(`**${bulkDeleteInformation.length}**/**${messages.size}** message(s) were deleted and known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(', ') : 'Unknown'}`)
+                            .setDescription(`**${messages.size}** message(s) were deleted and **${bulkDeleteInformation.length}** are known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(', ') : 'Unknown'}`)
                             .addFields(
                                 { name: 'Link', value: `https://cdn.sourceb.in/bins/${res.body.key}/0` }
                             )

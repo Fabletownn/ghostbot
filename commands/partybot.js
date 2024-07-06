@@ -94,7 +94,7 @@ module.exports = {
                         break;
                     }
                     case "unbanuser": {
-                        const unbanVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
+                        const unbanVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice.channel;
 
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });

@@ -159,7 +159,7 @@ module.exports = async (Discord, client, interaction) => {
                                     .setStyle(ButtonStyle.Danger),
                             );
 
-                        await interaction.guild.channels.cache.get('805795819722244148').send({ content: flagEmergency, embeds: [flagEmbed], components: [flagRow] }).then((flag) => {
+                        await interaction.guild.channels.cache.get('805795819722244148').send({ content: flagEmergency, embeds: [flagEmbed], components: [flagRow], allowedMentions: { parse: ['roles'] } }).then((flag) => {
                             interaction.reply({ content: `Flagged the message${(isEmergency ? ' as an emergency' : '')}: [jump to your report here](<${flag.url}>)!`, ephemeral: true });
                         });
                         break;
