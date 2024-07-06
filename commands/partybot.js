@@ -62,7 +62,7 @@ module.exports = {
                         break;
                     case "kickuser": {
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
-                        
+
                         const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
@@ -82,6 +82,7 @@ module.exports = {
                         const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
+                        if (banVoiceChannel === null || banVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await banVoiceChannel.permissionOverwrites.edit(userOption.id, {
