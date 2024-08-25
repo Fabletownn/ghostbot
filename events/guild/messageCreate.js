@@ -5,8 +5,7 @@ const SUB = require('../../models/subscriptions.js');
 
 module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
-    if (message.guild === null) return;
-    if (message.channel.parent === null) return;
+    if (message.guild === null || message.channel === null || message.channel.parent === null) return;
 
     //const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
 

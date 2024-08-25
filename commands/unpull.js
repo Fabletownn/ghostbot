@@ -58,7 +58,7 @@ module.exports = {
 
                 if (pullroomChannel) await pullroomChannel.delete().catch((err) => {});
 
-                await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` });
+                await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch((err) => {});
 
                 await pData.delete().catch((err) => {});
             });

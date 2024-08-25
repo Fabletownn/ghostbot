@@ -66,9 +66,12 @@ module.exports = async (Discord, client, interaction) => {
                         const flagFields = flagEmbed.fields;
                         const flagFooter = flagEmbed.footer.text;
                         const flagMessageID = flagFooter.split(' ')[2];
-                        const flagChannel = flagFields[1].value.replace(/[<#>]/g, '');
+                        const flagChannelID = flagFields[1].value.replace(/[<#>]/g, '');
+                        const flagChannel = interaction.guild.channels.cache.get(flagChannelID);
 
-                        await interaction.guild.channels.cache.get(flagChannel).messages.fetch(flagMessageID).then(async (flagmsg) => {
+                        if (!flagChannel) return interaction.reply({ content: 'Unable to delete the message, the channel or post this message was sent in is no longer available.' });
+
+                        await flagChannel.messages.fetch(flagMessageID).then(async (flagmsg) => {
                             const handledEmbed = EmbedBuilder.from(flagEmbed).setColor('#38DD86').setAuthor({ name: 'Flag Handled', iconURL: 'https://i.imgur.com/7WEoXUM.png' });
 
                             await flagmsg.delete();

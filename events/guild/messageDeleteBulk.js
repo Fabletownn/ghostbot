@@ -42,7 +42,7 @@ module.exports = async (Discord, client, messages, channel) => {
 
         if (bulkDeleteInformation.length <= 0) return;
 
-        const lineLength = bulkDeleteInformation[bulkDeleteInformation.length - 1].replace(/./g, '-');
+        const lineLength = bulkDeleteInformation[bulkDeleteInformation.length - 1].replace(/\n/g, '').replace(/./g, '-')
         const sendContent = `Phasmophobia Bulk Delete @ ${currentDate} UTC:\n\n${bulkDeleteInformation.join('\n')}\n\n${lineLength}\n`
         + `Out of ${messages.size} deleted messages, ${bulkDeleteInformation.length} are logged. Messages are not logged if they are uncached, sent by a bot, or similar.`;
 

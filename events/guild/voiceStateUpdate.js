@@ -134,6 +134,11 @@ module.exports = async (Discord, client, oldState, newState) => {
         else if ((oldChannel !== null && newChannel === null) || (oldChannel !== null && newChannel !== null)) {
             const voiceSize = oldChannel.members.size;
             const voiceName = oldChannel.name;
+            const leaveUID = (newState.member && newState.member.user && newState.member.user.id) ? newState.member.user.id
+                            : (oldState.member && oldState.member.user && oldState.member.user.id) ? oldState.member.user.id
+                            : null;
+            
+            if (!leaveUID) return;
 
             if ((voiceSize <= 0) && voiceName === 'PartyBot Room') {
                 PARTY.findOne({
@@ -158,11 +163,14 @@ module.exports = async (Discord, client, oldState, newState) => {
                     if (!data) return;
 
                     if (data) {
-                        if (data.ownerID !== newState.member.user.id) return;
-                        const randomUser = oldChannel.members.random().user;
+                        if (data.ownerID !== leaveUID) return;
 
-                        data.ownerID = randomUser.id;
-                        data.save().catch((err) => console.log(err));
+                        const randomMember = oldChannel.members.random();
+
+                        if (randomMember && randomMember.user) {
+                            data.ownerID = randomMember.user.id;
+                            data.save().catch((err) => console.log(err));
+                        }
                     }
                 });
             }

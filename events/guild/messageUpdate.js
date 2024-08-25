@@ -19,10 +19,10 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         if (data.ignoredchannels.some((ignored_channel) => newMessage.channel.id === ignored_channel)) return;
         if (data.ignoredcategories.some((ignored_cat) => newMessage.channel.parent.id === ignored_cat)) return;
 
-        const editedOldContent = oldMessage.content;
-        const editedNewContent = newMessage.content;
-        const editedEditedOldContent = editedOldContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
-        const editedEditedNewContent = editedNewContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
+        const oldContent = oldMessage.content;
+        const newContent = newMessage.content;
+        const editedOldContent = oldContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
+        const editedNewContent = newContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
         const editedID = newMessage.id;
         const editedChannelID = newMessage.channel.id;
         const editedAuthorID = newMessage.author.id;
@@ -30,12 +30,20 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         const editedAuthorTag = client.users.cache.get(editedAuthorID).tag;
         const editedLink = newMessage.url;
 
-        const embedCharacterLimit = 1000;
-        const contentFieldsNeeded = Math.ceil(editedEditedNewContent.length / embedCharacterLimit);
-        let overloadedEmbed = 0;
+        if (editedOldContent == editedNewContent) return;
+        if (!editedNewContent || editedNewContent == null) return;
 
-        if (editedEditedOldContent == editedEditedNewContent) return;
-        if (!editedEditedNewContent || editedEditedNewContent == null) return;
+        const embedCharacterLimit = 1000;
+        let largerContent = editedNewContent;
+
+        if (editedNewContent.length > editedOldContent.length) {
+            largerContent = editedNewContent;
+        } else {
+            largerContent = editedOldContent;
+        }
+
+        const contentFieldsNeeded = Math.ceil(largerContent.length / embedCharacterLimit);
+        let overloadedEmbed = 0;
 
         const editedEmbed = new EmbedBuilder()
             .setAuthor({ name: editedAuthorTag, iconURL: client.users.cache.get(editedAuthorID).displayAvatarURL({ dynamic: true }) || 'https://i.imgur.com/NZzCLrw.png' })
@@ -49,14 +57,14 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
 
         if (contentFieldsNeeded <= 1) {
             editedEmbed.setFields(
-                { name: `Now`, value: editedEditedNewContent || 'None'  },
-                { name: `Previous`, value: editedEditedOldContent || 'None' },
+                { name: `Now`, value: editedNewContent.slice(0, 1020) || 'None' },
+                { name: `Previous`, value: editedOldContent.slice(0, 1020) || 'None' },
                 { name: `Date`, value: `<t:${editedNewTime}:F> (<t:${editedNewTime}:R>)` },
                 { name: `ID`, value: `\`\`\`ini\nUser = ${editedAuthorID}\nMessage = ${editedID}\`\`\`` }
             )
         } else {
-            editedEmbed.setDescription(`Message updated in <#${editedChannelID}> ([jump to message](${editedLink}))\n\n**Now**:\n${(editedEditedNewContent.length > 3800 ? `${editedEditedNewContent.slice(0, 3700)}...` : editedEditedNewContent)}`);
-            editedEmbedContinued.setDescription(`**Previous**:\n${(editedEditedOldContent.length > 3800 ? `${editedEditedOldContent.slice(0, 3700)}...` : editedEditedOldContent)}`);
+            editedEmbed.setDescription(`Message updated in <#${editedChannelID}> ([jump to message](${editedLink}))\n\n**Now**:\n${(editedNewContent.length > 3800 ? `${editedNewContent.slice(0, 3700)}...` : editedNewContent)}`);
+            editedEmbedContinued.setDescription(`**Previous**:\n${(editedOldContent.length > 3800 ? `${editedOldContent.slice(0, 3700)}...` : editedOldContent)}`);
 
             editedEmbed.setFields(
                 { name: `Date`, value: `<t:${editedNewTime}:F> (<t:${editedNewTime}:R>)` },

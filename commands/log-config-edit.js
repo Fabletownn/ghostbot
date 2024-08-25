@@ -80,7 +80,7 @@ module.exports = {
                 }
                 case "unignorechannel": {
                     if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
-                    if (!data.ignoredchannels.includes(categoryOption.id)) return interaction.reply({ content: 'That category is not being ignored.' });
+                    if (!data.ignoredchannels.includes(channelOption.id)) return interaction.reply({ content: 'That category is not being ignored.' });
 
                     const ignoredChannelIndex = data.ignoredchannels.indexOf(channelOption.id);
 
