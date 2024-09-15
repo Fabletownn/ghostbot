@@ -84,7 +84,7 @@ module.exports = {
                     if (data.autopublish === boolOption) return interaction.reply({ content: 'Autopublishing is already set to that value.' });
 
                     data.autopublish = boolOption;
-                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All announcement posts will ${(boolOption == true) ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` }));
+                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All announcement posts will ${(boolOption === true) ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` }));
 
                     break;
                 case "threadcreation":
@@ -92,7 +92,7 @@ module.exports = {
                     if (data.threadcreate === boolOption) return interaction.reply({ content: 'Discussion thread creation is already set to that value.' });
 
                     data.threadcreate = boolOption;
-                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption == true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
+                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption === true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
 
                     break;
                 case "tagapply":
@@ -100,7 +100,7 @@ module.exports = {
                     if (data.tagapply === boolOption) return interaction.reply({ content: 'Being Helped tag application is already set to that value.' });
 
                     data.tagapply = boolOption;
-                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption == true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
+                    data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption === true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
 
                     break;
                 case "pbvcid":

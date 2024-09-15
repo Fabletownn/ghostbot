@@ -3,7 +3,7 @@ const { WebhookClient } = require('discord.js');
 async function useWebhookIfExisting(client, channel, webhook, embed) {
     const useChannel = client.channels.cache.get(channel);
 
-    if (!useChannel || !channel || channel == null) return;
+    if (!useChannel || !channel) return;
     if (!webhook) return;
 
     const webhookID = webhook.split(/\//)[5];
@@ -26,7 +26,7 @@ async function useWebhookIfExisting(client, channel, webhook, embed) {
 async function deleteWebhookIfExisting(client, channel) {
     const deleteChannel = client.channels.cache.get(channel);
 
-    if (!deleteChannel || !channel || channel == null) return;
+    if (!deleteChannel || !channel) return;
 
     const fetchWebhooks = await deleteChannel.fetchWebhooks();
     const fetchedWebhook = fetchWebhooks.filter((wh) => wh.owner.id === client.user.id && wh.name.toLowerCase().includes('g.h.o.s.t'));

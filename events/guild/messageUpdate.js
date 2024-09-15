@@ -30,8 +30,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
         const editedAuthorTag = client.users.cache.get(editedAuthorID).tag;
         const editedLink = newMessage.url;
 
-        if (editedOldContent == editedNewContent) return;
-        if (!editedNewContent || editedNewContent == null) return;
+        if (editedOldContent === editedNewContent) return;
+        if (!editedNewContent) return;
 
         const embedCharacterLimit = 1000;
         let largerContent = editedNewContent;
@@ -117,7 +117,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
                         }
                     });
 
-                    if (addedData == 0) {
+                    if (addedData === 0) {
                         const newEditedData = new EDITS({
                             guildID: newMessage.guild.id,
                             overload: overloadedEmbed,

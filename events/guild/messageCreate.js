@@ -7,8 +7,6 @@ module.exports = async (Discord, client, message) => {
     if (message.author.bot) return;
     if (message.guild === null || message.channel === null || message.channel.parent === null) return;
 
-    //const invulRoles = ['761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545', '796898870176514058'];
-
     CONFIG.findOne({
         guildID: '435431947963990026'
     }, async (cErr, cData) => {
@@ -20,7 +18,7 @@ module.exports = async (Discord, client, message) => {
             "/config-edit value:Autopublishing (Boolean) boolean:False" disables this
         */
         if (message.channel.type === ChannelType.GuildAnnouncement) {
-            if ((message.crosspostable) && (cData.autopublish == true)) {
+            if ((message.crosspostable) && (cData.autopublish === true)) {
                 await message.crosspost();
             }
         }
@@ -58,7 +56,7 @@ module.exports = async (Discord, client, message) => {
 
                 if ((sData.subbed.length > 0)) {
                     if (sData.op === message.author.id) {
-                        if (sData.posted == false) {
+                        if (sData.posted === false) {
                             for (let i = 0; i < sData.subbed.length; i++) {
                                 client.users.cache.get(sData.subbed[i]).send({ content: `📌 Your ${message.channel.parent.name} post "**${client.channels.cache.get(sData.postID).name || 'Unknown'}**" has received a response(s) from the poster.\n\nJump: ${message.url}` }).catch(() => { });
                             }

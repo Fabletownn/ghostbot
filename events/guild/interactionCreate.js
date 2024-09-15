@@ -130,7 +130,7 @@ module.exports = async (Discord, client, interaction) => {
                         const flagCreated = Math.round(Date.now() / 1000);
                         const msgAttachs = Array.from(flaggedMessage.attachments.values());
                         const msgAttachment = (msgAttachs.length > 0 ? msgAttachs[0].url : null);
-                        const isEmergency = interaction.commandName == 'Flag Message (Emergency)';
+                        const isEmergency = interaction.commandName === 'Flag Message (Emergency)';
                         const flagEmergency = (isEmergency ? '<@&756591038373691606> A message has been flagged as an emergency!' : null);
 
                         const flagEmbed = new EmbedBuilder()

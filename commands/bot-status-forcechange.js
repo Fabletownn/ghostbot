@@ -33,7 +33,7 @@ module.exports = {
                     ],
                 });
 
-                await interaction.reply({ content: `Force recycled the bot's status successfully (now \`${randomStatus || 'Phasmophobia'}\`).` });
+                await interaction.reply({ content: `Force recycled the bot's status successfully (now \`${randomStatus || 'Playing Phasmophobia'}\`).` });
             }
         });
     },

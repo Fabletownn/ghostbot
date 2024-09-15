@@ -14,7 +14,7 @@ module.exports = {
             if (!data) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
             if (!data.mmcategoryid || !data.ammcategoryid) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for ModMail tickets! Use `/config-edit` first.' });
 
-            if (interaction.channel.parent.id == data.mmcategoryid) {
+            if (interaction.channel.parent.id === data.mmcategoryid) {
                 await interaction.channel.setParent(data.ammcategoryid);
                 await interaction.reply({ content: `Moved the ticket up to the <#${data.ammcategoryid}> category.` });
             } else {

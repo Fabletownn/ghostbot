@@ -19,11 +19,11 @@ module.exports = async (Discord, client, channel) => {
         await channel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelCreate }).then(async (audit) => {
             const { executor } = audit.entries.first();
 
-            const executorTag = (!executor || executor === null) ? 'Unknown' : executor.tag;
-            const executorAvatar = (!executor || executor === null) ? 'https://i.imgur.com/cguNuyW.png' : executor.displayAvatarURL({ size: 512, dynamic: true });
-            const executorID = (!executor || executor === null) ? 'Unknown' : executor.id;
+            const executorTag = (!executor) ? 'Unknown' : executor.tag;
+            const executorAvatar = (!executor) ? 'https://i.imgur.com/cguNuyW.png' : executor.displayAvatarURL({ size: 512, dynamic: true });
+            const executorID = (!executor) ? 'Unknown' : executor.id;
 
-            if (executorID == '1043623513669513266') return; // ignore ModMail
+            if (executorID === '1043623513669513266') return; // ignore ModMail
 
             const createEmbed = new EmbedBuilder()
                 .setAuthor({ name: executorTag, iconURL: executorAvatar })

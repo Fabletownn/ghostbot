@@ -78,7 +78,7 @@ module.exports = async (Discord, client, message) => {
                         }
                     });
 
-                    if (addedData == 0) {
+                    if (addedData === 0) {
                         const newDeletedData = new DELETES({
                             guildID: message.guild.id,
                             overload: overloadedEmbed,

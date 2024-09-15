@@ -72,7 +72,7 @@ module.exports = {
                                 })
                             })
                             .setDescription(`${userOption.displayName} has been pulled by ${interaction.user.displayName}.\n\n${cData.pullmsg}`)
-                            .setColor('ffffff');
+                            .setColor('#FFFFFF');
 
                         const newPullData = new PULL({
                             guildID: interaction.guild.id,

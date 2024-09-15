@@ -8,8 +8,6 @@ module.exports = (client) => {
 
         if (command.name) {
             client.commands.set(command.name, command);
-        } else {
-            continue;
         }
     }
 };
