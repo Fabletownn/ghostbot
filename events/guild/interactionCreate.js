@@ -1,6 +1,7 @@
 const { ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
+const { MET } = require('bing-translate-api');
 
 module.exports = async (Discord, client, interaction) => {
     CONFIG.findOne({
@@ -165,6 +166,33 @@ module.exports = async (Discord, client, interaction) => {
                         await interaction.guild.channels.cache.get('805795819722244148').send({ content: flagEmergency, embeds: [flagEmbed], components: [flagRow], allowedMentions: { parse: ['roles'] } }).then((flag) => {
                             interaction.reply({ content: `Flagged the message${(isEmergency ? ' as an emergency' : '')}: [jump to your report here](<${flag.url}>)!`, ephemeral: true });
                         });
+                        
+                        break;
+                    case "Translate Message":
+                        let translatedMessage = interaction.targetMessage.content;
+
+                        if (interaction.targetMessage.embeds.length > 0)  {
+                            if (interaction.targetMessage.embeds[0].fields[0]) {
+                                const fieldValue = interaction.targetMessage.embeds[0].fields[0].value;
+
+                                if (fieldValue) translatedMessage = fieldValue; // Translate the first field value of an embed
+                            }
+                        }
+
+                        if (!translatedMessage || translatedMessage === "") return interaction.reply({ content: 'The selected message has no content to translate.', ephemeral: true });
+
+                        MET.translate(translatedMessage, null, 'en').then((res) => {
+                            const detectedLanguage = res[0].detectedLanguage.language;
+                            const translatedContent = res[0].translations[0].text;
+
+                            if (detectedLanguage === 'en') return interaction.reply({ content: 'The selected message is already in English, and translations are only provided for messages in other languages.', ephemeral: true });
+
+                            interaction.reply({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, ephemeral: true });
+                        }).catch((err) => {
+                            interaction.reply({ content: `Failed to translate that message! If this is a mistake, please forward this error: \`${err}\``, ephemeral: true });
+                            console.log(err);
+                        });
+                        
                         break;
                     default:
                         break;

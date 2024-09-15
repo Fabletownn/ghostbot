@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "@discordjs/rest": "^2.2.0",
+    "bing-translate-api": "^4.0.2",
     "discord.js": "^14.16.2",
     "dotenv": "^16.0.3",
     "express": "^4.19.2",
