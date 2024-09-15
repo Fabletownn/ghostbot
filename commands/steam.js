@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('modmail-steam')
         .setDescription('(Moderator) Allows Steam Moderators to see a hoisted ModMail ticket')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         CONFIG.findOne({

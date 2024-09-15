@@ -6,7 +6,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('config-setup')
         .setDescription('(Admin) Creates or resets data for the server')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         CONFIG.findOne({

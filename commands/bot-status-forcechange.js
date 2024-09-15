@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('bot-status-force-change')
         .setDescription('(Admin) Forces a bot status change')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         STATUS.findOne({

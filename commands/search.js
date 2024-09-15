@@ -4,7 +4,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('search')
         .setDescription('(Staff) Searches for a user based on a username query')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addStringOption((option) =>
             option.setName('query')

@@ -4,7 +4,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('lock')
         .setDescription('(Moderator) Locks a channel with optional reasoning')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')

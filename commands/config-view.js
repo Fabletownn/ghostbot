@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('config-view')
         .setDescription('(Admin) Views current server configuration')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         CONFIG.findOne({

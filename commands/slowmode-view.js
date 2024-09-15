@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('slowmode-view')
         .setDescription('(Moderator) View all main channel slowmodes')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         const phasmophobiaCat = interaction.guild.channels.cache.get('754890847635505283');

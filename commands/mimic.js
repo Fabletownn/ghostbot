@@ -4,7 +4,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('mimic')
         .setDescription('(Staff) (In the channel executed) Prompt a message mimic')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         const firstNames = ['Karen', 'Mary', 'Heather', 'Shannon', 'Marcia', 'Robin', 'Tim', 'Donald', 'William', 'Charles', 'Anthony', 'Gregory'];

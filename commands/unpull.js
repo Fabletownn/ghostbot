@@ -7,7 +7,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('unpull')
         .setDescription('(Moderator) Removes a user from their pullroom')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addStringOption((option) =>
             option.setName('user-id')
@@ -60,7 +59,7 @@ module.exports = {
 
                 await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch((err) => {});
 
-                await pData.delete().catch((err) => {});
+                await pData.delete();
             });
         });
     },

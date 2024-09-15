@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('modmail-unmod')
         .setDescription('(Staff) Moves the current hoisted ModMail ticket down to ModMail Tickets')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         CONFIG.findOne({

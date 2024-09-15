@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('log-config-view')
         .setDescription('(Admin) Views logging configuration')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         LCONFIG.findOne({

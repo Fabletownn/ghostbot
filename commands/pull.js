@@ -6,7 +6,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('pull')
         .setDescription('(Moderator) Creates a pullroom channel for the specified user')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addUserOption((option) =>
             option.setName('user')
@@ -32,12 +31,13 @@ module.exports = {
                 if (pData) return interaction.reply({ content: `That user already has a pullroom session open in <#${pData.channelID}>.` });
 
                 const pullCategory = interaction.guild.channels.cache.get(cData.pullcategoryid);
+                const pullMember = interaction.guild.members.cache.get(userOption.id);
 
-                if (pullCategory) {
+                await interaction.deferReply();
+
+                if (pullCategory && pullMember) {
                     const modifiedUsername = userOption.username.replace(/[^a-zA-Z]+/g, '').toLowerCase();
                     const roomName = `pullroom-${modifiedUsername}`;
-
-                    await interaction.deferReply();
 
                     await interaction.guild.channels.create({
                         name: roomName,
@@ -85,14 +85,14 @@ module.exports = {
 
                         await newPullData.save().catch((err) => console.log(err));
 
-                        await interaction.guild.members.cache.get(userOption.id).roles.add(cData.pullroleid);
+                        await pullMember.roles.add(cData.pullroleid);
 
                         await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                         await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
                         await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
                     });
                 } else {
-                    return interaction.reply({ content: 'The pullroom category no longer exists.' });
+                    return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server. Rare find!' });
                 }
             });
         });

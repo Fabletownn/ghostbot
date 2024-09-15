@@ -19,7 +19,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('config-edit')
         .setDescription('(Admin) Changes configuration settings within the bot')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addStringOption((option) =>
             option.setName('config')

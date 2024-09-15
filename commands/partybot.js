@@ -15,7 +15,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('partybot')
         .setDescription('(User) Control your PartyBot room')
-        .setDMPermission(false)
         .addStringOption((option) =>
             option.setName('action')
                 .setDescription('(If you are host) The action done to your PartyBot room')

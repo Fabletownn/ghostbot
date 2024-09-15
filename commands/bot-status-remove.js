@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('bot-status-remove')
         .setDescription('(Staff) Removes a status from the bot to use')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addIntegerOption((option) =>
             option.setName('index')

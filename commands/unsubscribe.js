@@ -5,7 +5,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('unsubscribe')
         .setDescription('(Staff) Unsubscribe from a tech support forum post(s)')
-        .setDMPermission(false)
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addBooleanOption((option) =>
             option.setName('nuke-subscriptions')
