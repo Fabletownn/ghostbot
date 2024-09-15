@@ -65,7 +65,7 @@ module.exports = async (Discord, client, oldState, newState) => {
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
         } else if (oldChannel !== null && newChannel === null) {
             if (oldChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
-            
+
             const leftEmbed = new EmbedBuilder()
                 .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
                 .setDescription(`<@${newState.id}> left a voice channel (${oldChannel.name})`)
@@ -91,53 +91,52 @@ module.exports = async (Discord, client, oldState, newState) => {
         if ((newChannel !== null) && (newChannel.id === cData.pbvcid)) {
             const newMember = newState.member;
 
-            if (!newMember.user.bot) {
-                PARTY.findOne({
-                    ownerID: newMember.user.id
-                }, async (err, data) => {
-                    if (err) return console.log(err);
+            if (newMember.user.bot) return;
 
-                    if (!data) {
-                        const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
+            PARTY.findOne({
+                ownerID: newMember.user.id
+            }, async (err, data) => {
+                if (err) return console.log(err);
 
-                        await newVoiceGuild.channels.create({
-                            name: 'PartyBot Room',
-                            type: ChannelType.GuildVoice,
-                            parent: pbParent,
-                            userLimit: cData.pbvclimit
-                        }).then((pRoom) => {
-                            const newVoice = new PARTY({
-                                voiceID: pRoom.id,
-                                ownerID: newMember.user.id
-                            });
+                if (!data) {
+                    const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
 
-                            newVoice.save().catch((err) => console.log(err)).then(() => {
-                                newMember.voice.setChannel(pRoom.id).catch(async () => {
-                                    if (!newMember.voice.channel) {
-                                        await newVoice.delete();
-                                        await pRoom.delete();
-                                    }
-                                });
+                    await newVoiceGuild.channels.create({
+                        name: 'PartyBot Room',
+                        type: ChannelType.GuildVoice,
+                        parent: pbParent,
+                        userLimit: cData.pbvclimit
+                    }).then((pRoom) => {
+                        const newVoice = new PARTY({
+                            voiceID: pRoom.id,
+                            ownerID: newMember.user.id
+                        });
+
+                        newVoice.save().catch((err) => console.log(err)).then(() => {
+                            newMember.voice.setChannel(pRoom.id).catch(async () => {
+                                if (!newMember.voice.channel) {
+                                    await newVoice.delete();
+                                    await pRoom.delete();
+                                }
                             });
                         });
-                    } else {
-                        newMember.voice.setChannel(data.voiceID).catch(async () => {
-                            if (!newMember.voice.channel) {
-                                await newVoice.delete();
-                                await pRoom.delete();
-                            }
-                        });
-                    }
-                });
-            }
+                    });
+                } else {
+                    newMember.voice.setChannel(data.voiceID).catch(async () => {
+                        if (!newMember.voice.channel) {
+                            await newVoice.delete();
+                            await pRoom.delete();
+                        }
+                    });
+                }
+            });
         }
-        else if ((oldChannel !== null && newChannel === null) || (oldChannel !== null && newChannel !== null)) {
+        else if ((oldChannel !== null && newChannel == null) || (oldChannel !== null && newChannel !== null)) {
             const voiceSize = oldChannel.members.size;
             const voiceName = oldChannel.name;
-            const leaveUID = (newState.member && newState.member.user && newState.member.user.id) ? newState.member.user.id
-                            : (oldState.member && oldState.member.user && oldState.member.user.id) ? oldState.member.user.id
-                            : null;
-            
+            const leaveUID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id; // If they left the room use the member ID, otherwise
+                                                                                                           // if they left the server use the user ID
+
             if (!leaveUID) return;
 
             if ((voiceSize <= 0) && voiceName === 'PartyBot Room') {
@@ -155,7 +154,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                 });
             }
 
-            if ((voiceSize != 0) && voiceName === 'PartyBot Room') {
+            if ((voiceSize !== 0) && voiceName === 'PartyBot Room') {
                 PARTY.findOne({
                     voiceID: oldChannel.id
                 }, (err, data) => {
