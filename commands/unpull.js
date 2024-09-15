@@ -1,7 +1,7 @@
 const CONFIG = require('../models/config.js');
 const PULL = require('../models/pullrooms.js');
-const fs = require('fs');
-const { SlashCommandBuilder, PermissionFlagsBits, AttachmentBuilder, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const superagent = require("superagent");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -29,7 +29,6 @@ module.exports = {
                 if (pErr) return console.log(pErr);
                 if (!pData) return interaction.reply({ content: 'That user does not have a pullroom session open.' });
 
-                const fileName = `phasmophobia-${pData.roomName}-transcript.txt`;
                 const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID);
                 const pullMember = interaction.guild.members.cache.get(pData.userID);
 
@@ -37,23 +36,50 @@ module.exports = {
 
                 if (pullMember) await pullMember.roles.remove(cData.pullroleid).catch((err) => {});
 
-                fs.writeFile(fileName, pData.transcript || 'Unknown', async function (err) {
-                    if (err) return console.log(err);
+                const transcriptEmbed = new EmbedBuilder()
+                    .setTitle(`${pData.userTag} (\`${pData.userID}\`)`)
+                    .setDescription('Pullroom session ended, transcript log attached')
+                    .setFooter({ iconURL: interaction.user.displayAvatarURL({ dynamic: true }), text: `Pullroom Closed by ${interaction.user.tag} (${interaction.user.id})`})
+                    .setTimestamp()
+                    .setColor('#58B9FF')
 
-                    const transcriptFile = new AttachmentBuilder(`./${fileName}`, { name: fileName });
-                    const transcriptEmbed = new EmbedBuilder()
-                        .setTitle(`${pData.userTag} (\`${pData.userID}\`)`)
-                        .setDescription('Pullroom session ended, transcript log attached')
-                        .setFooter({ iconURL: interaction.user.displayAvatarURL({ dynamic: true }), text: `Pullroom Closed by ${interaction.user.tag} (${interaction.user.id})`})
-                        .setTimestamp()
-                        .setColor('#58B9FF')
-
-                    await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], files: [transcriptFile] }).then(() => {
-                        fs.unlink(`./${fileName}`, (err) => {
+                try {
+                    superagent
+                        .post('https://sourceb.in/api/bins')
+                        .send({
+                            files: [{
+                                name: 'Phasmophobia Pullroom Sourcebin Log',
+                                content: pData.transcript
+                            }]
+                        })
+                        .end(async (err, res) => {
                             if (err) return console.log(err);
+
+                            if (res.ok) {
+                                const transcriptButton = new ButtonBuilder()
+                                    .setLabel("Log link")
+                                    .setStyle(ButtonStyle.Link)
+                                    .setURL(`https://cdn.sourceb.in/bins/${res.body.key}/0`)
+
+                                const successRow = new ActionRowBuilder()
+                                    .addComponents(transcriptButton);
+
+                                await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], components: [successRow] });
+                            }
                         });
-                    });
-                });
+                } catch (err) {
+                    const unavailableButton = new ButtonBuilder()
+                        .setCustomId('log-unavailable')
+                        .setLabel("Log unavailable")
+                        .setStyle(ButtonStyle.Danger)
+                        .setDisabled(true);
+
+                    const failRow = new ActionRowBuilder()
+                        .addComponents(unavailableButton);
+
+                    await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], components: [failRow] });
+                    await console.log(err);
+                }
 
                 if (pullroomChannel) await pullroomChannel.delete().catch((err) => {});
 
