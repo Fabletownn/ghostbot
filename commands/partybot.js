@@ -13,17 +13,17 @@ const actionArray = ([
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('partybot')
-        .setDescription('(User) Control your PartyBot room')
+        .setName('vc')
+        .setDescription('(User) Manage your custom-made voice channel')
         .addStringOption((option) =>
             option.setName('action')
-                .setDescription('(If you are host) The action done to your PartyBot room')
+                .setDescription('(If you are host) The action done to your voice channel')
                 .addChoices(...actionArray)
                 .setRequired(true)
         )
         .addUserOption((option) =>
             option.setName('user')
-                .setDescription('(If action requires user) The user that will be actioned')
+                .setDescription('(If action requires user) The user that will be affected')
                 .setRequired(false)
         ),
     async execute(interaction) {
@@ -32,7 +32,7 @@ module.exports = {
 
         const voiceChannel = interaction.member.voice.channel;
 
-        if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any PartyBot rooms.', ephemeral: true });
+        if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
 
         const voiceChannelID = voiceChannel.id;
         const moderatorRoleID = '756591038373691606';
@@ -47,17 +47,17 @@ module.exports = {
                 voiceID: voiceChannelID
             }, async (pErr, pData) => {
                 if (pErr) return interaction.reply({ content: 'An unknown issue occurred. If this keeps happening, please message ModMail.', ephemeral: true });
-                if (!pData || voiceChannel.name !== 'PartyBot Room') return interaction.reply({ content: 'You are not connected to any PartyBot rooms.', ephemeral: true });
-                if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this PartyBot room. Ask <@${pData.ownerID}> to run these commands!`, ephemeral: true });
+                if (!pData) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
+                if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this custom voice channel. Ask <@${pData.ownerID}> to run these commands!`, ephemeral: true });
 
                 switch (actionOption) {
                     case "lockroom":
                         await voiceChannel.setUserLimit(voiceChannel.members.size);
-                        await interaction.reply({ content: 'Your PartyBot room has been locked.', ephemeral: true });
+                        await interaction.reply({ content: 'Your voice channel has been locked.', ephemeral: true });
                         break;
                     case "unlockroom":
                         await voiceChannel.setUserLimit(cData.pbvclimit);
-                        await interaction.reply({ content: 'Your PartyBot room has been unlocked.', ephemeral: true });
+                        await interaction.reply({ content: 'Your voice channel has been unlocked.', ephemeral: true });
                         break;
                     case "kickuser": {
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -65,33 +65,36 @@ module.exports = {
                         const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
-                        if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
+                        if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
-                            reason: `Disconnected from voice channel by PartyBot host ${interaction.user.username} (${interaction.user.displayName})`
+                            reason: `Disconnected from voice channel by custom VC host ${interaction.user.username} (${interaction.user.displayName})`
                         });
 
-                        await interaction.reply({ content: `Kicked <@${userOption.id}> out of your PartyBot room.`, ephemeral: true });
+                        await interaction.reply({ content: `Kicked <@${userOption.id}> from your voice channel.`, ephemeral: true });
                         break;
                     }
                     case "banuser": {
                         if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
-                        const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice?.channel;
+                        const userVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice?.channel;
 
                         if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
-                        if (banVoiceChannel == null || banVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
-                        await banVoiceChannel.permissionOverwrites.edit(userOption.id, {
+                        await userVoiceChannel.permissionOverwrites.edit(userOption.id, {
                             Connect: false
                         }).then(async () => {
-                            await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
-                                reason: `Banned from voice channel by PartyBot host ${interaction.user.username} (${interaction.user.displayName})`
-                            });
+                            const banVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice?.channel;
 
-                            await interaction.reply({ content: `Banned <@${userOption.id}> from your PartyBot room.`, ephemeral: true });
+                            if (banVoiceChannel?.id === userVoiceChannel?.id) {
+                                await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
+                                    reason: `Banned from voice channel by custom VC host ${interaction.user.username} (${interaction.user.displayName})`
+                                });
+                            }
+
+                            await interaction.reply({ content: `Banned <@${userOption.id}> from your voice channel.`, ephemeral: true });
                         });
                         break;
                     }
@@ -102,7 +105,7 @@ module.exports = {
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
-                        await interaction.reply({ content: `Unbanned <@${userOption.id}> from your PartyBot room.`, ephemeral: true });
+                        await interaction.reply({ content: `Unbanned <@${userOption.id}> from your voice channel.`, ephemeral: true });
                         break;
                     }
                     case "transferowner": {
@@ -110,12 +113,12 @@ module.exports = {
 
                         const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                        if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
-                        if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your PartyBot room.', ephemeral: true });
+                        if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
+                        if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
                         if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                         pData.ownerID = userOption.id;
-                        pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred PartyBot ownership to <@${userOption.id}>.`, ephemeral: true }));
+                        pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, ephemeral: true }));
                         break;
                     }
                     default:

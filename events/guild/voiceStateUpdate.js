@@ -7,6 +7,7 @@ const PARTY = require('../../models/party.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
+const ROOMNAMES = require('../../models/pbroomnames.json');
 
 module.exports = async (Discord, client, oldState, newState) => {
     const oldVoiceGuild = oldState.guild;
@@ -82,6 +83,9 @@ module.exports = async (Discord, client, oldState, newState) => {
     });
 
     ///////////////////////////// PartyBot
+    const possibleRoomNames = ROOMNAMES.roomnames;
+    const randomRoomName = possibleRoomNames[Math.floor(Math.random() * possibleRoomNames.length)];
+
     CONFIG.findOne({
         guildID: newVoiceGuild.id
     }, async (cErr, cData) => {
@@ -102,30 +106,29 @@ module.exports = async (Discord, client, oldState, newState) => {
                     const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
 
                     await newVoiceGuild.channels.create({
-                        name: 'PartyBot Room',
+                        name: randomRoomName,
                         type: ChannelType.GuildVoice,
                         parent: pbParent,
                         userLimit: cData.pbvclimit
-                    }).then((pRoom) => {
+                    }).then(async (pRoom) => {
                         const newVoice = new PARTY({
                             voiceID: pRoom.id,
                             ownerID: newMember.user.id
                         });
 
-                        newVoice.save().catch((err) => console.log(err)).then(() => {
-                            newMember.voice.setChannel(pRoom.id).catch(async () => {
-                                if (!newMember.voice.channel) {
-                                    await newVoice.delete();
-                                    await pRoom.delete();
-                                }
-                            });
+                        await newVoice.save().catch((err) => console.log(err));
+                        await newMember.voice.setChannel(pRoom.id).catch(async() => {
+                            if (!newMember.voice.channel) {
+                                if (newVoice) await newVoice.delete().catch((err) => console.log(err));
+                                if (pRoom) await pRoom.delete().catch((err) => console.log(err));
+                            }
                         });
                     });
                 } else {
                     newMember.voice.setChannel(data.voiceID).catch(async () => {
                         if (!newMember.voice.channel) {
-                            await newVoice.delete();
-                            await pRoom.delete();
+                            await newVoice.delete().catch((err) => console.log(err));
+                            await pRoom.delete().catch((err) => console.log(err));
                         }
                     });
                 }
@@ -133,40 +136,49 @@ module.exports = async (Discord, client, oldState, newState) => {
         }
         else if ((oldChannel !== null && newChannel == null) || (oldChannel !== null && newChannel !== null)) {
             const voiceSize = oldChannel.members.size;
-            const voiceName = oldChannel.name;
             const leaveUID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id; // If they left the room use the member ID, otherwise
                                                                                                            // if they left the server use the user ID
 
             if (!leaveUID) return;
 
-            if ((voiceSize <= 0) && voiceName === 'PartyBot Room') {
+            if (newChannel == null && oldChannel?.id === cData.pbvcid) {
+                PARTY.findOne({
+                    ownerID: leaveUID
+                }, async (err, data) => {
+                    if (err) return console.log(err);
+                    if (!data) return;
+
+                    const createdChannel = oldVoiceGuild.channels.cache.get(data.voiceID);
+
+                    if (createdChannel) await createdChannel.delete().catch((err) => {});
+                    await data.delete().catch((err) => console.log(err));
+                });
+            }
+
+            if (voiceSize <= 0) {
                 PARTY.findOne({
                     voiceID: oldChannel.id
                 }, async (err, data) => {
                     if (err) return console.log(err);
-                    if (!data) return;
+                    if (!data) return; // Not a custom room
 
                     await data.delete().catch((err) => console.log(err)); // If the data fails to delete (it created the channel
                     await oldChannel.delete().catch((err) => console.log(err)); // but not any data), be sure to delete the channel anyway
                 });
             }
-
-            if ((voiceSize !== 0) && voiceName === 'PartyBot Room') {
+            else if (voiceSize !== 0) {
                 PARTY.findOne({
                     voiceID: oldChannel.id
                 }, (err, data) => {
                     if (err) return console.log(err);
                     if (!data) return;
+                    if (data.ownerID !== leaveUID) return;
 
-                    if (data) {
-                        if (data.ownerID !== leaveUID) return;
+                    const randomMember = oldChannel.members.random();
 
-                        const randomMember = oldChannel.members.random();
-
-                        if (randomMember && randomMember.user) {
-                            data.ownerID = randomMember.user.id;
-                            data.save().catch((err) => console.log(err));
-                        }
+                    if (randomMember && randomMember.user) {
+                        data.ownerID = randomMember.user.id;
+                        data.save().catch((err) => console.log(err));
                     }
                 });
             }
