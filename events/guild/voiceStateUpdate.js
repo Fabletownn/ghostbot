@@ -142,15 +142,12 @@ module.exports = async (Discord, client, oldState, newState) => {
             if ((voiceSize <= 0) && voiceName === 'PartyBot Room') {
                 PARTY.findOne({
                     voiceID: oldChannel.id
-                }, (err, data) => {
+                }, async (err, data) => {
                     if (err) return console.log(err);
                     if (!data) return;
 
-                    if (data) {
-                        data.delete().catch((err) => console.log(err)).then(() => {
-                            oldChannel.delete();
-                        });
-                    }
+                    await data.delete().catch((err) => console.log(err)); // If the data fails to delete (it created the channel
+                    await oldChannel.delete().catch((err) => console.log(err)); // but not any data), be sure to delete the channel anyway
                 });
             }
 

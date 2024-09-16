@@ -17,15 +17,25 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
         const oldPermissions = oldChannel.permissionOverwrites.cache;
         const newPermissions = newChannel.permissionOverwrites.cache;
 
-        const channelType = (newChannel.type === ChannelType.GuildText) ? 'Text' : (newChannel.type === ChannelType.GuildForum) ? 'Forum' : (newChannel.type === ChannelType.GuildVoice) ? 'Voice' : (newChannel.type === ChannelType.GuildAnnouncement) ? 'Announcement' : (newChannel.type === ChannelType.GuildCategory) ? 'Category' : 'Server';
+        const channelType = (newChannel.type === ChannelType.GuildText) ? 'Text' :
+            (newChannel.type === ChannelType.GuildForum) ? 'Forum' :
+                (newChannel.type === ChannelType.GuildVoice) ? 'Voice' :
+                    (newChannel.type === ChannelType.GuildAnnouncement) ? 'Announcement' :
+                        (newChannel.type === ChannelType.GuildCategory) ? 'Category' : 'Server';
 
         const cTimestamp = Math.round((Date.now()) / 1000);
 
         ///////////////////////////// Name
         if (oldName !== newName) {
-            await newChannel.guild.fetchAuditLogs({ type: AuditLogEvent.ChannelUpdate }).then(async (audit) => {
-                const { executor } = audit.entries.first();
-
+            await delaySearch(7000);
+            
+            await newChannel.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.ChannelUpdate }).then(async (audit) => {
+                const auditLogs = audit.entries.filter((entry) => entry.targetId === newChannel.id && Date.now() - entry.createdTimestamp < 15000);
+                const relevantLog = auditLogs.first();
+                
+                if (!relevantLog) return;
+                
+                const { executor } = relevantLog;
                 const executorTag = (!executor) ? 'Unknown' : executor.tag;
                 const executorAvatar = (!executor) ? 'https://i.imgur.com/cguNuyW.png' : executor.displayAvatarURL({ size: 512, dynamic: true });
                 const executorID = (!executor) ? 'Unknown' : executor.id;
@@ -48,20 +58,24 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
 
         ///////////////////////////// Permissions
         if (oldPermissions !== newPermissions) {
-            await newChannel.guild.fetchAuditLogs({ limit: 1, type: AuditLogEvent.ChannelOverwriteUpdate }).then(async (audit) => {
-                const entry = audit.entries.first();
-                if (!entry) return;
+            await delaySearch(7000);
+            
+            await newChannel.guild.fetchAuditLogs({ limit: 10, type: AuditLogEvent.ChannelOverwriteUpdate }).then(async (audit) => {
+                const auditLogs = audit.entries.filter((entry) => entry.targetId === newChannel.id && Date.now() - entry.createdTimestamp < 15000);
+                const relevantLog = auditLogs.first();
+
+                if (!relevantLog) return;
+
+                const { executor, changes, extra } = relevantLog;
+                const executorTag = executor ? executor.tag : 'Unknown';
+                const executorAvatar = executor ? executor.displayAvatarURL({ size: 512, dynamic: true }) : 'https://i.imgur.com/cguNuyW.png';
+                const executorID = executor ? executor.id : 'Unknown';
+                if (executor && executor.bot) return;
 
                 const oldPermsString = oldChannel.permissionOverwrites.cache.map(perm => perm.allow.toArray().concat(perm.deny.toArray()).join('')).join('');
                 const newPermsString = newChannel.permissionOverwrites.cache.map(perm => perm.allow.toArray().concat(perm.deny.toArray()).join('')).join('');
                 
                 if (oldPermsString === newPermsString) return;
-
-                const { executor, changes, extra } = entry;
-                const executorTag = executor ? executor.tag : 'Unknown';
-                const executorAvatar = executor ? executor.displayAvatarURL({ size: 512, dynamic: true }) : 'https://i.imgur.com/cguNuyW.png';
-                const executorID = executor ? executor.id : 'Unknown';
-                if (executor && executor.bot) return;
 
                 let updateID = extra.id;
                 let updateType = newChannel.guild.roles.cache.has(updateID) ? 'Role' : (newChannel.guild.members.cache.has(updateID) ? 'User' : 'Unknown');
@@ -108,4 +122,12 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
             });
         }
     });
+}
+
+function delaySearch(delayMS) {
+    // Delays the search of audit logs because they can be late, so it's
+    // better to just wait, fetch the last 10 (or however many),
+    // and filter out the one needed, rather than immediately get the
+    // last log available which could be wrong/unrelated
+    return new Promise(resolve => setTimeout(resolve, delayMS));
 }

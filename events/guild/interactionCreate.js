@@ -171,26 +171,34 @@ module.exports = async (Discord, client, interaction) => {
                     case "Translate Message":
                         let translatedMessage = interaction.targetMessage.content;
 
+                        await interaction.deferReply({ ephemeral: true });
+
                         if (interaction.targetMessage.embeds.length > 0)  {
                             if (interaction.targetMessage.embeds[0].fields[0]) {
                                 const fieldValue = interaction.targetMessage.embeds[0].fields[0].value;
 
-                                if (fieldValue) translatedMessage = fieldValue; // Translate the first field value of an embed
+                                if (fieldValue) translatedMessage = fieldValue;
                             }
                         }
 
-                        if (!translatedMessage || translatedMessage === "") return interaction.reply({ content: 'The selected message has no content to translate.', ephemeral: true });
+                        if (!translatedMessage || translatedMessage === "") {
+                            await interaction.followUp({ content: 'The selected message has no content to translate.', ephemeral: true });
+                            return;
+                        }
 
-                        MET.translate(translatedMessage, null, 'en').then((res) => {
+                        MET.translate(translatedMessage, null, 'en').then(async (res) => {
                             const detectedLanguage = res[0].detectedLanguage.language;
                             const translatedContent = res[0].translations[0].text;
 
-                            if (detectedLanguage === 'en') return interaction.reply({ content: 'The selected message is already in English, and translations are only provided for messages in other languages.', ephemeral: true });
+                            if (detectedLanguage === 'en') {
+                                await interaction.followUp({ content: 'The selected message is already in English, and translations are only provided for messages in other languages.',  ephemeral: true });
+                                return;
+                            }
 
-                            interaction.reply({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, ephemeral: true });
+                            await interaction.followUp({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, ephemeral: true });
                         }).catch((err) => {
-                            interaction.reply({ content: `Failed to translate that message! If this is a mistake, please forward this error: \`${err}\``, ephemeral: true });
                             console.log(err);
+                            return interaction.followUp({ content: `Failed to translate that message! If this is a mistake, please forward this error: \`${err}\``, ephemeral: true });
                         });
                         
                         break;
