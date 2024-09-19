@@ -29,6 +29,9 @@ module.exports = async (Discord, client, oldState, newState) => {
         if (!lData.vcchannel) return;
         if (!lData.vcwebhook) return;
 
+        const customRoomNames = ROOMNAMES.roomnames;
+        const isCustomRoom = customRoomNames.some((room_name) => room_name.includes(newChannel?.name || oldChannel?.name));
+
         const newUser = client.users.cache.get(newState.id);
 
         if (oldChannel === null && newChannel !== null) {
@@ -45,6 +48,9 @@ module.exports = async (Discord, client, oldState, newState) => {
                 .setTimestamp()
                 .setColor('#66FF66')
 
+            if (isCustomRoom)
+                await joinedEmbed.setFooter({ text: "Joined a custom-made room" });
+            
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
         } else if (oldChannel !== null && newChannel !== null) {
             if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
@@ -63,6 +69,9 @@ module.exports = async (Discord, client, oldState, newState) => {
                 .setTimestamp()
                 .setColor('#58B9FF')
 
+            if (isCustomRoom)
+                await movedEmbed.setFooter({ text: "Moved to custom-made room" });
+
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
         } else if (oldChannel !== null && newChannel === null) {
             if (oldChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
@@ -78,6 +87,9 @@ module.exports = async (Discord, client, oldState, newState) => {
                 .setTimestamp()
                 .setColor('#FF6666')
 
+            if (isCustomRoom)
+                await leftEmbed.setFooter({ text: "Left from custom-made room" });
+
             await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
         }
     });
@@ -92,6 +104,7 @@ module.exports = async (Discord, client, oldState, newState) => {
         if (cErr) return console.log(cErr);
         if (!cData) return;
 
+        // If a user joins the room creation channel
         if ((newChannel !== null) && (newChannel.id === cData.pbvcid)) {
             const newMember = newState.member;
 
@@ -102,6 +115,7 @@ module.exports = async (Discord, client, oldState, newState) => {
             }, async (err, data) => {
                 if (err) return console.log(err);
 
+                // Create a new room and room data if they don't own a room
                 if (!data) {
                     const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
 
@@ -125,6 +139,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                         });
                     });
                 } else {
+                    // Send them back to their room if they try and create duplicate rooms
                     newMember.voice.setChannel(data.voiceID).catch(async () => {
                         if (!newMember.voice.channel) {
                             await newVoice.delete().catch((err) => console.log(err));
@@ -134,13 +149,17 @@ module.exports = async (Discord, client, oldState, newState) => {
                 }
             });
         }
+        // If a user leaves a channel or moves channels
         else if ((oldChannel !== null && newChannel == null) || (oldChannel !== null && newChannel !== null)) {
             const voiceSize = oldChannel.members.size;
-            const leaveUID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id; // If they left the room use the member ID, otherwise
-                                                                                                           // if they left the server use the user ID
-
+            
+            // If they left check a member ID, otherwise if they left the server check for a user ID
+            // This also ensures that ownership is given away if a room owner was banned from the server
+            const leaveUID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id;
             if (!leaveUID) return;
 
+            // If they quickly joined the room creation channel and left, delete any data or created
+            // voice channels left over
             if (newChannel == null && oldChannel?.id === cData.pbvcid) {
                 PARTY.findOne({
                     ownerID: leaveUID
@@ -155,18 +174,20 @@ module.exports = async (Discord, client, oldState, newState) => {
                 });
             }
 
+            // If the room is empty, delete the room (if there's room data)
             if (voiceSize <= 0) {
                 PARTY.findOne({
                     voiceID: oldChannel.id
                 }, async (err, data) => {
                     if (err) return console.log(err);
                     if (!data) return; // Not a custom room
+                                       // (Doesn't need a room name check since there wouldn't be any
+                                       // room data for normal VCs)
 
                     await data.delete().catch((err) => console.log(err)); // If the data fails to delete (it created the channel
                     await oldChannel.delete().catch((err) => console.log(err)); // but not any data), be sure to delete the channel anyway
                 });
-            }
-            else if (voiceSize !== 0) {
+            } else if (voiceSize !== 0) { // Transfer ownership to random user if owner leaves
                 PARTY.findOne({
                     voiceID: oldChannel.id
                 }, (err, data) => {

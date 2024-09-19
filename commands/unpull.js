@@ -15,6 +15,8 @@ module.exports = {
         ),
     async execute(interaction) {
         const idOption = interaction.options.getString('user-id');
+        const chReports = '805795819722244148';
+        const chReportsChannel = interaction.guild.channels.cache.get(chReports);
 
         CONFIG.findOne({
             guildID: interaction.guild.id
@@ -85,7 +87,10 @@ module.exports = {
 
                 await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch((err) => {});
 
-                await pData.delete();
+                await pData.delete().catch((err) => console.log(err));
+
+                const idUsername = interaction.client.users.cache.get(idOption)?.username;
+                await chReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
             });
         });
     },

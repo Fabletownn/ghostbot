@@ -14,6 +14,8 @@ module.exports = {
         ),
     async execute(interaction) {
         const userOption = interaction.options.getUser('user');
+        const chReports = '805795819722244148';
+        const chReportsChannel = interaction.guild.channels.cache.get(chReports);
 
         if (userOption.id === interaction.user.id) return interaction.reply({ content: 'Find a friend to pullroom, not yourself!' });
 
@@ -90,6 +92,7 @@ module.exports = {
                         await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                         await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
                         await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
+                        await chReportsChannel.send({ content: `🪢 <@${userOption.id}> (${userOption.username}) was pullroomed by ${interaction.user.username}` });
                     });
                 } else {
                     return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server. Rare find!' });
