@@ -9,31 +9,30 @@ module.exports = async (Discord, client, oldMember, newMember) => {
 
     const cTimestamp = Math.round((Date.now()) / 1000);
 
-    LCONFIG.findOne({
+    const data = await LCONFIG.findOne({
         guildID: newMember.guild.id
-    }, async (err, data) => {
-        if (err) return console.log(err);
-        if (!data) return;
-        if (!data.usernamechannel) return;
-        if (!data.usernamewebhook) return;
-
-        ///////////////////////////// Nickname
-        const oldNick = oldMember.displayName;
-        const newNick = newMember.displayName;
-
-        if (oldNick === null) return;
-
-        const nickNameEmbed = new EmbedBuilder()
-            .setAuthor({ name: newMember.user.tag, iconURL: newMember.user.displayAvatarURL({ size: 512, dynamic: true }) })
-            .setDescription(`<@${newMember.user.id}>'s server nickname was updated`)
-            .addFields([
-                { name: 'New', value: (newNick === newMember.user.displayName) ? 'None' : newNick, inline: true },
-                { name: 'Previous', value: (oldNick === oldMember.user.displayName) ? 'None' : oldNick, inline: true },
-                { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
-                { name: 'ID', value: `\`\`\`ini\nUser = ${newMember.user.id}\`\`\`` }
-            ])
-            .setTimestamp()
-
-        await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, nickNameEmbed);
     });
+
+    if (!data) return;
+    if (!data.usernamechannel) return;
+    if (!data.usernamewebhook) return;
+
+    ///////////////////////////// Nickname
+    const oldNick = oldMember.displayName;
+    const newNick = newMember.displayName;
+
+    if (oldNick === null) return;
+
+    const nickNameEmbed = new EmbedBuilder()
+        .setAuthor({ name: newMember.user.tag, iconURL: newMember.user.displayAvatarURL({ size: 512, dynamic: true }) })
+        .setDescription(`<@${newMember.user.id}>'s server nickname was updated`)
+        .addFields([
+            { name: 'New', value: (newNick === newMember.user.displayName) ? 'None' : newNick, inline: true },
+            { name: 'Previous', value: (oldNick === oldMember.user.displayName) ? 'None' : oldNick, inline: true },
+            { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
+            { name: 'ID', value: `\`\`\`ini\nUser = ${newMember.user.id}\`\`\`` }
+        ])
+        .setTimestamp()
+
+    await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, nickNameEmbed);
 };

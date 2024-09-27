@@ -22,55 +22,56 @@ module.exports = (Discord, client) => {
         Send message logs every 7.5 seconds
     */
     setInterval(async () => {
-        LCONFIG.findOne({
+        const data = await LCONFIG.findOne({
             guildID: '435431947963990026'
-        }, async (err, data) => {
-            if (err) return;
-            if (!data) return;
+        });
 
-            DELETES.find({ guildID: '435431947963990026' }).then((deletelogs) => {
-                deletelogs.forEach((d) => {
-                    wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
-                        .then(() => d.delete().catch((err) => console.log(err)));
-                });
-            });
+        if (!data) return;
 
-            EDITS.find({ guildID: '435431947963990026' }).then((editlogs) => {
-                editlogs.forEach((d) => {
-                    wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
-                        .then(() => d.delete().catch((err) => console.log(err)));
-                });
-            });
+        const deletelogs = await DELETES.find({
+            guildID: '435431947963990026'
+        });
+
+        await deletelogs.forEach((d) => {
+            wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
+                .then(() => d.delete().catch((err) => console.log(err)));
+        });
+
+        const editlogs = await EDITS.find({
+            guildID: '435431947963990026'
+        });
+
+        await editlogs.forEach((d) => {
+            wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
+                .then(() => d.delete().catch((err) => console.log(err)));
         });
     }, (7500));
 };
 
-function searchAndChangeStatus(client) {
-    STATUS.findOne({
+async function searchAndChangeStatus(client) {
+    const data = await STATUS.findOne({
         guildID: '435431947963990026'
-    }, (err, data) => {
-        if (err) return console.log(err);
+    });
 
-        if (!data) {
+    if (!data) {
+        client.user.setPresence({
+            activities: [
+                { name: 'Phasmophobia', type: ActivityType.Playing },
+            ],
+        });
+    } else {
+        const statusIndexes = data.statuses.filter((status) => status !== null);
+        const randomize = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
+        const randomStatus = randomize !== 'Phasmophobia' ? randomize : 'Playing Phasmophobia'; // default "Phasmophobia" no longer makes sense with user status
+
+        try {
             client.user.setPresence({
                 activities: [
-                    { name: 'Phasmophobia', type: ActivityType.Playing },
+                    { name: 'custom', type: ActivityType.Custom, state: randomStatus },
                 ],
             });
-        } else {
-            const statusIndexes = data.statuses.filter((status) => status !== null);
-            const randomize = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];
-            const randomStatus = randomize !== 'Phasmophobia' ? randomize : 'Playing Phasmophobia'; // default "Phasmophobia" no longer makes sense with user status
-
-            try {
-                client.user.setPresence({
-                    activities: [
-                        { name: 'custom', type: ActivityType.Custom, state: randomStatus },
-                    ],
-                });
-            } catch (err) {
-                return console.error(`Failed to change bot status: ${err}`);
-            }
+        } catch (err) {
+            return console.error(`Failed to change bot status: ${err}`);
         }
-    });
+    }
 }

@@ -16,22 +16,20 @@ module.exports = {
     async execute(interaction) {
         const statusOption = interaction.options.getString('status');
 
-        STATUS.findOne({
+        const data = await STATUS.findOne({
             guildID: interaction.guild.id
-        }, (err, data) => {
-            if (err) return console.log(err);
-
-            if (!data) {
-                const newStatusData = new STATUS({
-                    guildID: interaction.guild.id,
-                    statuses: ['Phasmophobia', statusOption]
-                });
-
-                newStatusData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${newStatusData.statuses.indexOf(statusOption) || '?'}**.` }));
-            } else if (data) {
-                data.statuses.push(statusOption);
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${data.statuses.indexOf(statusOption) || '?'}**.` }));
-            }
         });
+        
+        if (!data) {
+            const newStatusData = new STATUS({
+                guildID: interaction.guild.id,
+                statuses: ['Playing Phasmophobia', statusOption]
+            });
+
+            newStatusData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${newStatusData.statuses.indexOf(statusOption) || '?'}**.` }));
+        } else if (data) {
+            data.statuses.push(statusOption);
+            data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${data.statuses.indexOf(statusOption) || '?'}**.` }));
+        }
     },
 };
