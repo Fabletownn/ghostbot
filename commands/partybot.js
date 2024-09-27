@@ -1,7 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder} = require('discord.js');
 const PARTY = require('../models/party.js');
 const CONFIG = require('../models/config.js');
-const LCONFIG = require("../models/logconfig");
+const LCONFIG = require("../models/logconfig.js");
 
 const actionArray = ([
     { name: 'Transfer Room Ownership (User)', value: 'transferowner' },
@@ -50,6 +50,8 @@ module.exports = {
 
         if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this custom voice channel. Ask <@${pData.ownerID}> to run these commands!`, ephemeral: true });
 
+        let userID = 0;
+
         switch (actionOption) {
             case "lockroom":
                 await voiceChannel.setUserLimit(voiceChannel.members.size);
@@ -73,6 +75,8 @@ module.exports = {
                 });
 
                 await interaction.reply({ content: `Kicked <@${userOption.id}> from your voice channel.`, ephemeral: true });
+
+                userID = userOption.id;
                 break;
             }
             case "banuser": {
@@ -96,6 +100,8 @@ module.exports = {
 
                     await interaction.reply({ content: `Banned <@${userOption.id}> from your voice channel.`, ephemeral: true });
                 });
+
+                userID = userOption.id;
                 break;
             }
             case "unbanuser": {
@@ -106,6 +112,8 @@ module.exports = {
 
                 await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
                 await interaction.reply({ content: `Unbanned <@${userOption.id}> from your voice channel.`, ephemeral: true });
+
+                userID = userOption.id;
                 break;
             }
             case "transferowner": {
@@ -119,10 +127,75 @@ module.exports = {
 
                 pData.ownerID = userOption.id;
                 pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, ephemeral: true }));
+
+                userID = userOption.id;
                 break;
             }
             default:
                 break;
         }
+
+        await log_action(interaction, actionOption, userID);
     },
 };
+
+async function log_action(interaction, choicekey, userID = 0) {
+    const data = await LCONFIG.findOne({
+        guildID: interaction.guild.id
+    });
+
+    if (!data) return;
+    if (!data.vcchannel) return;
+
+    const logUser = interaction.user;
+    const logAvatar = interaction.user.displayAvatarURL({ dynamic: true });
+    const cTimestamp = Math.round((Date.now()) / 1000);
+
+    let logMessage = 'Unknown';
+
+    switch (choicekey) {
+        case "lockroom":
+            logMessage = 'Locked their room';
+            break;
+        case "unlockroom":
+            logMessage = 'Unlocked their room';
+            break;
+        case "kickuser":
+            logMessage = 'Kicked a member from their room';
+            break;
+        case "banuser":
+            logMessage = 'Banned a member from their room';
+            break;
+        case "unbanuser":
+            logMessage = 'Unbanned a member from their room';
+            break;
+        case "transferowner":
+            logMessage = 'Transferred ownership to another member';
+            break;
+        default:
+            return;
+    }
+
+    const logEmbed = new EmbedBuilder()
+        .setAuthor({ name: logUser.username, iconURL: logAvatar })
+        .setDescription(`<@${logUser.id}> updated their custom voice channel`)
+        .addFields([
+            { name: 'Action', value: logMessage, inline: true }
+        ])
+        .setTimestamp();
+
+    if (userID !== 0) { // If there was a user ID that got kicked/banned/etc. log it
+        await logEmbed.addFields([
+            { name: 'Member', value: `<@${userID}> (${userID})`, inline: true },
+            { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
+            { name: 'ID', value: `\`\`\`ini\nOwner = ${logUser.id}\nUser = ${userID}\`\`\`` }
+        ]);
+    } else {
+        await logEmbed.addFields([
+            { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
+            { name: 'ID', value: `\`\`\`ini\nOwner = ${logUser.id}\`\`\`` }
+        ]);
+    }
+
+    await interaction.guild.channels.cache.get(data.vcchannel).send({ embeds: [logEmbed] });
+}
