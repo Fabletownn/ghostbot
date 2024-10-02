@@ -94,38 +94,42 @@ module.exports = async (Discord, client, oldState, newState) => {
     }
 
     ///////////////////////////// PartyBot
+    // Check a member ID, otherwise if they left the server check for a user ID
+    // This also ensures that ownership is given away if a room owner was banned from the server
+    const stateUserID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id;
+
     const possibleRoomNames = ROOMNAMES.roomnames;
     const randomRoomName = possibleRoomNames[Math.floor(Math.random() * possibleRoomNames.length)];
 
-    const cData = await CONFIG.findOne({
+    const configData = await CONFIG.findOne({
         guildID: newVoiceGuild.id
     });
 
-    if (!cData) return;
+    if (!configData) return;
 
     // If a user joins the room creation channel
-    if ((newChannel !== null) && (newChannel.id === cData.pbvcid)) {
+    if ((newChannel !== null) && (newChannel.id === configData.pbvcid)) {
         const newMember = newState.member;
 
         if (newMember.user.bot) return;
 
-        const data = await PARTY.findOne({
-            ownerID: newMember.user.id
+        const roomData = await PARTY.findOne({
+            ownerID: stateUserID
         });
 
         // Create a new room and room data if they don't own a room
-        if (!data) {
-            const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
+        if (!roomData) {
+            const pbParent = newVoiceGuild.channels.cache.get(configData.pbvcid).parent.id;
 
             await newVoiceGuild.channels.create({
                 name: randomRoomName,
                 type: ChannelType.GuildVoice,
                 parent: pbParent,
-                userLimit: cData.pbvclimit
+                userLimit: configData.pbvclimit
             }).then(async (pRoom) => {
                 const newVoice = new PARTY({
                     voiceID: pRoom.id,
-                    ownerID: newMember.user.id
+                    ownerID: stateUserID
                 });
 
                 await newVoice.save().catch((err) => console.log(err));
@@ -138,12 +142,12 @@ module.exports = async (Discord, client, oldState, newState) => {
             });
         } else {
             // Send them back to their room if they try and create duplicate rooms
-            newMember.voice.setChannel(data.voiceID).catch(async () => {
+            await newMember.voice.setChannel(roomData.voiceID).catch(async () => {
                 if (!newMember.voice.channel) {
-                    const voice = newVoiceGuild.channels.cache.get(data.voiceID);
-                    
+                    const voice = newVoiceGuild.channels.cache.get(roomData.voiceID);
+
                     await voice.delete().catch((err) => console.log(err));
-                    await data.delete().catch((err) => console.log(err));
+                    await roomData.delete().catch((err) => console.log(err));
                 }
             });
         }
@@ -152,51 +156,50 @@ module.exports = async (Discord, client, oldState, newState) => {
     else if ((oldChannel !== null && newChannel == null) || (oldChannel !== null && newChannel !== null)) {
         const voiceSize = oldChannel.members.size;
 
-        // If they left check a member ID, otherwise if they left the server check for a user ID
-        // This also ensures that ownership is given away if a room owner was banned from the server
-        const leaveUID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id;
-        if (!leaveUID) return;
-
         // If they quickly joined the room creation channel and left, delete any data or created
         // voice channels left over
-        if (newChannel == null && oldChannel?.id === cData.pbvcid) {
-            const data = await PARTY.findOne({
-                ownerID: leaveUID
+        if (newChannel === null && oldChannel?.id === configData.pbvcid) {
+            const roomData = await PARTY.findOne({
+                ownerID: stateUserID
             });
+            const createdChannel = newVoiceGuild.channels.cache.get(roomData?.voiceID);
 
-            if (!data) return;
+            if (createdChannel)
+                await createdChannel.delete().catch(() => {});
 
-            const createdChannel = oldVoiceGuild.channels.cache.get(data.voiceID);
-
-            if (createdChannel) await createdChannel.delete().catch(() => {});
-            await data.delete().catch((err) => console.log(err));
+            await PARTY.findOneAndDelete({
+                ownerID: stateUserID
+            });
         }
 
         // If the room is empty, delete the room (if there's room data)
         if (voiceSize <= 0) {
-            const data = await PARTY.findOne({
+            const foundData = await PARTY.findOne({
                 voiceID: oldChannel.id
             });
 
-            if (!data) return; // Not a custom room
-                               // (Doesn't need a room name check since there wouldn't be any
-                               // room data for normal VCs)
+            if (!foundData) return; // Not a custom room (Doesn't need a room name check since there wouldn't be any
+                                    // room data for normal VCs)
 
-            await data.delete().catch((err) => console.log(err)); // If the data fails to delete (it created the channel
-            await oldChannel.delete().catch((err) => console.log(err)); // but not any data), be sure to delete the channel anyway
+            const roomChannel = newVoiceGuild.channels.cache.get(foundData.voiceID);
+
+            await roomChannel.delete().catch((err) => console.log(err));
+            await PARTY.findOneAndDelete({
+                voiceID: oldChannel.id
+            });
         } else if (voiceSize !== 0) { // Transfer ownership to random user if owner leaves
-            const data = await PARTY.findOne({
+            const transferData = await PARTY.findOne({
                 voiceID: oldChannel.id
             });
 
-            if (!data) return;
-            if (data.ownerID !== leaveUID) return;
+            if (!transferData) return;
+            if (transferData.ownerID !== stateUserID) return;
 
             const randomMember = oldChannel.members.random();
 
             if (randomMember && randomMember.user) {
-                data.ownerID = randomMember.user.id;
-                data.save().catch((err) => console.log(err));
+                transferData.ownerID = randomMember.user.id;
+                transferData.save().catch((err) => console.log(err));
             }
         }
     }
