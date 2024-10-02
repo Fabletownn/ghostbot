@@ -27,8 +27,8 @@ module.exports = async (Discord, client, oldUser, newUser) => {
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
             .setDescription(`<@${newUser.id}>'s display name was updated`)
             .addFields([
-                { name: 'New', value: oldDisplay || 'Unknown', inline: true },
-                { name: 'Previous', value: newDisplay || 'Unknown', inline: true },
+                { name: 'New', value: newDisplay || 'Unknown', inline: true },
+                { name: 'Previous', value: oldDisplay || 'Unknown', inline: true },
                 { name: 'Date', value: `<t:${cTimestamp}:F>`, inline: false },
                 { name: 'ID', value: `\`\`\`ini\nUser = ${newUser.id}\`\`\`` }
             ])

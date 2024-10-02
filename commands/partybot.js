@@ -54,14 +54,18 @@ module.exports = {
 
         switch (actionOption) {
             case "lockroom":
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+
                 await voiceChannel.setUserLimit(voiceChannel.members.size);
                 await interaction.reply({ content: 'Your voice channel has been locked.', ephemeral: true });
                 break;
             case "unlockroom":
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+
                 await voiceChannel.setUserLimit(cData.pbvclimit);
                 await interaction.reply({ content: 'Your voice channel has been unlocked.', ephemeral: true });
                 break;
-            case "kickuser": {
+            case "kickuser":
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
@@ -70,6 +74,7 @@ module.exports = {
                 if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
                 await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
                     reason: `Disconnected from voice channel by custom VC host ${interaction.user.username} (${interaction.user.displayName})`
                 });
@@ -78,8 +83,7 @@ module.exports = {
 
                 userID = userOption.id;
                 break;
-            }
-            case "banuser": {
+            case "banuser":
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const userVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice?.channel;
@@ -87,6 +91,7 @@ module.exports = {
                 if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
                 await userVoiceChannel.permissionOverwrites.edit(userOption.id, {
                     Connect: false
                 }).then(async () => {
@@ -103,20 +108,19 @@ module.exports = {
 
                 userID = userOption.id;
                 break;
-            }
-            case "unbanuser": {
+            case "unbanuser":
                 const unbanVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice.channel;
 
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
                 await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
                 await interaction.reply({ content: `Unbanned <@${userOption.id}> from your voice channel.`, ephemeral: true });
 
                 userID = userOption.id;
                 break;
-            }
-            case "transferowner": {
+            case "transferowner":
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
@@ -126,11 +130,12 @@ module.exports = {
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                 pData.ownerID = userOption.id;
+
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room!', ephemeral: true });
                 pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, ephemeral: true }));
 
                 userID = userOption.id;
                 break;
-            }
             default:
                 break;
         }
@@ -198,4 +203,20 @@ async function log_action(interaction, choicekey, userID = 0) {
     }
 
     await interaction.guild.channels.cache.get(data.vcchannel).send({ embeds: [logEmbed] });
+}
+
+async function checkOwnership(interaction) {
+    const currentChannel = interaction?.member?.voice?.channel;
+    const userID = interaction?.user?.id;
+
+    if (currentChannel && userID) {
+        const checkData = await PARTY.findOne({
+            voiceID: currentChannel.id,
+            ownerID: userID
+        });
+
+        if (checkData) return true;
+    }
+
+    return false;
 }

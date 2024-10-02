@@ -35,7 +35,7 @@ module.exports = async (Discord, client, oldState, newState) => {
     const newUser = client.users.cache.get(newState.id);
 
     if (oldChannel === null && newChannel !== null) {
-        if (newChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
+        if (newChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
 
         const joinedEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -54,7 +54,7 @@ module.exports = async (Discord, client, oldState, newState) => {
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
     } else if (oldChannel !== null && newChannel !== null) {
         if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
-        if (oldChannel.id === '1253056675531722772' || newChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
+        if (oldChannel.id === '1067184155760267284' || newChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
 
         const movedEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -74,7 +74,7 @@ module.exports = async (Discord, client, oldState, newState) => {
 
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
     } else if (oldChannel !== null && newChannel === null) {
-        if (oldChannel.id === '1253056675531722772') return; // TODO: TEMPORARY
+        if (oldChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
 
         const leftEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -140,8 +140,10 @@ module.exports = async (Discord, client, oldState, newState) => {
             // Send them back to their room if they try and create duplicate rooms
             newMember.voice.setChannel(data.voiceID).catch(async () => {
                 if (!newMember.voice.channel) {
-                    await newVoice.delete().catch((err) => console.log(err));
-                    await pRoom.delete().catch((err) => console.log(err));
+                    const voice = newVoiceGuild.channels.cache.get(data.voiceID);
+                    
+                    await voice.delete().catch((err) => console.log(err));
+                    await data.delete().catch((err) => console.log(err));
                 }
             });
         }
