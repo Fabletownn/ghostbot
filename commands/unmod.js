@@ -4,7 +4,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('modmail-unmod')
-        .setDescription('(Staff) Moves the current hoisted ModMail ticket down to ModMail Tickets')
+        .setDescription('Moves the current hoisted ModMail ticket down to ModMail Tickets')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         CONFIG.findOne({

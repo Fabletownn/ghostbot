@@ -5,7 +5,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('disc
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('pull')
-        .setDescription('(Moderator) Creates a pullroom channel for the specified user')
+        .setDescription('Creates a pullroom channel for the specified user')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addUserOption((option) =>
             option.setName('user')

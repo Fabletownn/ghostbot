@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('disc
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('search')
-        .setDescription('(Staff) Searches for a user based on a username query')
+        .setDescription('Searches for a user based on a username query')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addStringOption((option) =>
             option.setName('query')

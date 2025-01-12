@@ -126,7 +126,6 @@ module.exports = async (Discord, client, interaction) => {
     else if (interaction.isMessageContextMenuCommand()) {
         switch (interaction.commandName) {
             case "Flag Message":
-            case "Flag Message (Emergency)":
                 const flaggedMessage = interaction.targetMessage;
                 const msgAuthor = flaggedMessage.author;
                 const msgContent0 = flaggedMessage.content;
@@ -136,8 +135,6 @@ module.exports = async (Discord, client, interaction) => {
                 const flagCreated = Math.round(Date.now() / 1000);
                 const msgAttachs = Array.from(flaggedMessage.attachments.values());
                 const msgAttachment = (msgAttachs.length > 0 ? msgAttachs[0].url : null);
-                const isEmergency = interaction.commandName === 'Flag Message (Emergency)';
-                const flagEmergency = (isEmergency ? '<@&756591038373691606> A message has been flagged as an emergency!' : null);
 
                 const flagEmbed = new EmbedBuilder()
                     .setAuthor({ name: `Unhandled Flag`, iconURL: 'https://i.imgur.com/rSqII8d.png' })
@@ -168,8 +165,8 @@ module.exports = async (Discord, client, interaction) => {
                             .setStyle(ButtonStyle.Danger),
                     );
 
-                await interaction.guild.channels.cache.get('805795819722244148').send({ content: flagEmergency, embeds: [flagEmbed], components: [flagRow], allowedMentions: { parse: ['roles'] } }).then((flag) => {
-                    interaction.reply({ content: `Flagged the message${(isEmergency ? ' as an emergency' : '')}: [jump to your report here](<${flag.url}>)!`, ephemeral: true });
+                await interaction.guild.channels.cache.get('805795819722244148').send({ content: null, embeds: [flagEmbed], components: [flagRow], allowedMentions: { parse: ['roles'] } }).then((flag) => {
+                    interaction.reply({ content: `Flagged the message: [jump to your report here](<${flag.url}>)!`, ephemeral: true });
                 });
 
                 break;

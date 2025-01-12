@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('disco
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('lock')
-        .setDescription('(Moderator) Locks a channel with optional reasoning')
+        .setDescription('Locks a channel with optional reasoning')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')

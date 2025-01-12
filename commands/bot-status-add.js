@@ -4,7 +4,7 @@ const STATUS = require('../models/statuses.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('bot-status-add')
-        .setDescription('(Staff) Add a status for the bot to use')
+        .setDescription('Add a status for the bot to use')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addStringOption((option) =>
             option.setName('status')

@@ -6,7 +6,7 @@ const superagent = require("superagent");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('unpull')
-        .setDescription('(Moderator) Removes a user from their pullroom')
+        .setDescription('Removes a user from their pullroom')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addStringOption((option) =>
             option.setName('user-id')

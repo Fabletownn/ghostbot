@@ -4,7 +4,7 @@ const SUB = require('../models/subscriptions.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('unsubscribe')
-        .setDescription('(Staff) Unsubscribe from a tech support forum post(s)')
+        .setDescription('Unsubscribe from a tech support forum post(s)')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
         .addBooleanOption((option) =>
             option.setName('nuke-subscriptions')

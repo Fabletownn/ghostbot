@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('disco
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('unlock')
-        .setDescription('(Moderator) Unlocks a locked channel')
+        .setDescription('Unlocks a locked channel')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')

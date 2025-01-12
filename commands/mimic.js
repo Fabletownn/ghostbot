@@ -3,7 +3,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, ActionRowBuilder
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('mimic')
-        .setDescription('(Staff) (In the channel executed) Prompt a message mimic')
+        .setDescription('(In the channel executed) Prompt a message mimic')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         const firstNames = ['Karen', 'Mary', 'Heather', 'Shannon', 'Marcia', 'Robin', 'Tim', 'Donald', 'William', 'Charles', 'Anthony', 'Gregory'];

@@ -4,7 +4,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('disco
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('slowmode-set')
-        .setDescription('(Moderator) Sets the slowmode of a channel')
+        .setDescription('Sets the slowmode of a channel')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addChannelOption((option) =>
             option.setName('channel')

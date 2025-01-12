@@ -4,7 +4,7 @@ const STATUS = require('../models/statuses.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('bot-status-force-change')
-        .setDescription('(Admin) Forces a bot status change')
+        .setDescription('Forces a bot status change')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         const data = await STATUS.findOne({

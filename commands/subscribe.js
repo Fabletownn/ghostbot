@@ -4,7 +4,7 @@ const SUB = require('../models/subscriptions.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('subscribe')
-        .setDescription('(Staff) Subscribe to a tech support forum post')
+        .setDescription('Subscribe to a tech support forum post')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         const techChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];

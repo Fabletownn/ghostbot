@@ -4,7 +4,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('modmail-unsteam')
-        .setDescription('(Moderator) Removes Steam Moderator access from a hoisted ModMail ticket')
+        .setDescription('Removes Steam Moderator access from a hoisted ModMail ticket')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         CONFIG.findOne({
