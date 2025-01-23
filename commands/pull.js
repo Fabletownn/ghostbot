@@ -86,6 +86,10 @@ module.exports = {
 
                 await pullMember.roles.add(cData.pullroleid);
 
+                await pullMember.voice.setChannel(null, {
+                    reason: `Disconnected from voice channel as pullroomed`
+                });
+
                 await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                 await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
                 await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
