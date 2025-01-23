@@ -1,10 +1,10 @@
-const CONFIG = require('../models/config.js');
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const CONFIG = require('../models/config.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('modmail-mod')
-        .setDescription('Moves the current ModMail thread up to Admin/Mod Tickets')
+        .setName('modmail-hoist')
+        .setDescription('Moves the current ModMail thread up to Hoisted ModMail Tickets')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
         CONFIG.findOne({

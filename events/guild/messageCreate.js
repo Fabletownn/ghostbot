@@ -44,7 +44,7 @@ module.exports = async (Discord, client, message) => {
         Used for messaging staff members if they subscribed to a post in one of the following forums
         tech-support, vr-tech-support, bug-reports, map-reports, vr-bug-reports
     */
-    const triggeredChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
+    const triggeredChannels = ['1034230224973484112', '1034231311147216959'];
 
     if (triggeredChannels.some((chID) => message.channel.parent.id === chID)) {
         const sData = await SUB.findOne({
@@ -81,7 +81,7 @@ module.exports = async (Discord, client, message) => {
         tech-support, vr-tech-support
     */
     const techChannels = ['1082421799578521620', '1020011442205900870'];
-    const techRoles = ['1145866363479523358', '761640195413377044', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
+    const techRoles = ['1145866363479523358', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
 
     if (cData.tagapply === true) {
         if (techChannels.some((chID) => message.channel.parent.id === chID)) {

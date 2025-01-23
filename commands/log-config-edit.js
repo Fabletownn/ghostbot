@@ -38,7 +38,6 @@ module.exports = {
         ),
     async execute(interaction) {
         const configOption = interaction.options.getString('config');
-
         const categoryOption = interaction.options.getChannel('category');
         const channelOption = interaction.options.getChannel('channel');
 

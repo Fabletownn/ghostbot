@@ -1,7 +1,7 @@
+const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const CONFIG = require('../models/config.js');
 const PULL = require('../models/pullrooms.js');
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
-const superagent = require("superagent");
+const superagent = require('superagent');
 
 module.exports = {
     data: new SlashCommandBuilder()

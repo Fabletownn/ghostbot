@@ -81,7 +81,9 @@ module.exports = async (Discord, client, interaction) => {
                     await flagmsg.delete();
                     await interaction.message.edit({ embeds: [handledEmbed], components: [] });
                     await interaction.reply({ content: 'Deleted the message.', ephemeral: true });
-                }).catch(() => { return interaction.reply({ content: 'Unable to delete the message, does it exist?', ephemeral: true }) });
+                }).catch(() => {
+                    return interaction.reply({ content: 'Unable to delete the message, does it exist?', ephemeral: true })
+                });
 
                 break;
             case "flag-handle":
@@ -200,7 +202,7 @@ module.exports = async (Discord, client, interaction) => {
                     await interaction.followUp({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, ephemeral: true });
                 }).catch((err) => {
                     console.log(err);
-                    return interaction.followUp({ content: `Failed to translate that message! If this is a mistake, please forward this error: \`${err}\``, ephemeral: true });
+                    return interaction.followUp({ content: `Failed to translate that message! If this continues, please forward this error: \`${err}\``, ephemeral: true });
                 });
 
                 break;

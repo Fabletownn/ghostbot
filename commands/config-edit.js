@@ -12,7 +12,7 @@ const configOptions = ([
     { name: 'Pullroom Logs (Channel)', value: 'pulllogs' },
     { name: 'Pullroom Message (Message)', value: 'pullmsg' },
     { name: 'ModMail Tickets Category (Category)', value: 'mmcategory' },
-    { name: 'Admin/Mod Tickets Category (Category)', value: 'ammcategory' }
+    { name: 'Hoisted Tickets Category (Category)', value: 'ammcategory' }
 ]);
 
 module.exports = {
@@ -62,7 +62,6 @@ module.exports = {
         ),
     async execute(interaction) {
         const configOption = interaction.options.getString('config');
-
         const categoryOption = interaction.options.getChannel('category');
         const channelOption = interaction.options.getChannel('channel');
         const roleOption = interaction.options.getRole('role');

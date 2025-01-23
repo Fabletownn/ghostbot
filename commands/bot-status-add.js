@@ -26,10 +26,12 @@ module.exports = {
                 statuses: ['Playing Phasmophobia', statusOption]
             });
 
-            newStatusData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${newStatusData.statuses.indexOf(statusOption) || '?'}**.` }));
+            await newStatusData.save();
+            await interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${newStatusData.statuses.indexOf(statusOption) || '?'}**.` });
         } else if (data) {
             data.statuses.push(statusOption);
-            data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${data.statuses.indexOf(statusOption) || '?'}**.` }));
+            await data.save();
+            await interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${data.statuses.indexOf(statusOption) || '?'}**.` });
         }
     },
 };

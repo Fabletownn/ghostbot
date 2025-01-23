@@ -1,5 +1,5 @@
-const sf = require('seconds-formater');
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
+const sf = require('seconds-formater');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -24,6 +24,6 @@ module.exports = {
         const secondsOption = interaction.options.getInteger('seconds');
 
         await channelOption.setRateLimitPerUser(secondsOption);
-        await interaction.reply({ content: `Successfully ${(secondsOption === 0) ? `disabled <#${channelOption.id}>'s slowmode` : `set <#${channelOption.id}>'s slowmode`} (${sf.convert(secondsOption || 0).format('MM:SS')}).` });
+        await interaction.reply({ content: `Successfully ${(secondsOption === 0) ? `disabled <#${channelOption.id}>'s slowmode` : `set <#${channelOption.id}>'s slowmode`} (now **${sf.convert(secondsOption || 0).format('MM:SS')}**).` });
     },
 };

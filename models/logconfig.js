@@ -18,5 +18,5 @@ const logConfigSchema = mongoose.Schema({
 
 module.exports = mongoose.model('logconfig', logConfigSchema);
 
-// This model is meant for bot configuration or turning specific log featres off, will be updated everytime a new config is added
+// This model is meant for bot configuration or turning specific log features off, will be updated everytime a new config is added
 // config.js

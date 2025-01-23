@@ -1,5 +1,5 @@
-const sf = require('seconds-formater');
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const sf = require('seconds-formater');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -11,7 +11,6 @@ module.exports = {
 
         const tripLatency = Math.round(pingReceived.createdTimestamp - interaction.createdTimestamp).toLocaleString();
         const botHeartbeat = interaction.client.ws.ping.toLocaleString();
-
         const uptimeInSeconds = (interaction.client.uptime / 1000) || 0;
 
         await interaction.editReply({ content: `Uptime: ${sf.convert(uptimeInSeconds).format('**Dd Hh Mm** and **Ss**')}\nTrip Latency: **${tripLatency}ms**\nHeartbeat: **${(botHeartbeat < 0) ? 'Unable to determine' : `${botHeartbeat}ms`}**` });
