@@ -14,29 +14,23 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute(interaction) {
-        const idOption = interaction.options.getString('user-id');
-        const chReports = '805795819722244148';
-        const chReportsChannel = interaction.guild.channels.cache.get(chReports);
+        const idOption = interaction.options.getString('user-id'); // User ID to remove from pullroom
+        const userReports = '805795819722244148';          // Channel ID for the user reports channel
+        const userReportsChannel = interaction.guild.channels.cache.get(userReports); // User reports channel object
 
-        const cData = await CONFIG.findOne({
-            guildID: interaction.guild.id
-        });
-
-        const pData = await PULL.findOne({
-            guildID: interaction.guild.id,
-            userID: idOption
-        });
+        const cData = await CONFIG.findOne({ guildID: interaction.guild.id });                 // Get existing configuration data
+        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: idOption }); // Get existing pullroom data
 
         if (!cData) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
         if (!pData) return interaction.reply({ content: 'That user does not have a pullroom session open.' });
-        if (!chReportsChannel) return interaction.reply({ content: 'Failed to find the CH Reports channel.' });
+        if (!userReportsChannel) return interaction.reply({ content: 'Failed to find the User Reports channel.' });
 
-        const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID);
-        const pullMember = interaction.guild.members.cache.get(pData.userID);
+        const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID); // Pullroom channel object
+        const pullMember = interaction.guild.members.cache.get(pData.userID);          // Member object for the pullroomed user
 
         await interaction.deferReply();
 
-        if (pullMember) await pullMember.roles.remove(cData.pullroleid).catch(() => {});
+        if (pullMember) await pullMember.roles.remove(cData.pullroleid).catch(() => {}); // If the member is in the server, remove the role from them
 
         const transcriptEmbed = new EmbedBuilder()
             .setTitle(`${pData.userTag} (\`${pData.userID}\`)`)
@@ -45,6 +39,7 @@ module.exports = {
             .setTimestamp()
             .setColor('#58B9FF')
 
+        // Upload pullroom transcript to Sourcebin
         try {
             superagent
                 .post('https://sourceb.in/api/bins')
@@ -57,6 +52,7 @@ module.exports = {
                 .end(async (err, res) => {
                     if (err) return console.log(err);
 
+                    // If the transcript successfully uploaded, send it into the configured logs channel
                     if (res.ok) {
                         const transcriptButton = new ButtonBuilder()
                             .setLabel("Log link")
@@ -69,6 +65,8 @@ module.exports = {
                         await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], components: [successRow] });
                     }
                 });
+            
+        // If the transcript failed to upload, send a Log unavailable embed, but still show that they were pullroomed    
         } catch (err) {
             const unavailableButton = new ButtonBuilder()
                 .setCustomId('log-unavailable')
@@ -83,6 +81,7 @@ module.exports = {
             await console.log(err);
         }
 
+        // Delete the pullroom channel and data
         if (pullroomChannel) await pullroomChannel.delete().catch(() => {});
 
         await interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch(() => {});
@@ -93,6 +92,6 @@ module.exports = {
         }).catch((err) => console.log(err));
 
         const idUsername = interaction.client.users.cache.get(idOption)?.username;
-        await chReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
+        await userReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
     },
 };

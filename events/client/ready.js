@@ -22,26 +22,20 @@ module.exports = (Discord, client) => {
         Send message logs every 7.5 seconds
     */
     setInterval(async () => {
-        const data = await LCONFIG.findOne({
-            guildID: '435431947963990026'
-        });
+        const data = await LCONFIG.findOne({ guildID: '435431947963990026' }); // Get existing log configuration data
 
         if (!data) return;
 
-        const deletelogs = await DELETES.find({
-            guildID: '435431947963990026'
-        });
+        const deletelogs = await DELETES.find({ guildID: '435431947963990026' }); // Get existing delete log data
 
-        await deletelogs.forEach((d) => {
+        await deletelogs.forEach((d) => { // Send every log stored and delete the data afterward
             wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
                 .then(() => d.delete().catch((err) => console.log(err)));
         });
 
-        const editlogs = await EDITS.find({
-            guildID: '435431947963990026'
-        });
+        const editlogs = await EDITS.find({ guildID: '435431947963990026' }); // Get existing edit log data
 
-        await editlogs.forEach((d) => {
+        await editlogs.forEach((d) => { // Send every log stored and delete the data afterward, again
             wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
                 .then(() => d.delete().catch((err) => console.log(err)));
         });
@@ -49,16 +43,17 @@ module.exports = (Discord, client) => {
 };
 
 async function searchAndChangeStatus(client) {
-    const data = await STATUS.findOne({
-        guildID: '435431947963990026'
-    });
+    const data = await STATUS.findOne({ guildID: '435431947963990026' }); // Get existing server status data
 
+    // If there is no status data, just set the activity to 'Playing Phasmophobia'
     if (!data) {
         client.user.setPresence({
             activities: [
-                { name: 'Phasmophobia', type: ActivityType.Playing },
+                { name: 'custom', type: ActivityType.Custom, state: 'Playing Phasmophobia' },
             ],
         });
+        
+    // Otherwise, go through and select a random status to set to    
     } else {
         const statusIndexes = data.statuses.filter((status) => status !== null);
         const randomize = statusIndexes[Math.floor(Math.random() * statusIndexes.length)];

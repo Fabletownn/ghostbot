@@ -3,16 +3,15 @@ const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = async (Discord, client, oldMember, newMember) => {
+    // Don't log if the user is a partial, bot, or if both nicknames are the same
     if (oldMember.user.partial) return;
     if (oldMember.user.bot || newMember.user.bot) return;
     if (oldMember.displayName === newMember.displayName) return;
+    
+    const cTimestamp = Math.round((Date.now()) / 1000);           // Timestamp of the current day and time
+    const data = await LCONFIG.findOne({ guildID: newMember.guild.id }); // Get existing log configuration data
 
-    const cTimestamp = Math.round((Date.now()) / 1000);
-
-    const data = await LCONFIG.findOne({
-        guildID: newMember.guild.id
-    });
-
+    // Don't log if there is no data, log channel, or log webhook
     if (!data) return;
     if (!data.usernamechannel) return;
     if (!data.usernamewebhook) return;

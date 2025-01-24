@@ -20,9 +20,10 @@ module.exports = {
                 .setMaxValue(21600)
         ),
     async execute(interaction) {
-        const channelOption = interaction.options.getChannel('channel');
-        const secondsOption = interaction.options.getInteger('seconds');
+        const channelOption = interaction.options.getChannel('channel'); // Channel to set slowmode for
+        const secondsOption = interaction.options.getInteger('seconds'); // Seconds to set for slowmode
 
+        // Set the channel slowmode and reply with confirmation
         await channelOption.setRateLimitPerUser(secondsOption);
         await interaction.reply({ content: `Successfully ${(secondsOption === 0) ? `disabled <#${channelOption.id}>'s slowmode` : `set <#${channelOption.id}>'s slowmode`} (now **${sf.convert(secondsOption || 0).format('MM:SS')}**).` });
     },

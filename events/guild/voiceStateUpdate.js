@@ -7,7 +7,7 @@ const PARTY = require('../../models/party.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
 const wf = require('../../handlers/webhook_functions.js');
-const ROOMNAMES = require('../../models/pbroomnames.json');
+const ROOMNAMES = require('../../models/vcroomnames.json');
 
 module.exports = async (Discord, client, oldState, newState) => {
     const oldVoiceGuild = oldState.guild;
@@ -93,7 +93,7 @@ module.exports = async (Discord, client, oldState, newState) => {
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
     }
 
-    ///////////////////////////// PartyBot
+    ///////////////////////////// Custom VCs
     // Check a member ID, otherwise if they left the server check for a user ID
     // This also ensures that ownership is given away if a room owner was banned from the server
     const stateUserID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id;

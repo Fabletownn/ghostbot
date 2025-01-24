@@ -7,15 +7,14 @@ module.exports = {
         .setDescription('Subscribe to a tech support forum post')
         .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
     async execute(interaction) {
-        const techChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
+        const techChannels = ['1082421799578521620', '1020011442205900870']; // Tech & VR Tech support channels
 
-        if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || interaction.channel.type !== ChannelType.PublicThread) return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
+        if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || (interaction.channel.type !== ChannelType.PublicThread))
+            return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
 
-        const data = await SUB.findOne({
-            guildID: interaction.guild.id,
-            postID: interaction.channel.id
-        });
+        const data = await SUB.findOne({ guildID: interaction.guild.id, postID: interaction.channel.id }); // Get already existing subscription data
 
+        // If there is no already existing subscription data for the thread, create data
         if (!data) {
             if (interaction.channel.ownerId !== interaction.user.id) {
                 const newSubData = new SUB({
@@ -27,17 +26,18 @@ module.exports = {
                 });
 
                 await newSubData.save().catch((err) => console.log(err));
-
                 await interaction.reply({ content: 'You are now subscribed to this thread. Make sure your messages are enabled!', ephemeral: true });
             } else {
                 return interaction.reply({ content: 'You cannot subscribe to a thread that you own.', ephemeral: true });
             }
+            
+        // If 1 or more users are subscribed already, push the user into the subscribed users list and save it
         } else if (data) {
             if (!data.subbed.includes(interaction.user.id)) {
                 if (data.op !== interaction.user.id) {
                     data.subbed.push(interaction.user.id);
+                    
                     await data.save().catch((err) => console.log(err));
-
                     await interaction.reply({ content: `You are now subscribed to this thread alongside **${data.subbed.length} other staff members**. Make sure your messages are enabled!`, ephemeral: true });
                 }
             } else {

@@ -3,8 +3,8 @@
 */
 module.exports = async (Discord, client, thread, newlyCreated) => {
     if (newlyCreated) {
-        const techSupport = '1082421799578521620';
-        const vrTechSupport = '1020011442205900870';
+        const techSupport = '1082421799578521620'; // Tech support channel ID
+        const vrTechSupport = '1020011442205900870'; // VR tech support channel ID
         const techStarter = '- **Notice**: Kinetic Games staff and tech support will never ask for or attempt to get your personal information, including your IP Address. Please contact <@1043623513669513266> if this happens.\n' +
                                      '- **PC Platforms**: Post your player-log file, which will help troubleshoot your issue: `%USERPROFILE%\\AppData\\LocalLow\\Kinetic Games\\Phasmophobia\\Player.log`\n' + 
                                      '- Check if your issue is already listed in our <#1041125607599243364> threads!\n' +

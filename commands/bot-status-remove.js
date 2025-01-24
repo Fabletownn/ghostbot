@@ -14,16 +14,14 @@ module.exports = {
                 .setMaxValue(999)
         ),
     async execute(interaction) {
-        const indexOption = parseInt(interaction.options.getInteger('index'));
-
-        const data = await STATUS.findOne({
-            guildID: interaction.guild.id
-        });
+        const data = await STATUS.findOne({ guildID: interaction.guild.id }); // Get existing status data
+        const indexOption = interaction.options.getInteger('index');                 // Get index integer
         
         if (!data) return interaction.reply({ content: 'I can\'t run that command when there is no status data yet! Use `/bot-status-add` first.' });
 
-        const indexContent = data.statuses.at(indexOption);
+        const indexContent = data.statuses.at(indexOption); // If there is data, get the status fetched
 
+        // Find and set the status at the given index to null, which is filtered out in future iterations
         if (data.statuses[indexOption]) {
             data.statuses[indexOption] = null;
             data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Removed status \`${indexContent || '?'}\` successfully (previously in **index ${indexOption}**).` }));

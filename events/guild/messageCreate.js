@@ -28,16 +28,14 @@ module.exports = async (Discord, client, message) => {
         "/config-edit value:Pullroom Logs channel:X" changes where this gets sent
     */
     if (message.channel.parent.id === cData.pullcategoryid) {
-        PULL.findOne({
-            guildID: message.guild.id,
-            channelID: message.channel.id
-        }, (pErr, pData) => {
-            if (pErr) return;
-            if (!pData) return;
+        const pData = await PULL.findOne({ guildID: message.guild.id, channelID: message.channel.id }); // Get existing pullroom data
+        
+        // If there is no pullroom with the channel ID existing, don't log anything
+        if (!pData) return;
 
-            pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.username} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
-            pData.save().catch((err) => console.log(err));
-        });
+        // Otherwise, save the message sent and send it into the pullroom transcript
+        pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.username} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
+        pData.save().catch((err) => console.log(err));
     }
 
     /*
@@ -47,16 +45,14 @@ module.exports = async (Discord, client, message) => {
     const triggeredChannels = ['1034230224973484112', '1034231311147216959'];
 
     if (triggeredChannels.some((chID) => message.channel.parent.id === chID)) {
-        const sData = await SUB.findOne({
-            guildID: message.guild.id,
-            postID: message.channel.id
-        });
+        const sData = await SUB.findOne({ guildID: message.guild.id,  postID: message.channel.id }); // Get existing subscription data
 
         if (!sData) return;
 
+        // If there is a user subscribed to a thread, track whether or not the OP has posted yet to notify those subscribed
         if ((sData.subbed.length > 0)) {
             if (sData.op === message.author.id) {
-                if (sData.posted === false) {
+                if (!sData.posted) {
                     for (let i = 0; i < sData.subbed.length; i++) {
                         client.users.cache.get(sData.subbed[i]).send({ content: `📌 Your ${message.channel.parent.name} post "**${client.channels.cache.get(sData.postID).name || 'Unknown'}**" has received a response(s) from the poster.\n\nJump: ${message.url}` }).catch(() => { });
                     }
@@ -66,8 +62,9 @@ module.exports = async (Discord, client, message) => {
                 }
             }
 
+            // Set the OP to not have replied yet if a user subscribed to the thread responds
             if (sData.subbed.includes(message.author.id)) {
-                if (sData.posted === true) {
+                if (sData.posted) {
                     sData.posted = false;
                     await sData.save().catch((err) => console.log(err));
                 }
@@ -84,14 +81,17 @@ module.exports = async (Discord, client, message) => {
     const techRoles = ['1145866363479523358', '759255791605383208', '756591038373691606', '749029859048816651', '759265333600190545'];
 
     if (cData.tagapply === true) {
+        // Ensure it is in a tech-support channel and the person responding has a staff role
         if (techChannels.some((chID) => message.channel.parent.id === chID)) {
             if (techRoles.some((role) => message.member.roles.cache.has(role))) {
-                const parentChannel = message.channel.parent;
-                const currentAppliedTags = message.channel.appliedTags;
+                const parentChannel = message.channel.parent; // Category of the current channel
+                const currentAppliedTags = message.channel.appliedTags; // Map of all applied tags
 
+                // Find and use the "Being Helped" & "Needs Help" tag
                 const beingHelpedTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'being helped');
                 const needsHelpTag = parentChannel.availableTags.find((tag) => tag.name.toLowerCase() === 'needs help');
 
+                // So long as both exist, find and add a "Being Helped" tag & remove "Needs Help" if already there
                 if (beingHelpedTag && needsHelpTag) {
                     if (!(message.channel.appliedTags.some((tag) => tag.includes(beingHelpedTag.id)))) {
                         const tagsToApply = [];

@@ -12,16 +12,15 @@ module.exports = {
                 .setRequired(false)
         ),
     async execute(interaction) {
-        const nukeOption = interaction.options.getBoolean('nuke-subscriptions');
+        const nukeOption = interaction.options.getBoolean('nuke-subscriptions'); // Whether or not they want to unsubscribe from all threads
+        const techChannels = ['1082421799578521620', '1020011442205900870']; // Tech & VR Tech support channels
 
-        const techChannels = ['1034230224973484112', '1034231311147216959', '1034278601060777984', '1082421799578521620', '1020011442205900870'];
+        if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || (interaction.channel.type !== ChannelType.PublicThread))
+            return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
 
-        if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || interaction.channel.type !== ChannelType.PublicThread) return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
-
+        // If they selected the nuke subscriptions option and want to, unsubscribe from all subscribed threads
         if (nukeOption !== null && nukeOption === true) {
-            const subbedthreads = await SUB.find({
-                subbed: interaction.user.id
-            });
+            const subbedthreads = await SUB.find({ subbed: interaction.user.id }); // Find all existing subscription data
 
             await subbedthreads.forEach((sub) => {
                 const subbedList = sub.subbed;
@@ -40,11 +39,10 @@ module.exports = {
 
             await interaction.reply({ content: 'You have been unsubscribed from all threads successfully.', ephemeral: true });
         }
+        
+        // Otherwise, unsubscribe them from the sole thread
         else if (nukeOption === null || nukeOption === false) {
-            const data = await SUB.findOne({
-                guildID: interaction.guild.id,
-                postID: interaction.channel.id
-            });
+            const data = await SUB.findOne({ guildID: interaction.guild.id, postID: interaction.channel.id }); // Get existing subscription data
             
             if (!data) return interaction.reply({ content: 'You are not subscribed to this thread. Subscribe using the `/subscribe` command.', ephemeral: true });
 

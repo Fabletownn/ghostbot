@@ -3,6 +3,7 @@ const PARTY = require('../models/party.js');
 const CONFIG = require('../models/config.js');
 const LCONFIG = require("../models/logconfig.js");
 
+// List of manage options that will appear in the command list
 const actionArray = ([
     { name: 'Transfer Room Ownership (User)', value: 'transferowner' },
     { name: 'Kick User (User)', value: 'kickuser' },
@@ -28,22 +29,17 @@ module.exports = {
                 .setRequired(false)
         ),
     async execute(interaction) {
-        const actionOption = interaction.options.getString('action');
-        const userOption = interaction.options.getUser('user');
+        const actionOption = interaction.options.getString('action'); // Voice channel action selected
+        const userOption = interaction.options.getUser('user');       // User given if action needs it
 
-        const voiceChannel = interaction.member.voice.channel;
+        const voiceChannel = interaction.member.voice.channel; // Voice channel the user is in
         if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
 
-        const voiceChannelID = voiceChannel.id;
-        const moderatorRoleID = '756591038373691606';
+        const voiceChannelID = voiceChannel.id; // ID of the voice channel the user is currently in
+        const moderatorRoleID = '756591038373691606'; // Moderator role to be invulnerable from mod actions
 
-        const cData = await CONFIG.findOne({
-            guildID: interaction.guild.id
-        });
-
-        const pData = await PARTY.findOne({
-            voiceID: voiceChannelID
-        });
+        const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
+        const pData = await PARTY.findOne({ voiceID: voiceChannelID });        // Get existing voice channel data
 
         if (!cData) return interaction.reply({ content: 'These commands are not yet available for use. Please check back later!', ephemeral: true });
         if (!pData) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
@@ -53,19 +49,19 @@ module.exports = {
         let userID = 0;
 
         switch (actionOption) {
-            case "lockroom":
+            case "lockroom": // Lock Room; locks the room to prevent members from joining
                 if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
 
                 await voiceChannel.setUserLimit(voiceChannel.members.size);
                 await interaction.reply({ content: 'Your voice channel has been locked.', ephemeral: true });
                 break;
-            case "unlockroom":
+            case "unlockroom": // Unlock Room; unlocks the room to allow others to join
                 if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
 
                 await voiceChannel.setUserLimit(cData.pbvclimit);
                 await interaction.reply({ content: 'Your voice channel has been unlocked.', ephemeral: true });
                 break;
-            case "kickuser":
+            case "kickuser": // Kick User (User); kicks a user from the room
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
@@ -83,7 +79,7 @@ module.exports = {
 
                 userID = userOption.id;
                 break;
-            case "banuser":
+            case "banuser": // Ban User (User); bans a user from the room
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const userVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice?.channel;
@@ -108,7 +104,7 @@ module.exports = {
 
                 userID = userOption.id;
                 break;
-            case "unbanuser":
+            case "unbanuser": // Unban User (User); unbans a user from the room
                 const unbanVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice.channel;
 
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
@@ -120,7 +116,7 @@ module.exports = {
 
                 userID = userOption.id;
                 break;
-            case "transferowner":
+            case "transferowner": // Transfer Room Ownership (User); transfers ownership to another person in the voice channel
                 if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
 
                 const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
@@ -140,15 +136,15 @@ module.exports = {
                 break;
         }
 
+        // Log every action done
         await log_action(interaction, actionOption, userID);
     },
 };
 
 async function log_action(interaction, choicekey, userID = 0) {
-    const data = await LCONFIG.findOne({
-        guildID: interaction.guild.id
-    });
+    const data = await LCONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
 
+    // If there is no data or existing data channel, don't continue
     if (!data) return;
     if (!data.vcchannel) return;
 

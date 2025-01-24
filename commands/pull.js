@@ -13,42 +13,37 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute(interaction) {
-        const userOption = interaction.options.getUser('user');
+        const userOption = interaction.options.getUser('user'); // User to be pullroomed
 
         if (userOption.id === interaction.user.id) return interaction.reply({ content: 'Find a friend to pullroom, not yourself!' });
 
-        const cData = await CONFIG.findOne({
-            guildID: interaction.guild.id
-        });
-
-        const pData = await PULL.findOne({
-            guildID: interaction.guild.id,
-            userID: userOption.id
-        });
+        const cData = await CONFIG.findOne({ guildID: interaction.guild.id });                      // Get existing configuration data
+        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: userOption.id }); // Get existing pullrooms data
 
         if (!cData) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
         if (pData) return interaction.reply({ content: `That user already has a pullroom session open in <#${pData.channelID}>.` });
 
-        const pullCategory = interaction.guild.channels.cache.get(cData.pullcategoryid);
-        const pullMember = interaction.guild.members.cache.get(userOption.id);
+        const pullCategory = interaction.guild.channels.cache.get(cData.pullcategoryid); // Pullroom category from configuration
+        const pullMember = interaction.guild.members.cache.get(userOption.id);           // Member object for the person being pullroomed
 
         await interaction.deferReply();
 
         if (pullCategory && pullMember) {
-            const modifiedUsername = userOption.username.replace(/[^a-zA-Z]+/g, '').toLowerCase();
+            const modifiedUsername = userOption.username.replace(/[^a-zA-Z]+/g, '').toLowerCase(); // Modified username for Discord channel limitations
             const roomName = `pullroom-${modifiedUsername}`;
 
+            // Create a pullroom channel with the room name and permission overwrites
             await interaction.guild.channels.create({
                 name: roomName,
                 topic: `User ID: ${userOption.id}`,
                 parent: pullCategory.id,
                 permissionOverwrites: [
                     {
-                        id: interaction.guild.id,
+                        id: interaction.guild.id, // @everyone
                         deny: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory]
                     },
                     {
-                        id: userOption.id,
+                        id: userOption.id, // The user being pulled
                         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks]
                     },
                     {
@@ -56,12 +51,12 @@ module.exports = {
                         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
                     },
                     {
-                        id: '759255791605383208', // Trial Mod
+                        id: '759255791605383208', // Trial Moderator
                         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
                     }
                 ]
             }).then(async (pullroomChannel) => {
-                await pullroomChannel.setPosition(0);
+                await pullroomChannel.setPosition(0); // Set the channel to the top of the category
 
                 const pullEmbed = new EmbedBuilder()
                     .setAuthor({
@@ -84,12 +79,11 @@ module.exports = {
 
                 await newPullData.save().catch((err) => console.log(err));
 
+                // Add the pullroom role
                 await pullMember.roles.add(cData.pullroleid);
-
-                await pullMember.voice.setChannel(null, {
-                    reason: `Disconnected from voice channel as pullroomed`
-                });
-
+                // Disconnect them from any connected voice channels
+                await pullMember.voice.setChannel(null, { reason: 'Disconnected from voice channel as pullroomed' });
+                // Send pullroom messages and followup to command
                 await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                 await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
                 await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });

@@ -12,14 +12,13 @@ module.exports = {
                 .setRequired(true)
         ),
     async execute(interaction) {
-        const channelOption = interaction.options.getChannel('channel');
+        const channelOption = interaction.options.getChannel('channel'); // Get channel value to unlock
+        
+        // Set permission overwrites to enable "Send Messages" permission
+        await channelOption.permissionOverwrites.edit(interaction.guild.id, { SendMessages: true });
 
-        await channelOption.permissionOverwrites.edit(interaction.guild.id, {
-            SendMessages: true
-        });
-
+        // Send messages to confirm the channel unlock, and command response
         await channelOption.send({ content: `This channel **has been unlocked**. Thank you for your patience.` });
-
         await interaction.reply({ content: `The <#${channelOption.id}> channel has been unlocked successfully.` });
     },
 };

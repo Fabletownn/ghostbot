@@ -7,17 +7,18 @@ module.exports = {
         .setDescription('(Admin) Views logging configuration')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        const data = await LCONFIG.findOne({
-            guildID: interaction.guild.id
-        });
+        const data = await LCONFIG.findOne({ guildID: interaction.guild.id }); // Get existing log configuration data
 
         if (!data) return interaction.reply({ content: 'There is no data set up for the server. Use `/config-setup` first!' });
 
+        // Channel configuration values
         const configDeleteChannel = (data.deletechannel !== '') ? `<#${data.deletechannel}> (${data.deletechannel})` : 'Unset';
         const configEditChannel = (data.editchannel !== '') ? `<#${data.editchannel}> (${data.editchannel})` : 'Unset';
         const configUsernameChannel = (data.usernamechannel !== '') ? `<#${data.usernamechannel}> (${data.usernamechannel})` : 'Unset';
         const configVCChannel = (data.vcchannel !== '') ? `<#${data.vcchannel}> (${data.vcchannel})` : 'Unset';
         const configUpdateChannel = (data.chanupchannel !== '') ? `<#${data.chanupchannel}> (${data.chanupchannel})` : 'Unset';
+        
+        // Ignored configuration values
         const configIgnoredCategories = (data.ignoredcategories.length !== 0) ? `${data.ignoredcategories.map((c) => `<#${c}>`).join('\n')}` : 'None';
         const configIgnoredChannels = (data.ignoredchannels.length !== 0) ? `${data.ignoredchannels.map((c) => `<#${c}>`).join('\n')}` : 'None';
 
