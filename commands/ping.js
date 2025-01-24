@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Provides the bot\'s ping, trip latency, and heartbeat')
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         // Send the initial message in order to get trip latency
         const pingReceived = await interaction.reply({ content: '<:bGhostPing:1042254166736777286>', fetchReply: true, ephemeral: false });

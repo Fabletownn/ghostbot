@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('bot-status-add')
         .setDescription('Add a status for the bot to use')
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addStringOption((option) =>
             option.setName('status')
                 .setDescription('The status that the bot would have when chosen')

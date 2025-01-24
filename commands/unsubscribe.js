@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('unsubscribe')
         .setDescription('Unsubscribe from a tech support forum post(s)')
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers)
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addBooleanOption((option) =>
             option.setName('nuke-subscriptions')
                 .setDescription('If you would like to unsubscribe from every subscribed thread')

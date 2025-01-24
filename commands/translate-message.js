@@ -7,5 +7,5 @@ module.exports = {
     data: new ContextMenuCommandBuilder()
         .setName('Translate Message')
         .setType(ApplicationCommandType.Message)
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 };

@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('modmail-unhoist')
         .setDescription('Moves the current hoisted ModMail ticket down to ModMail Tickets')
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         const data = await CONFIG.findOne({ guildID: interaction.guild.id });  // Get existing configuration data
 

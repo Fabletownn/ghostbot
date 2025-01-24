@@ -5,7 +5,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('subscribe')
         .setDescription('Subscribe to a tech support forum post')
-        .setDefaultMemberPermissions(PermissionFlagsBits.DeafenMembers),
+        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         const techChannels = ['1082421799578521620', '1020011442205900870']; // Tech & VR Tech support channels
 
