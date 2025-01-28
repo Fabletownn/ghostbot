@@ -10,9 +10,7 @@ const configSchema = mongoose.Schema({
     pullcategoryid: String,
     pullroleid: String,
     pulllogid: String,
-    pullmsg: String,
-    mmcategoryid: String,
-    ammcategoryid: String
+    pullmsg: String
 });
 
 module.exports = mongoose.model('config', configSchema);

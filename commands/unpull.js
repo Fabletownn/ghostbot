@@ -23,7 +23,6 @@ module.exports = {
 
         if (!cData) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
         if (!pData) return interaction.reply({ content: 'That user does not have a pullroom session open.' });
-        if (!userReportsChannel) return interaction.reply({ content: 'Failed to find the User Reports channel.' });
 
         const pullroomChannel = interaction.guild.channels.cache.get(pData.channelID); // Pullroom channel object
         const pullMember = interaction.guild.members.cache.get(pData.userID);          // Member object for the pullroomed user
@@ -92,6 +91,6 @@ module.exports = {
         }).catch((err) => console.log(err));
 
         const idUsername = interaction.client.users.cache.get(idOption)?.username;
-        await userReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
+        if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
     },
 };

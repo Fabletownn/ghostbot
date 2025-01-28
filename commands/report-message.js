@@ -1,11 +1,7 @@
 const { ContextMenuCommandBuilder, ApplicationCommandType, PermissionFlagsBits } = require('discord.js');
 
-/*
-* Message context command for flagging messages; to be repurposed
-*/
 module.exports = {
     data: new ContextMenuCommandBuilder()
-        .setName('Flag Message')
+        .setName('Report Message')
         .setType(ApplicationCommandType.Message)
-        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
 };

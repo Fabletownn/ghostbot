@@ -14,6 +14,8 @@ module.exports = {
         ),
     async execute(interaction) {
         const userOption = interaction.options.getUser('user'); // User to be pullroomed
+        const userReports = '805795819722244148';          // Channel ID for the user reports channel
+        const userReportsChannel = interaction.guild.channels.cache.get(userReports); // User reports channel object
 
         if (userOption.id === interaction.user.id) return interaction.reply({ content: 'Find a friend to pullroom, not yourself!' });
 
@@ -21,6 +23,7 @@ module.exports = {
         const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: userOption.id }); // Get existing pullrooms data
 
         if (!cData) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
+        if (!cData.pullroleid || !cData.pullcategoryid || !cData.pullmsg) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for pullrooms! Use `/config-edit` first.' });
         if (pData) return interaction.reply({ content: `That user already has a pullroom session open in <#${pData.channelID}>.` });
 
         const pullCategory = interaction.guild.channels.cache.get(cData.pullcategoryid); // Pullroom category from configuration
@@ -86,7 +89,8 @@ module.exports = {
                 // Send pullroom messages and followup to command
                 await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                 await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
-                await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}> successfully.` });
+                await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}>.` });
+                if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
             });
         } else {
             return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server. Rare find!' });

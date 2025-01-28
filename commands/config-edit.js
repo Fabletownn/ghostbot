@@ -12,8 +12,6 @@ const configOptions = ([
     { name: 'Pullroom Role (Role)', value: 'pullrole' },
     { name: 'Pullroom Logs (Channel)', value: 'pulllogs' },
     { name: 'Pullroom Message (Message)', value: 'pullmsg' },
-    { name: 'ModMail Tickets Category (Category)', value: 'mmcategory' },
-    { name: 'Hoisted Tickets Category (Category)', value: 'ammcategory' }
 ]);
 
 module.exports = {
@@ -148,22 +146,6 @@ module.exports = {
 
                 data.pullmsg = messageOption;
                 data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Pullroom tickets will now start out with the following message: \`${messageOption}\`` }));
-
-                break;
-            case "mmcategory": // ModMail Tickets Category (Category); the standard ModMail ticket category for unhoisting tickets
-                if (!categoryOption) return interaction.reply({ content: 'This configuration value requires a `category` option to be filled out.' });
-                if (data.mmcategoryid === categoryOption.id) return interaction.reply({ content: 'That category is already in use.' });
-
-                data.mmcategoryid = categoryOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `ModMail ticket related commands will now function in the \`#${categoryOption.name}\` category.` }));
-
-                break;
-            case "ammcategory": // Hoisted Tickets Category (Category); the hoisted ModMail ticket category for hoisting tickets
-                if (!categoryOption) return interaction.reply({ content: 'This configuration value requires a `category` option to be filled out.' });
-                if (data.ammcategoryid === categoryOption.id) return interaction.reply({ content: 'That category is already in use.' });
-
-                data.ammcategoryid = categoryOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Admin/Mod ModMail ticket related commands will now function in the \`#${categoryOption.name}\` category.` }));
 
                 break;
             default: // Nothing filled out, not sure how you would get this anyway

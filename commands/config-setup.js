@@ -25,9 +25,7 @@ module.exports = {
                 pullcategoryid: '',
                 pullroleid: '',
                 pulllogid: '',
-                pullmsg: '',
-                mmcategoryid: '',
-                ammcategoryid: ''
+                pullmsg: ''
             });
 
             const newLogData = new LCONFIG({
