@@ -35,8 +35,8 @@ module.exports = {
         const voiceChannel = interaction.member.voice.channel; // Voice channel the user is in
         if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
 
-        const voiceChannelID = voiceChannel.id; // ID of the voice channel the user is currently in
-        const moderatorRoleID = '756591038373691606'; // Moderator role to be invulnerable from mod actions
+        const voiceChannelID = voiceChannel.id;                         // ID of the voice channel the user is currently in
+        const immuneRoles = ['756591038373691606', '759255791605383208', '749029859048816651']; // Immune roles to be invulnerable from mod actions
 
         const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
         const pData = await PARTY.findOne({ voiceID: voiceChannelID });        // Get existing voice channel data
@@ -66,7 +66,7 @@ module.exports = {
 
                 const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
+                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
                 if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
@@ -84,7 +84,7 @@ module.exports = {
 
                 const userVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice?.channel;
 
-                if (userOption.id === interaction.user.id || userOption.bot || interaction.guild.members.cache.get(userOption.id).roles.cache.has(moderatorRoleID)) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
+                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
                 if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
 
                 if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });

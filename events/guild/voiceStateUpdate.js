@@ -147,7 +147,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                     const voice = newVoiceGuild.channels.cache.get(roomData.voiceID);
 
                     await voice.delete().catch((err) => console.log(err));
-                    await roomData.delete().catch((err) => console.log(err));
+                    await roomData.deleteOne().catch((err) => console.log(err));
                 }
             });
         }

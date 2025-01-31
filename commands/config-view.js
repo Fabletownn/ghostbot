@@ -20,8 +20,6 @@ module.exports = {
         const configPBVCID = (data.pbvcid !== '') ? `<#${data.pbvcid}>` : 'Unset';
         const configPullCategory = (data.pullcategoryid !== '') ? `<#${data.pullcategoryid}>` : 'Unset';
         const configPullLogs = (data.pulllogid !== '') ? `<#${data.pulllogid}>` : 'Unset';
-        const configMMCategory = (data.mmcategoryid !== '') ? `<#${data.mmcategoryid}>` : 'Unset';
-        const configAMMCategory = (data.ammcategoryid !== '') ? `<#${data.ammcategoryid}>` : 'Unset';
 
         // Miscellaneous - other configuration variables
         const configPBLimit = (data.pbvclimit !== '') ? data.pbvclimit.toString() : 'Unset';
@@ -44,8 +42,6 @@ module.exports = {
                 { name: 'Custom VC Creation', value: configPBVCID, inline: true },
                 { name: 'Pullroom Category', value: configPullCategory, inline: true },
                 { name: 'Pullroom Logs', value: configPullLogs, inline: true },
-                { name: 'ModMail Tickets Category', value: configMMCategory, inline: true },
-                { name: 'Hoisted Tickets Category', value: configAMMCategory, inline: true },
                 { name: '\u200b', value: '\u200b', inline: true }
             ]);
 

@@ -81,7 +81,8 @@ module.exports = async (Discord, client, interaction) => {
                     .setFooter({ text: oldEmbed.footer.text.replace('Unhandled', isHandled ? 'Handled' : 'Dismissed') });
 
                 // If there is no data (by the off chance it got deleted), still mark the report as handled/dismised, otherwise delete it
-                if (reportData) await reportData.delete();
+                if (reportData) await REPORTS.findOneAndDelete({ reportID: interaction.message.id });
+                
                 await interaction.message.edit({ embeds: [newEmbed], components: [] });
                 await interaction.reply({ content: `Marked the report as ${isHandled ? 'handled' : 'dismissed'}.`, ephemeral: true });
                 break;
@@ -112,7 +113,7 @@ module.exports = async (Discord, client, interaction) => {
                     } catch (e) {}
                 }
 
-                await reportData.delete();
+                await REPORTS.findOneAndDelete({ reportID: interaction.message.id });
                 await interaction.message.edit({ embeds: [newEmbed], components: [] });
                 await interaction.followUp({ content: `Deleted **${deleteCount} message${deleteCount > 1 ? 's' : ''}** existing.` });
                 break;
@@ -207,7 +208,7 @@ module.exports = async (Discord, client, interaction) => {
                         const cooldownRemaining = Math.round(cdData.expires / 1000);
                         return interaction.followUp({ content: `You are on cooldown and can report another message <t:${cooldownRemaining}:R>.` });
                     } else {
-                        await cdData.delete();
+                        await COOLDOWNS.findOneAndDelete({ userID: interaction.user.id });
                     }
                 }
 
@@ -237,11 +238,9 @@ module.exports = async (Discord, client, interaction) => {
                     const reportMap = rData.reports;
                     const reportArray = reportMap.get(reportedMessageInfo);
 
-                    console.log(reportArray.length);
-                    if (reportArray.length >= 10) return interaction.followUp({ content: '' });
-
                     // If the message has already been reported before
                     if (reportArray) {
+                        if (reportArray.length >= 10) return interaction.followUp({ content: 'This user\'s messages have already been reported and is now limited! It will be handled by the staff team as soon as possible.' });
                         if ((reportArray.includes(interaction.user.id)) && (!isEmergency)) return interaction.followUp({ content: `You already reported this message! The message will be handled by the staff team as soon as possible.` });
 
                         // Push the reporter's UID into it; if they are rereporting as an emergency, don't however
@@ -403,7 +402,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
     // If the report message can't be found (accidentally deleted or the like), delete the data and have them try again
     const report = await interaction.guild.channels.cache.get('805795819722244148').messages.fetch(data.reportID).catch(() => null);
     if (!report) {
-        await data.delete();
+        await data.deleteOne();
         return null;
     }
 

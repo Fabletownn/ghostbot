@@ -18,7 +18,7 @@ module.exports = {
 
         if ((!data) || (data && !data.blacklisted)) return interaction.reply({ content: 'That user ID is not blocked from the user reporting system. To block a member from the system, use the `/report-block` command instead.', ephemeral: true });
 
-        await data.delete();
+        await COOLDOWNS.findOneAndDelete({ userID: userOption });
         await interaction.reply({ content: `Unblocked ${user ? `<@${userOption}> (${userOption})` : `ID \`${userOption}\``} to be able to utilize the user reporting system.`, allowedMentions: { parse: [] } });
     },
 };

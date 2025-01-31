@@ -17,7 +17,7 @@ module.exports = async (Discord, client, member) => {
     if (!pullData) return;
 
     const pullChannel = member.guild.channels.cache.get(pullData.channelID);
-    if (!pullChannel) return pullData.delete(); // If data exists but there is no channel, delete the data
+    if (!pullChannel) return pullData.deleteOne(); // If data exists but there is no channel, delete the data
 
     // Give the user the Pulled role, readd their channel permissions, and alert them they still have a pullroom open
     await member.roles.add(configData.pullroleid);

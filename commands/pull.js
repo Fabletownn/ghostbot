@@ -90,7 +90,7 @@ module.exports = {
                 await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                 await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
                 await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}>.` });
-                if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was removed from pullroom by ${interaction.user.username}` });
+                if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was pullroomed by ${interaction.user.username}` });
             });
         } else {
             return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server. Rare find!' });

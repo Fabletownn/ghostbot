@@ -33,7 +33,7 @@ module.exports = {
                         sub.save().catch((err) => console.log(err));
                     }
                 } else { // Otherwise delete it entirely
-                    sub.delete().catch((err) => console.log(err));
+                    sub.deleteOne().catch((err) => console.log(err));
                 }
             });
 
@@ -54,7 +54,7 @@ module.exports = {
                 data.subbed.splice(subIndex, 1);
                 await data.save().catch((err) => console.log(err));
 
-                if (data.subbed.length <= 0) await data.delete();
+                if (data.subbed.length <= 0) await data.deleteOne();
 
                 await interaction.reply({ content: 'You have been unsubscribed from this thread.', ephemeral: true });
             }
