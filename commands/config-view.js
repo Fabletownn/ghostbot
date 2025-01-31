@@ -32,8 +32,6 @@ module.exports = {
                 { name: 'Autopublishing', value: configAutoPublish, inline: true },
                 { name: 'Thread Creation', value: configThreadCreate, inline: true },
                 { name: 'Tag Application', value: configTagApply, inline: true },
-                { name: '\u200b', value: '\u200b', inline: true },
-                { name: '\u200b', value: '\u200b', inline: true }
             ]);
 
         const channelEmbed = new EmbedBuilder()
@@ -42,7 +40,6 @@ module.exports = {
                 { name: 'Custom VC Creation', value: configPBVCID, inline: true },
                 { name: 'Pullroom Category', value: configPullCategory, inline: true },
                 { name: 'Pullroom Logs', value: configPullLogs, inline: true },
-                { name: '\u200b', value: '\u200b', inline: true }
             ]);
 
         const otherEmbed = new EmbedBuilder()

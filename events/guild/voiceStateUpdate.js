@@ -135,7 +135,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                 await newVoice.save().catch((err) => console.log(err));
                 await newMember.voice.setChannel(pRoom.id).catch(async() => {
                     if (!newMember.voice.channel) {
-                        if (newVoice) await newVoice.delete().catch((err) => console.log(err));
+                        if (newVoice) await PARTY.findOneAndDelete({ ownerID: stateUserID });
                         if (pRoom) await pRoom.delete().catch((err) => console.log(err));
                     }
                 });
