@@ -32,7 +32,7 @@ module.exports = {
         await interaction.deferReply();
 
         if (pullCategory && pullMember) {
-            const modifiedUsername = userOption.username.replace(/[^a-zA-Z]+/g, '').toLowerCase(); // Modified username for Discord channel limitations
+            const modifiedUsername = userOption.username.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase(); // Modified username for Discord channel limitations
             const roomName = `pullroom-${modifiedUsername}`;
 
             // Create a pullroom channel with the room name and permission overwrites
