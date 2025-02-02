@@ -383,7 +383,8 @@ async function createReport(interaction, reporterid, reportedinfo, isemergency) 
     const reportMessage = await interaction.guild.channels.cache.get('805795819722244148').send({
         content: isemergency ? '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!' : '',
         embeds: [reportEmbed],
-        components: [reportButtons]
+        components: [reportButtons],
+        allowedMentions: { parse: ['roles'] }
     });
 
     return reportMessage.id;
@@ -432,7 +433,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
     }
 
     await report.edit({ embeds: [reportEmbed] });
-    if (isemergency) await report.reply({ content: '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!' });
+    if (isemergency) await report.reply({ content: '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!', allowedMentions: { parse: ['roles'] } });
 }
 
 async function sanitizeMessage(content, limit = 0) {
