@@ -203,7 +203,7 @@ module.exports = async (Discord, client, interaction) => {
 
                 // Don't allow them to report if they are either blacklisted from the system, or on cooldown
                 if (cdData) {
-                    if (cdData.blacklisted) return interaction.followUp({ content: 'You are blacklisted from using the user reporting system. Contact <@1043623513669513266> if you believe this is an error.' });
+                    if (cdData.blacklisted) return interaction.followUp({ content: 'You are blocked from using the user reporting system. Contact <@1043623513669513266> if you believe this is an error.' });
                     if (cdData.expires > Date.now()) {
                         const cooldownRemaining = Math.round(cdData.expires / 1000);
                         return interaction.followUp({ content: `You are on cooldown and can report another message <t:${cooldownRemaining}:R>.` });
