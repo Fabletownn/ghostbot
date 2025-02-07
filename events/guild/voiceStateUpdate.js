@@ -174,19 +174,14 @@ module.exports = async (Discord, client, oldState, newState) => {
 
         // If the room is empty, delete the room (if there's room data)
         if (voiceSize <= 0) {
-            const foundData = await PARTY.findOne({
-                voiceID: oldChannel.id
-            });
-
+            const foundData = await PARTY.findOne({ voiceID: oldChannel.id });
             if (!foundData) return; // Not a custom room (Doesn't need a room name check since there wouldn't be any
                                     // room data for normal VCs)
 
             const roomChannel = newVoiceGuild.channels.cache.get(foundData.voiceID);
-
-            await roomChannel.delete().catch((err) => console.log(err));
-            await PARTY.findOneAndDelete({
-                voiceID: oldChannel.id
-            });
+            if (roomChannel) await roomChannel.delete().catch((err) => console.log(err));
+            
+            await PARTY.findOneAndDelete({ voiceID: oldChannel.id });
         } else if (voiceSize !== 0) { // Transfer ownership to random user if owner leaves
             const transferData = await PARTY.findOne({
                 voiceID: oldChannel.id

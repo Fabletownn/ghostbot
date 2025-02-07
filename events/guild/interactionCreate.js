@@ -198,7 +198,7 @@ module.exports = async (Discord, client, interaction) => {
                 await interaction.deferReply({ ephemeral: true });
 
                 // Don't allow them to report the member if they are no longer in the server, are a bot, or a staff member
-                if ((!reportedUser) || (!reportedMember)) return interaction.followUp({ content: 'An error occurred trying to report that message.' });
+                if ((!reportedUser) && (!reportedMember)) return interaction.followUp({ content: 'An error occurred trying to report that user.' });
                 if (reportedUser.bot || immuneRoles.some((role) => reportedMember.roles.cache.has(role))) return interaction.followUp({ content: 'This user cannot be reported.' });
 
                 // Don't allow them to report if they are either blacklisted from the system, or on cooldown
@@ -217,7 +217,7 @@ module.exports = async (Discord, client, interaction) => {
                     newReportMap.set(reportedMessageInfo, [interaction.user.id]); // Set the map key to message ID, value to an array of the reporter's ID
 
                     const reportID = await createReport(interaction, interaction.user.id, reportedMessageInfo, isEmergency);
-                    if (reportID === null) return interaction.followUp({ content: `An error occurred trying to ${reportType} that message.` });
+                    if (reportID === null) return interaction.followUp({ content: `An error occurred trying to send that ${reportType}.` });
 
                     // Create a new set of data with the newly created report map
                     const newReportData = new REPORTS({
