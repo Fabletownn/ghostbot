@@ -55,7 +55,8 @@ module.exports = {
         // Filter categories of the server that have the word "ModMail" in them
         const categories = interaction.guild.channels.cache.filter((channel) =>
             channel.type === 4 && // Type 4 are categories
-            channel.name.toLowerCase().includes('modmail')
+            channel.name.toLowerCase().includes('modmail') &&
+            !channel.name.toLowerCase().includes('information') // Don't include informational channels
         ).map((category) => ({
             name: category.name,
             value: category.id,
