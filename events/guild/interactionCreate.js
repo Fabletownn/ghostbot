@@ -9,18 +9,6 @@ module.exports = async (Discord, client, interaction) => {
     const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
     const lData = await LCONFIG.findOne({ guildID: interaction.guild.id }); // Get existing log configuration data
 
-    ///////////////////////// Autocomplete Handler
-    if (interaction.isAutocomplete()) {
-        const command = client.commands.get(interaction.commandName);
-        if (!command) return;
-
-        try {
-            await command.autocomplete(interaction);
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
     ///////////////////////// Buttons
     if (interaction.isButton()) {
         switch (interaction.customId) {
