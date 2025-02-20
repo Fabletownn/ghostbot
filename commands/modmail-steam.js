@@ -2,7 +2,7 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('modmail-stean')
+        .setName('modmail-steam')
         .setDescription('Grants or removes Steam Moderator permission if necessary')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
         .addBooleanOption((option) =>
