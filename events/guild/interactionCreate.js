@@ -285,6 +285,10 @@ module.exports = async (Discord, client, interaction) => {
                         const fieldValue = interaction.targetMessage.embeds[0].fields[0].value;
 
                         if (fieldValue) translatedMessage = fieldValue;
+                    } else if (interaction.targetMessage.embeds[0].description) {
+                        const descValue = interaction.targetMessage.embeds[0].description;
+                        
+                        if (descValue) translatedMessage = descValue;
                     }
                 }
 

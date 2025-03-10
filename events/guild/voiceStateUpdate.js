@@ -21,10 +21,7 @@ module.exports = async (Discord, client, oldState, newState) => {
     const cTimestamp = Math.round((Date.now()) / 1000);
 
     ///////////////////////////// Logs
-    const lData = await LCONFIG.findOne({
-        guildID: newVoiceGuild.id
-    });
-
+    const lData = await LCONFIG.findOne({ guildID: newVoiceGuild.id });
     if (!lData) return;
     if (!lData.vcchannel) return;
     if (!lData.vcwebhook) return;
@@ -35,7 +32,7 @@ module.exports = async (Discord, client, oldState, newState) => {
     const newUser = client.users.cache.get(newState.id);
 
     if (oldChannel === null && newChannel !== null) {
-        if (newChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
+        if (lData.ignoredcategories.some((ignored_cat) => newChannel.parent.id === ignored_cat)) return;
 
         const joinedEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -49,12 +46,12 @@ module.exports = async (Discord, client, oldState, newState) => {
             .setColor('#66FF66')
 
         if (isCustomRoom)
-            await joinedEmbed.setFooter({ text: "Joined a custom-made room" });
+            await joinedEmbed.setFooter({ text: 'Joined a custom-made room' });
 
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
     } else if (oldChannel !== null && newChannel !== null) {
         if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
-        if (oldChannel.id === '1067184155760267284' || newChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
+        if (lData.ignoredcategories.some((ignored_cat) => newChannel.parent.id === ignored_cat)) return;
 
         const movedEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -70,11 +67,11 @@ module.exports = async (Discord, client, oldState, newState) => {
             .setColor('#58B9FF')
 
         if (isCustomRoom)
-            await movedEmbed.setFooter({ text: "Moved to custom-made room" });
+            await movedEmbed.setFooter({ text: 'Moved to custom-made room' });
 
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
     } else if (oldChannel !== null && newChannel === null) {
-        if (oldChannel.id === '1067184155760267284') return; // TODO: TEMPORARY
+        if (lData.ignoredcategories.some((ignored_cat) => oldChannel.parent.id === ignored_cat)) return;
 
         const leftEmbed = new EmbedBuilder()
             .setAuthor({ name: newUser.tag, iconURL: newUser.displayAvatarURL({ size: 512, dynamic: true }) })
@@ -88,7 +85,7 @@ module.exports = async (Discord, client, oldState, newState) => {
             .setColor('#FF6666')
 
         if (isCustomRoom)
-            await leftEmbed.setFooter({ text: "Left from custom-made room" });
+            await leftEmbed.setFooter({ text: 'Left from custom-made room' });
 
         await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
     }
