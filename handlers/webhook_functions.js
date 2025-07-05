@@ -1,5 +1,4 @@
 const { WebhookClient } = require('discord.js');
-const os = require('os');
 const winston = require('winston'); require('winston-syslog');
 
 const papertrail = new winston.transports.Syslog({
@@ -71,4 +70,4 @@ global.trailError = function (error) {
     }
 }
 
-module.exports = { useWebhookIfExisting, deleteWebhookIfExisting };
+module.exports = { useWebhookIfExisting };
