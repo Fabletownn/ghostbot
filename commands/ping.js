@@ -7,8 +7,8 @@ module.exports = {
         .setDescription('Provides the bot\'s ping, trip latency, and heartbeat')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
-        // Send the initial message in order to get trip latency
-        const pingReceived = await interaction.reply({ content: '<:bGhostPing:1042254166736777286>', fetchReply: true, ephemeral: false });
+        // Send the initial message to get trip latency
+        const pingReceived = await interaction.reply({ content: '<:bGhostPing:1042254166736777286>', withResponse: true });
 
         const tripLatency = Math.round(pingReceived.createdTimestamp - interaction.createdTimestamp).toLocaleString(); // Trip latency between edits
         const botHeartbeat = interaction.client.ws.ping.toLocaleString();   // Bot heartbeat

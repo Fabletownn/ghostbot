@@ -1,4 +1,4 @@
-const { ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+const { MessageFlags, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
 const REPORTS = require('../../models/reports.js');
@@ -72,7 +72,7 @@ module.exports = async (Discord, client, interaction) => {
                 if (reportData) await REPORTS.findOneAndDelete({ reportID: interaction.message.id });
                 
                 await interaction.message.edit({ embeds: [newEmbed], components: [] });
-                await interaction.reply({ content: `Marked the report as ${isHandled ? 'handled' : 'dismissed'}.`, ephemeral: true });
+                await interaction.reply({ content: `Marked the report as ${isHandled ? 'handled' : 'dismissed'}.`, flags: MessageFlags.Ephemeral });
                 break;
             }
             case "report-delete": {
@@ -80,13 +80,13 @@ module.exports = async (Discord, client, interaction) => {
                 const oldEmbed = interaction.message.embeds[0];
                 let deleteCount = 0;
 
-                if (!reportData || !oldEmbed) return interaction.reply({ content: 'Failed to delete the reported messages as no data was found.', ephemeral: true });
+                if (!reportData || !oldEmbed) return interaction.reply({ content: 'Failed to delete the reported messages as no data was found.', flags: MessageFlags.Ephemeral });
 
                 const newEmbed = EmbedBuilder.from(oldEmbed)
                     .setColor('#38DD86')
                     .setFooter({ text: oldEmbed.footer.text.replace('Unhandled', 'Handled') });
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                 for (const [reportInfo, reporters] of reportData.reports) {
                     const reportChannelID = reportInfo.split('-')[0];
@@ -111,9 +111,9 @@ module.exports = async (Discord, client, interaction) => {
                 let reportedMessagesList = "";
                 let reportCounter = 0;
 
-                if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', ephemeral: true });
+                if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                 for (const [reportInfo, reporters] of reportData.reports) {
                     const report = await interaction.guild.channels.cache.get('805795819722244148').messages.fetch(reportData.reportID);
@@ -136,7 +136,7 @@ module.exports = async (Discord, client, interaction) => {
                 await interaction.followUp({ content: `The following messages have been reported by users:\n${reportedMessagesList}`, allowedMentions: { parse: [] } });
                 break;
             default:
-                await interaction.reply({ content: 'There is no functionality for this button!', ephemeral: true });
+                await interaction.reply({ content: 'There is no functionality for this button!', flags: MessageFlags.Ephemeral });
                 break;
         }
     }
@@ -160,7 +160,7 @@ module.exports = async (Discord, client, interaction) => {
                 await interaction.channel.send({ content: sayMessage });
                 await interaction.guild.channels.cache.get(lData.chanupchannel).send({ embeds: [sayEmbed] });
 
-                await interaction.reply({ content: 'Your message has been ghostified.', ephemeral: true });
+                await interaction.reply({ content: 'Your message has been ghostified.', flags: MessageFlags.Ephemeral });
                 break;
             default:
                 break;
@@ -183,7 +183,7 @@ module.exports = async (Discord, client, interaction) => {
                 let reportedMessage = interaction.targetMessage; // Reported message
                 let reportedMessageInfo = `${reportedMessage.channel.id}-${reportedMessage.id}`;
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                 // Don't allow them to report the member if they are no longer in the server, are a bot, or a staff member
                 if ((!reportedUser) && (!reportedMember)) return interaction.followUp({ content: 'An error occurred trying to report that user.' });
@@ -277,7 +277,7 @@ module.exports = async (Discord, client, interaction) => {
             case "Translate Message": // When a message is translated
                 let translatedMessage = interaction.targetMessage.content; // Content of the message
 
-                await interaction.deferReply({ ephemeral: true }); // Defer reply, as this will probably take a while
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // Defer reply, as this will probably take a while
 
                 // If there is an embed in the message, translate the value of its first field
                 if (interaction.targetMessage.embeds.length > 0)  {
@@ -294,7 +294,7 @@ module.exports = async (Discord, client, interaction) => {
 
                 // Ensure the message isn't empty
                 if (!translatedMessage || translatedMessage === "") {
-                    await interaction.followUp({ content: 'The selected message has no content to translate.', ephemeral: true });
+                    await interaction.followUp({ content: 'The selected message has no content to translate.', flags: MessageFlags.Ephemeral });
                     return;
                 }
 
@@ -305,15 +305,15 @@ module.exports = async (Discord, client, interaction) => {
 
                     // Ensure not to translate any already-English messages
                     if (detectedLanguage === 'en') {
-                        await interaction.followUp({ content: 'The selected message is already in English, and translations are only provided for messages in other languages.',  ephemeral: true });
+                        await interaction.followUp({ content: 'The selected message is already in English, and translations are only provided for messages in other languages.',  flags: MessageFlags.Ephemeral });
                         return;
                     }
 
                     // Send the translated content
-                    await interaction.followUp({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, ephemeral: true });
+                    await interaction.followUp({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, flags: MessageFlags.Ephemeral });
                 }).catch((err) => {
                     console.log(err);
-                    return interaction.followUp({ content: `Failed to translate that message! If this continues, please forward this error: \`${err}\``, ephemeral: true });
+                    return interaction.followUp({ content: `Failed to translate that message! If this continues, please forward this error: \`${err}\``, flags: MessageFlags.Ephemeral });
                 });
 
                 break;

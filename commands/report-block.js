@@ -1,4 +1,4 @@
-﻿const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+﻿const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits } = require('discord.js');
 const COOLDOWNS = require('../models/repcooldowns.js');
 
 module.exports = {
@@ -18,7 +18,7 @@ module.exports = {
 
         if (data) {
             if (data.blacklisted) {
-                return interaction.reply({ content: 'That user ID is already blocked from the user reporting system. To undo this action, use the `/report-unblock` command instead.', ephemeral: true });
+                return interaction.reply({ content: 'That user ID is already blocked from the user reporting system. To undo this action, use the `/report-unblock` command instead.', flags: MessageFlags.Ephemeral });
             } else {
                 data.blacklisted = true;
                 data.save();

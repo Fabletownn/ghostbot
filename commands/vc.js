@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, EmbedBuilder} = require('discord.js');
+const { SlashCommandBuilder, MessageFlags, EmbedBuilder } = require('discord.js');
 const PARTY = require('../models/party.js');
 const CONFIG = require('../models/config.js');
 const LCONFIG = require("../models/logconfig.js");
@@ -33,7 +33,7 @@ module.exports = {
         const userOption = interaction.options.getUser('user');       // User given if action needs it
 
         const voiceChannel = interaction.member.voice.channel; // Voice channel the user is in
-        if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
+        if (!voiceChannel) return interaction.reply({ content: 'You are not connected to any custom voice channels.', flags: MessageFlags.Ephemeral });
 
         const voiceChannelID = voiceChannel.id;                         // ID of the voice channel the user is currently in
         const immuneRoles = ['756591038373691606', '759255791605383208', '749029859048816651']; // Immune roles to be invulnerable from mod actions
@@ -41,53 +41,53 @@ module.exports = {
         const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
         const pData = await PARTY.findOne({ voiceID: voiceChannelID });        // Get existing voice channel data
 
-        if (!cData) return interaction.reply({ content: 'These commands are not yet available for use. Please check back later!', ephemeral: true });
-        if (!pData) return interaction.reply({ content: 'You are not connected to any custom voice channels.', ephemeral: true });
+        if (!cData) return interaction.reply({ content: 'These commands are not yet available for use. Please check back later!', flags: MessageFlags.Ephemeral });
+        if (!pData) return interaction.reply({ content: 'You are not connected to any custom voice channels.', flags: MessageFlags.Ephemeral });
 
-        if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this custom voice channel. Ask <@${pData.ownerID}> to run these commands!`, ephemeral: true });
+        if (interaction.user.id !== pData.ownerID) return interaction.reply({ content: `You are not the current host of this custom voice channel. Ask <@${pData.ownerID}> to run these commands!`, flags: MessageFlags.Ephemeral });
 
         let userID = 0;
 
         switch (actionOption) {
             case "lockroom": // Lock Room; locks the room to prevent members from joining
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', flags: MessageFlags.Ephemeral });
 
                 await voiceChannel.setUserLimit(voiceChannel.members.size);
-                await interaction.reply({ content: 'Your voice channel has been locked.', ephemeral: true });
+                await interaction.reply({ content: 'Your voice channel has been locked.', flags: MessageFlags.Ephemeral });
                 break;
             case "unlockroom": // Unlock Room; unlocks the room to allow others to join
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', flags: MessageFlags.Ephemeral });
 
                 await voiceChannel.setUserLimit(cData.pbvclimit);
-                await interaction.reply({ content: 'Your voice channel has been unlocked.', ephemeral: true });
+                await interaction.reply({ content: 'Your voice channel has been unlocked.', flags: MessageFlags.Ephemeral });
                 break;
             case "kickuser": // Kick User (User); kicks a user from the room
-                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', flags: MessageFlags.Ephemeral });
 
                 const kickVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot kick that user.', ephemeral: true });
-                if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
-                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
+                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot kick that user.', flags: MessageFlags.Ephemeral });
+                if (kickVoiceChannel === null || kickVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', flags: MessageFlags.Ephemeral });
+                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', flags: MessageFlags.Ephemeral });
 
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', flags: MessageFlags.Ephemeral });
                 await interaction.guild.members.cache.get(userOption.id).voice.setChannel(null, {
                     reason: `Disconnected from voice channel by custom VC host ${interaction.user.username} (${interaction.user.displayName})`
                 });
 
-                await interaction.reply({ content: `Kicked <@${userOption.id}> from your voice channel.`, ephemeral: true });
+                await interaction.reply({ content: `Kicked <@${userOption.id}> from your voice channel.`, flags: MessageFlags.Ephemeral });
 
                 userID = userOption.id;
                 break;
             case "banuser": // Ban User (User); bans a user from the room
-                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', flags: MessageFlags.Ephemeral });
 
                 const userVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice?.channel;
 
-                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot ban that user.', ephemeral: true });
-                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
+                if (userOption.id === interaction.user.id || userOption.bot || immuneRoles.some((role) => interaction.guild.members.cache.get(userOption.id).roles.cache.has(role))) return interaction.reply({ content: 'You cannot ban that user.', flags: MessageFlags.Ephemeral });
+                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', flags: MessageFlags.Ephemeral });
 
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', flags: MessageFlags.Ephemeral });
                 await userVoiceChannel.permissionOverwrites.edit(userOption.id, {
                     Connect: false
                 }).then(async () => {
@@ -99,7 +99,7 @@ module.exports = {
                         });
                     }
 
-                    await interaction.reply({ content: `Banned <@${userOption.id}> from your voice channel.`, ephemeral: true });
+                    await interaction.reply({ content: `Banned <@${userOption.id}> from your voice channel.`, flags: MessageFlags.Ephemeral });
                 });
 
                 userID = userOption.id;
@@ -107,28 +107,28 @@ module.exports = {
             case "unbanuser": // Unban User (User); unbans a user from the room
                 const unbanVoiceChannel = interaction.guild.members.cache.get(interaction.user.id).voice.channel;
 
-                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
-                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
+                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', flags: MessageFlags.Ephemeral });
+                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', flags: MessageFlags.Ephemeral });
 
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', ephemeral: true });
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room.', flags: MessageFlags.Ephemeral });
                 await unbanVoiceChannel.permissionOverwrites.delete(userOption.id);
-                await interaction.reply({ content: `Unbanned <@${userOption.id}> from your voice channel.`, ephemeral: true });
+                await interaction.reply({ content: `Unbanned <@${userOption.id}> from your voice channel.`, flags: MessageFlags.Ephemeral });
 
                 userID = userOption.id;
                 break;
             case "transferowner": // Transfer Room Ownership (User); transfers ownership to another person in the voice channel
-                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', ephemeral: true });
+                if (!userOption) return interaction.reply({ content: 'This action requires a `user` option to be filled out.', flags: MessageFlags.Ephemeral });
 
                 const ownerVoiceChannel = interaction.guild.members.cache.get(userOption.id).voice.channel;
 
-                if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
-                if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', ephemeral: true });
-                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', ephemeral: true });
+                if (!ownerVoiceChannel) return interaction.reply({ content: 'That user is not connected to your voice channel.', flags: MessageFlags.Ephemeral });
+                if (ownerVoiceChannel.id !== voiceChannelID) return interaction.reply({ content: 'That user is not connected to your voice channel.', flags: MessageFlags.Ephemeral });
+                if (!interaction.guild.members.cache.get(userOption.id)) return interaction.reply({ content: 'That user is no longer in the server.', flags: MessageFlags.Ephemeral });
 
                 pData.ownerID = userOption.id;
 
-                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room!', ephemeral: true });
-                pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, ephemeral: true }));
+                if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room!', flags: MessageFlags.Ephemeral });
+                pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, flags: MessageFlags.Ephemeral }));
 
                 userID = userOption.id;
                 break;

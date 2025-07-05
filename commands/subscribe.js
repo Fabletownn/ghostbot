@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits, ChannelType } = require('discord.js');
 const SUB = require('../models/subscriptions.js');
 
 module.exports = {
@@ -10,7 +10,7 @@ module.exports = {
         const techChannels = ['1082421799578521620', '1020011442205900870']; // Tech & VR Tech support channels
 
         if (!(techChannels.some((chID) => interaction.channel.parent.id === chID)) || (interaction.channel.type !== ChannelType.PublicThread))
-            return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', ephemeral: true });
+            return interaction.reply({ content: 'The channel you are currently in is not a support thread and therefore is not supported with this command.', flags: MessageFlags.Ephemeral });
 
         const data = await SUB.findOne({ guildID: interaction.guild.id, postID: interaction.channel.id }); // Get already existing subscription data
 
@@ -26,9 +26,9 @@ module.exports = {
                 });
 
                 await newSubData.save().catch((err) => console.log(err));
-                await interaction.reply({ content: 'You are now subscribed to this thread. Make sure your messages are enabled!', ephemeral: true });
+                await interaction.reply({ content: 'You are now subscribed to this thread. Make sure your messages are enabled!', flags: MessageFlags.Ephemeral });
             } else {
-                return interaction.reply({ content: 'You cannot subscribe to a thread that you own.', ephemeral: true });
+                return interaction.reply({ content: 'You cannot subscribe to a thread that you own.', flags: MessageFlags.Ephemeral });
             }
             
         // If 1 or more users are subscribed already, push the user into the subscribed users list and save it
@@ -38,10 +38,10 @@ module.exports = {
                     data.subbed.push(interaction.user.id);
                     
                     await data.save().catch((err) => console.log(err));
-                    await interaction.reply({ content: `You are now subscribed to this thread alongside **${data.subbed.length} other staff members**. Make sure your messages are enabled!`, ephemeral: true });
+                    await interaction.reply({ content: `You are now subscribed to this thread alongside **${data.subbed.length} other staff members**. Make sure your messages are enabled!`, flags: MessageFlags.Ephemeral });
                 }
             } else {
-                return interaction.reply({ content: 'You are already subscribed to this thread. Unsubscribe using the `/unsubscribe` command.', ephemeral: true });
+                return interaction.reply({ content: 'You are already subscribed to this thread. Unsubscribe using the `/unsubscribe` command.', flags: MessageFlags.Ephemeral });
             }
         }
     },
