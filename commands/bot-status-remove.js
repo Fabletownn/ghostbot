@@ -24,7 +24,7 @@ module.exports = {
         // Find and set the status at the given index to null, which is filtered out in future iterations
         if (data.statuses[indexOption]) {
             data.statuses[indexOption] = null;
-            data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Removed status \`${indexContent || '?'}\` successfully (previously in **index ${indexOption}**).` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Removed status \`${indexContent || '?'}\` successfully (previously in **index ${indexOption}**).` }));
         } else {
             return interaction.reply({ content: 'There is no status with that index number!' });
         }

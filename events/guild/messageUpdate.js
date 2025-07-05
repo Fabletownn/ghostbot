@@ -102,8 +102,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
             embed: editedEmbedContinued.toJSON()
         });
 
-        await newEditedData.save().catch((err) => console.log(err));
-        await newContinuedData.save().catch((err) => console.log(err));
+        await newEditedData.save().catch((err) => trailError(err));
+        await newContinuedData.save().catch((err) => trailError(err));
 
         return;
     }
@@ -121,7 +121,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
                 // So long as it hasn't hit the Discord limitation of 10 embeds, push it and any other overloaded embed into the next message to be sent out
                 d.embed.push(editedEmbed.toJSON());
                 if (overloadedEmbed >= 1) d.overload += overloadedEmbed;
-                d.save().catch((err) => console.log(err));
+                d.save().catch((err) => trailError(err));
 
                 // Increment the amount of data to be sent out
                 addedData++;
@@ -136,7 +136,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
                 embed: editedEmbed.toJSON()
             });
 
-            newEditedData.save().catch((err) => console.log(err));
+            newEditedData.save().catch((err) => trailError(err));
         }
 
     // If there is not yet other edit logs to be sent out, create data and add the embed        
@@ -147,6 +147,6 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
             embed: editedEmbed.toJSON()
         });
 
-        newEditedData.save().catch((err) => console.log(err));
+        newEditedData.save().catch((err) => trailError(err));
     }
 }

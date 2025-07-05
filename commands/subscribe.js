@@ -25,7 +25,7 @@ module.exports = {
                     posted: false
                 });
 
-                await newSubData.save().catch((err) => console.log(err));
+                await newSubData.save().catch((err) => trailError(err));
                 await interaction.reply({ content: 'You are now subscribed to this thread. Make sure your messages are enabled!', flags: MessageFlags.Ephemeral });
             } else {
                 return interaction.reply({ content: 'You cannot subscribe to a thread that you own.', flags: MessageFlags.Ephemeral });
@@ -37,7 +37,7 @@ module.exports = {
                 if (data.op !== interaction.user.id) {
                     data.subbed.push(interaction.user.id);
                     
-                    await data.save().catch((err) => console.log(err));
+                    await data.save().catch((err) => trailError(err));
                     await interaction.reply({ content: `You are now subscribed to this thread alongside **${data.subbed.length} other staff members**. Make sure your messages are enabled!`, flags: MessageFlags.Ephemeral });
                 }
             } else {

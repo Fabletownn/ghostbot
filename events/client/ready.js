@@ -25,7 +25,7 @@ module.exports = (Discord, client) => {
 
         await cooldowns.forEach((cd) => {
             if (cd.expires < Date.now()) {
-                cd.deleteOne().catch((err) => console.log(err));
+                cd.deleteOne().catch((err) => trailError(err));
             }
         });
     });
@@ -42,14 +42,14 @@ module.exports = (Discord, client) => {
 
         await deletelogs.forEach((d) => { // Send every log stored and delete the data afterward
             wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
-                .then(() => d.deleteOne().catch((err) => console.log(err)));
+                .then(() => d.deleteOne().catch((err) => trailError(err)));
         });
 
         const editlogs = await EDITS.find({ guildID: '435431947963990026' }); // Get existing edit log data
 
         await editlogs.forEach((d) => { // Send every log stored and delete the data afterward, again
             wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
-                .then(() => d.deleteOne().catch((err) => console.log(err)));
+                .then(() => d.deleteOne().catch((err) => trailError(err)));
         });
     }, (7500));
 };
@@ -78,7 +78,7 @@ async function searchAndChangeStatus(client) {
                 ],
             });
         } catch (err) {
-            return console.error(`Failed to change bot status: ${err}`);
+            return trailError(`Failed to change bot status: ${err}`);
         }
     }
 }

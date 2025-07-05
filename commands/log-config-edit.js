@@ -45,7 +45,6 @@ module.exports = {
         if ((!categoryOption) && (!channelOption)) return interaction.reply({ content: 'Please fill out a configuration value depending on what it requires. The option is labeled in parenthesis after the configuration option (e.g. "Ignore Message Logs in Category (Category)" requires "category" option filled out).' });
 
         const data = await LCONFIG.findOne({ guildID: interaction.guild.id }); // Get existing log configuration data
-
         if (!data) return interaction.reply({ content: 'There is no data set up for the server. Use `/config-setup` first!' });
 
         switch (configOption) {
@@ -54,14 +53,14 @@ module.exports = {
                 if (data.ignoredcategories.includes(categoryOption.id)) return interaction.reply({ content: 'That category is already being ignored.' });
 
                 data.ignoredcategories.push(categoryOption.id);
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Set the <#${categoryOption.id}> category to be omitted from message logs.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Set the <#${categoryOption.id}> category to be omitted from message logs.` }));
                 break;
             case "ignorechannel": // Ignore Message Logs in Channel (Channel); ignores a channel from getting logged for message logs
                 if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
                 if (data.ignoredchannels.includes(channelOption.id)) return interaction.reply({ content: 'That channel is already being ignored.' });
 
                 data.ignoredchannels.push(channelOption.id);
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Set the <#${channelOption.id}> channel to be omitted from message logs.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Set the <#${channelOption.id}> channel to be omitted from message logs.` }));
                 break;
             case "unignorecategory": { // Unignore Message Logs in Category (Category); unignore a category that is ignored from message logs
                 if (!categoryOption) return interaction.reply({ content: 'This configuration value requires a `category` option to be filled out.' });
@@ -72,7 +71,7 @@ module.exports = {
                 if (!data.ignoredcategories[ignoredCategoryIndex]) return interaction.reply({ content: 'That category is not being ignored.' });
 
                 data.ignoredcategories.splice(ignoredCategoryIndex, 1);
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `The <#${categoryOption.id}> category will no longer be omitted from message logs.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `The <#${categoryOption.id}> category will no longer be omitted from message logs.` }));
                 break;
             }
             case "unignorechannel": { // Unignore Message Logs in Channel (Channel); unignore a channel that is ignored from message logs
@@ -84,7 +83,7 @@ module.exports = {
                 if (!data.ignoredchannels[ignoredChannelIndex]) return interaction.reply({ content: 'That channel is not being ignored.' });
 
                 data.ignoredchannels.splice(ignoredChannelIndex, 1);
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `The <#${channelOption.id}> channel will no longer be omitted from message logs.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `The <#${channelOption.id}> channel will no longer be omitted from message logs.` }));
                 break;
             }
             case "deletedchannel": // Set Deleted Logs Channel (Channel); sets the channel to log deleted messages
@@ -161,27 +160,27 @@ async function createWebhookButReuseIfPossible(interaction, config, channel) {
         case "deletedchannel": // Set Deleted Logs Channel (Channel); sets the channel to log deleted messages
             data.deletechannel = channel.id;
             data.deletewebhook = webhookUrl;
-            data.save().catch((err) => console.log(err)).then(() => interaction.followUp({ content: `Deleted messages will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.followUp({ content: `Deleted messages will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
             break;
         case "editedchannel": // Set Edited Logs Channel (Channel); sets the channel to log edited messages
             data.editchannel = channel.id;
             data.editwebhook = webhookUrl;
-            data.save().catch((err) => console.log(err)).then(() => interaction.followUp({ content: `Edited messages will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.followUp({ content: `Edited messages will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
             break;
         case "usernamechannel": // Set Username Logs Channel (Channel); sets the channel to log username changes
             data.usernamechannel = channel.id;
             data.usernamewebhook = webhookUrl;
-            data.save().catch((err) => console.log(err)).then(() => interaction.followUp({ content: `Username updates will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.followUp({ content: `Username updates will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
             break;
         case "vcchannel": // Set Voice Channel Logs Channel (Channel); sets the channel to log VC join/move/leaves
             data.vcchannel = channel.id;
             data.vcwebhook = webhookUrl;
-            data.save().catch((err) => console.log(err)).then(() => interaction.followUp({ content: `Voice channel updates will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.followUp({ content: `Voice channel updates will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
             break;
         case "updatechannel": // Set Channel Update Logs Channel (Channel); sets the channel to log channel name/perm changes
             data.chanupchannel = channel.id;
             data.chanupwebhook = webhookUrl;
-            data.save().catch((err) => console.log(err)).then(() => interaction.followUp({ content: `Channel changes will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
+            data.save().catch((err) => trailError(err)).then(() => interaction.followUp({ content: `Channel changes will now log to the <#${channel.id}> channel.\n\n${(reused === true) ? 'This channel is occupied by another logged event, therefore the webhook used to post these will be reused.' : 'A new webhook has been created to post the logs for this event.'}` }));
             break;
         default: // None of the above
             interaction.followUp({ content: 'Failed to save settings as something went wrong.' });

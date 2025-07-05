@@ -49,7 +49,7 @@ module.exports = {
                     }]
                 })
                 .end(async (err, res) => {
-                    if (err) return console.log(err);
+                    if (err) return trailError(err);
 
                     // If the transcript successfully uploaded, send it into the configured logs channel
                     if (res.ok) {
@@ -77,7 +77,7 @@ module.exports = {
                 .addComponents(unavailableButton);
 
             await interaction.client.channels.cache.get(cData.pulllogid).send({ embeds: [transcriptEmbed], components: [failRow] });
-            await console.log(err);
+            await trailError(err);
         }
 
         // Delete the pullroom channel and data
@@ -88,7 +88,7 @@ module.exports = {
         await PULL.findOneAndDelete({
             guildID: interaction.guild.id,
             userID: idOption
-        }).catch((err) => console.log(err));
+        }).catch((err) => trailError(err));
 
         const idUsername = interaction.client.users.cache.get(idOption)?.username;
         if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` });

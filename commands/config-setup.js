@@ -44,8 +44,8 @@ module.exports = {
                 chanupchannel: ''
             });
 
-            await newLogData.save().catch((err) => console.log(err));
-            await newConfigData.save().catch((err) => console.log(err));
+            await newLogData.save().catch((err) => trailError(err));
+            await newConfigData.save().catch((err) => trailError(err));
 
             await interaction.editReply({ content: 'Data has been set up for the server. Use the `/config` and `/log-config` commands to view and edit these values.' });
             

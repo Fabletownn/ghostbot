@@ -81,7 +81,7 @@ module.exports = {
                 if (data.autopublish === boolOption) return interaction.reply({ content: 'Autopublishing is already set to that value.' });
 
                 data.autopublish = boolOption;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All announcement posts will ${(boolOption === true) ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All announcement posts will ${(boolOption === true) ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` }));
 
                 break;
             case "threadcreation": // Discussion Thread Creation (Boolean); disable or enable auto-thread creation for set channels
@@ -89,7 +89,7 @@ module.exports = {
                 if (data.threadcreate === boolOption) return interaction.reply({ content: 'Discussion thread creation is already set to that value.' });
 
                 data.threadcreate = boolOption;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption === true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption === true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
 
                 break;
             case "tagapply": // Being Helped Tag Application (Boolean); whether or not to automatically apply "being helped" when a staff member responds to a support post
@@ -97,7 +97,7 @@ module.exports = {
                 if (data.tagapply === boolOption) return interaction.reply({ content: 'Being Helped tag application is already set to that value.' });
 
                 data.tagapply = boolOption;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption === true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption === true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
 
                 break;
             case "pbvcid": // Custom VC Creation Voice Channel (Channel); the channel used to join for creating a custom voice channel
@@ -106,7 +106,7 @@ module.exports = {
                 if (channelOption.type !== ChannelType.GuildVoice) return interaction.reply({ content: 'That channel is not a voice channel.' });
 
                 data.pbvcid = channelOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now be created through joining the <#${channelOption.id}> channel.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now be created through joining the <#${channelOption.id}> channel.` }));
 
                 break;
             case "pbvclimit": // Custom VC Default User Limit (Number); the default user limit used when custom voice channels are created
@@ -114,7 +114,7 @@ module.exports = {
                 if (data.pbvclimit === numberOption) return interaction.reply({ content: 'That limit is already in use.' });
 
                 data.pbvclimit = numberOption;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now have a default user limit of ${numberOption}.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now have a default user limit of ${numberOption}.` }));
 
                 break;
             case "pullcategory": // Pullroom Category (Category); the category to create pullroom channels
@@ -122,7 +122,7 @@ module.exports = {
                 if (data.pullcategoryid === categoryOption.id) return interaction.reply({ content: 'That category is already in use.' });
 
                 data.pullcategoryid = categoryOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be created in the \`#${categoryOption.name}\` category.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be created in the \`#${categoryOption.name}\` category.` }));
 
                 break;
             case "pullrole": // Pullroom Role (Role); the role to apply to pulled members
@@ -130,7 +130,7 @@ module.exports = {
                 if (data.pullroleid === roleOption.id) return interaction.reply({ content: 'That role is already in use.' });
 
                 data.pullroleid = roleOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Members who are pullroomed will now be given the <@&${roleOption.id}> role.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Members who are pullroomed will now be given the <@&${roleOption.id}> role.` }));
 
                 break;
             case "pulllogs": // Pullroom Logs (Channel); the channel to log pullroom transcripts
@@ -138,14 +138,14 @@ module.exports = {
                 if (data.pulllogid === channelOption.id) return interaction.reply({ content: 'That channel is already in use.' });
 
                 data.pulllogid = channelOption.id;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be logged in the <#${channelOption.id}> channel.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be logged in the <#${channelOption.id}> channel.` }));
 
                 break;
             case "pullmsg": // Pullroom Message (Message); the default message used to introduce members to pullroom channels
                 if (!messageOption) return interaction.reply({ content: 'This configuration value requires a `message` option to be filled out.' });
 
                 data.pullmsg = messageOption;
-                data.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Pullroom tickets will now start out with the following message: \`${messageOption}\`` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now start out with the following message: \`${messageOption}\`` }));
 
                 break;
             default: // Nothing filled out, not sure how you would get this anyway

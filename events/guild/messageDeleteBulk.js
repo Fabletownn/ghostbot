@@ -62,7 +62,7 @@ module.exports = async (Discord, client, messages, channel) => {
                 }]
             })
             .end((err, res) => {
-                if (err) return console.log(err);
+                if (err) return trailError(err);
 
                 // If it worked successfully, log it into the dedicated channel
                 if (res.ok) {
@@ -76,10 +76,10 @@ module.exports = async (Discord, client, messages, channel) => {
 
                     wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
                 } else {
-                    return console.error(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
+                    return trailError(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
                 }
             });
     } catch (error) {
-        return console.error(`Error uploading bulk delete log: ${error}`);
+        return trailError(`Error uploading bulk delete log: ${error}`);
     }
 }

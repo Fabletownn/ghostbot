@@ -9,22 +9,22 @@ module.exports = (client) => {
     };
 
     process.on('unhandledRejection', (reason, promise) => {
-        console.log(reason, promise);
+        trailError(reason, promise);
         errorLog('Unhandled Rejection', reason);
     });
 
     process.on('uncaughtException', (error) => {
-        console.log(error);
+        trailError(error);
         errorLog('Uncaught Exception', error);
     });
 
     process.on('uncaughtExceptionMonitor', (error) => {
-        console.log(error);
+        trailError(error);
         errorLog('Monitor', error);
     });
 
     process.on('rejectionHandled', (promise) => {
-        console.log(promise);
+        trailError(promise);
         errorLog('Promise Rejection', promise);
     });
 

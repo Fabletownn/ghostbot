@@ -35,7 +35,7 @@ module.exports = async (Discord, client, message) => {
 
         // Otherwise, save the message sent and send it into the pullroom transcript
         pData.transcript += `[${new Date().toLocaleString().replace(',', '')}] ${message.author.username} (${message.author.id}): ${message.content || '<No Content - File/Sticker>'}\n`;
-        pData.save().catch((err) => console.log(err));
+        pData.save().catch((err) => trailError(err));
     }
 
     /*
@@ -58,7 +58,7 @@ module.exports = async (Discord, client, message) => {
                     }
 
                     sData.posted = true;
-                    await sData.save().catch((err) => console.log(err));
+                    await sData.save().catch((err) => trailError(err));
                 }
             }
 
@@ -66,7 +66,7 @@ module.exports = async (Discord, client, message) => {
             if (sData.subbed.includes(message.author.id)) {
                 if (sData.posted) {
                     sData.posted = false;
-                    await sData.save().catch((err) => console.log(err));
+                    await sData.save().catch((err) => trailError(err));
                 }
             }
         }

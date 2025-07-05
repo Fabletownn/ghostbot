@@ -79,7 +79,7 @@ module.exports = async (Discord, client, message) => {
                 d.embed.push(deletedEmbed.toJSON());
                 if (overloadedEmbed >= 1) d.overload += overloadedEmbed;
                 
-                d.save().catch((err) => console.log(err));
+                d.save().catch((err) => trailError(err));
 
                 // Increment added delete data counter
                 addedData++;
@@ -94,7 +94,7 @@ module.exports = async (Discord, client, message) => {
                 embed: deletedEmbed.toJSON()
             });
 
-            newDeletedData.save().catch((err) => console.log(err));
+            newDeletedData.save().catch((err) => trailError(err));
         }
         
     // If there is not yet other delete logs to be sent out, create data and add the embed    
@@ -105,6 +105,6 @@ module.exports = async (Discord, client, message) => {
             embed: deletedEmbed.toJSON()
         });
 
-        newDeletedData.save().catch((err) => console.log(err));
+        newDeletedData.save().catch((err) => trailError(err));
     }
 }

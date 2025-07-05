@@ -30,10 +30,10 @@ module.exports = {
 
                     if (subIndex !== -1) {
                         subbedList.splice(subIndex, 1);
-                        sub.save().catch((err) => console.log(err));
+                        sub.save().catch((err) => trailError(err));
                     }
                 } else { // Otherwise delete it entirely
-                    sub.deleteOne().catch((err) => console.log(err));
+                    sub.deleteOne().catch((err) => trailError(err));
                 }
             });
 
@@ -52,7 +52,7 @@ module.exports = {
                 if (subIndex < 0) return interaction.reply({ content: 'Failed to unsubscribe to the thread as something went wrong.', flags: MessageFlags.Ephemeral });
 
                 data.subbed.splice(subIndex, 1);
-                await data.save().catch((err) => console.log(err));
+                await data.save().catch((err) => trailError(err));
 
                 if (data.subbed.length <= 0) await data.deleteOne();
 

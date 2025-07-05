@@ -48,8 +48,8 @@ module.exports = async (Discord, client, interaction) => {
                 });
 
                 // Save data and confirm followup
-                await newLogData.save().catch((err) => console.log(err));
-                await newConfigData.save().catch((err) => console.log(err));
+                await newLogData.save().catch((err) => trailError(err));
+                await newConfigData.save().catch((err) => trailError(err));
 
                 await interaction.update({ content: 'Data has been set back up for the server. Use the `/config` and `/log-config` commands to view and edit these values.', components: [] });
                 break;
@@ -312,7 +312,7 @@ module.exports = async (Discord, client, interaction) => {
                     // Send the translated content
                     await interaction.followUp({ content: `**Detected Language**: \`${detectedLanguage.toUpperCase()}\`\n**Translated Content**: \`${translatedContent}\``, flags: MessageFlags.Ephemeral });
                 }).catch((err) => {
-                    console.log(err);
+                    trailError(err);
                     return interaction.followUp({ content: `Failed to translate that message! If this continues, please forward this error: \`${err}\``, flags: MessageFlags.Ephemeral });
                 });
 

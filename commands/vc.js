@@ -128,7 +128,7 @@ module.exports = {
                 pData.ownerID = userOption.id;
 
                 if (!(await checkOwnership(interaction))) return interaction.reply({ content: 'You no longer own this room!', flags: MessageFlags.Ephemeral });
-                pData.save().catch((err) => console.log(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, flags: MessageFlags.Ephemeral }));
+                pData.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Transferred voice channel ownership to <@${userOption.id}>.`, flags: MessageFlags.Ephemeral }));
 
                 userID = userOption.id;
                 break;

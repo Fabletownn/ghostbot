@@ -80,7 +80,7 @@ module.exports = {
                     transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${interaction.user.username} with ${userOption.username} opened..\n`
                 });
 
-                await newPullData.save().catch((err) => console.log(err));
+                await newPullData.save().catch((err) => trailError(err));
 
                 // Add the pullroom role
                 await pullMember.roles.add(cData.pullroleid);

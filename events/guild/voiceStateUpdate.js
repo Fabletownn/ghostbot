@@ -129,11 +129,11 @@ module.exports = async (Discord, client, oldState, newState) => {
                     ownerID: stateUserID
                 });
 
-                await newVoice.save().catch((err) => console.log(err));
+                await newVoice.save().catch((err) => trailError(err));
                 await newMember.voice.setChannel(pRoom.id).catch(async() => {
                     if (!newMember.voice.channel) {
                         if (newVoice) await PARTY.findOneAndDelete({ ownerID: stateUserID });
-                        if (pRoom) await pRoom.delete().catch((err) => console.log(err));
+                        if (pRoom) await pRoom.delete().catch((err) => trailError(err));
                     }
                 });
             });
@@ -143,8 +143,8 @@ module.exports = async (Discord, client, oldState, newState) => {
                 if (!newMember.voice.channel) {
                     const voice = newVoiceGuild.channels.cache.get(roomData.voiceID);
 
-                    await voice.delete().catch((err) => console.log(err));
-                    await roomData.deleteOne().catch((err) => console.log(err));
+                    await voice.delete().catch((err) => trailError(err));
+                    await roomData.deleteOne().catch((err) => trailError(err));
                 }
             });
         }
@@ -176,7 +176,7 @@ module.exports = async (Discord, client, oldState, newState) => {
                                     // room data for normal VCs)
 
             const roomChannel = newVoiceGuild.channels.cache.get(foundData.voiceID);
-            if (roomChannel) await roomChannel.delete().catch((err) => console.log(err));
+            if (roomChannel) await roomChannel.delete().catch((err) => trailError(err));
             
             await PARTY.findOneAndDelete({ voiceID: oldChannel.id });
         } else if (voiceSize !== 0) { // Transfer ownership to random user if owner leaves
@@ -191,7 +191,7 @@ module.exports = async (Discord, client, oldState, newState) => {
 
             if (randomMember && randomMember.user) {
                 transferData.ownerID = randomMember.user.id;
-                transferData.save().catch((err) => console.log(err));
+                transferData.save().catch((err) => trailError(err));
             }
         }
     }

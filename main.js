@@ -1,10 +1,11 @@
 // G.H.O.S.T. - Ghost Hunter's Optimal Security Tool
 require('dotenv').config();
+require('./handlers/webhook_functions');
 
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { Discord, Client, Collection, GatewayIntentBits, Partials, PartialGroupDMChannel } = require('discord.js');
+const { Discord, Client, Collection, GatewayIntentBits, Partials, PartialGroupDMChannel, MessageFlags } = require('discord.js');
 
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildVoiceStates],
@@ -45,9 +46,9 @@ client.on('interactionCreate', async (interaction) => {
         try {
             await command.execute(interaction);
         } catch (err) {
-            console.error(err);
+            trailError(err);
     
-            return interaction.reply({ content: 'An issue occurred trying to execute that command. Contact <@528759471514845194> if this continues happening.', ephemeral: true });
+            return interaction.reply({ content: 'An issue occurred trying to execute that command. Contact <@528759471514845194> if this continues happening.', flags: MessageFlags.Ephemeral });
         }
     }
 });
