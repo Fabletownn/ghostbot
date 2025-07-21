@@ -4,7 +4,8 @@ const reportSchema = mongoose.Schema({
     userID: String,
     reports: Map,
     reportID: String,
-    emergency: Boolean
+    emergency: Boolean,
+    profile: Boolean
 });
 
 module.exports = mongoose.model('reports', reportSchema);

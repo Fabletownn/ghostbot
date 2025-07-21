@@ -65,6 +65,7 @@ global.trailError = function (error) {
         const stack = error.stack || 'no stack available';
         
         logger.error(`${err_message}\n${stack}`);
+        console.log(error);
     } catch (err) {
         console.log(err);
     }

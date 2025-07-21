@@ -2,7 +2,7 @@ const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, ActionRowBuilder
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('mimic')
+        .setName('mimic') // It was difficult to put the pieces together
         .setDescription('(In the channel executed) Prompt a message mimic')
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {

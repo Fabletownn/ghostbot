@@ -1,4 +1,6 @@
-const { MessageFlags, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
+const { MessageFlags, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder, ContainerBuilder,
+    TextDisplayBuilder, MediaGalleryBuilder
+} = require('discord.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
 const REPORTS = require('../../models/reports.js');
@@ -178,7 +180,7 @@ module.exports = async (Discord, client, interaction) => {
                 const newReportMap = new Map(); // Create a new map ready for new data
                 const reportedUser = interaction.targetMessage.author;
                 const reportedMember = interaction.guild.members.cache.get(reportedUser?.id);
-                const rData = await REPORTS.findOne({ userID: reportedUser?.id }); // Get existing reports data
+                const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: false }); // Get existing reports data
                 const cdData = await COOLDOWNS.findOne({ userID: interaction.user.id }); // Get existing report cooldown data
                 let reportedMessage = interaction.targetMessage; // Reported message
                 let reportedMessageInfo = `${reportedMessage.channel.id}-${reportedMessage.id}`;
@@ -187,7 +189,7 @@ module.exports = async (Discord, client, interaction) => {
 
                 // Don't allow them to report the member if they are no longer in the server, are a bot, or a staff member
                 if ((!reportedUser) && (!reportedMember)) return interaction.followUp({ content: 'An error occurred trying to report that user.' });
-                if (reportedUser.bot || immuneRoles.some((role) => reportedMember.roles.cache.has(role))) return interaction.followUp({ content: 'This user cannot be reported.' });
+                if (reportedUser?.bot || immuneRoles?.some((role) => reportedMember?.roles.cache.has(role))) return interaction.followUp({ content: 'This user cannot be reported.' });
 
                 // Don't allow them to report if they are either blacklisted from the system, or on cooldown
                 if (cdData) {
@@ -212,15 +214,16 @@ module.exports = async (Discord, client, interaction) => {
                         userID: reportedUser.id,
                         reports: newReportMap,
                         reportID: reportID,
-                        emergency: isEmergency
+                        emergency: isEmergency,
+                        profile: false
                     });
 
                     // Save the data and confirm response
                     await newReportData.save();
                     await interaction.followUp({ content: `Thank you for your ${reportType}! This message will be handled by the staff team as soon as possible.` });
-
-                    // If there already is report data for the User ID 
+                    
                 } else {
+                    // If there already is report data for the User ID 
                     if (isEmergency && rData.emergency) return interaction.followUp({ content: 'This user\'s messages have already been marked as an emergency! It will be handled by the staff team as soon as possible.' });
 
                     const reportMap = rData.reports;
