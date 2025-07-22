@@ -17,8 +17,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
     if (data.editwebhook == null) return;
 
     // Don't log if the channel or category of the channel is set to be ignored
-    if (data.ignoredchannels.some((ignored_channel) => newMessage.channel.id === ignored_channel)) return;
-    if (data.ignoredcategories.some((ignored_cat) => newMessage.channel.parent.id === ignored_cat)) return;
+    if (data.ignoredchannels.some((ignored_channel) => newMessage?.channel?.id === ignored_channel)) return;
+    if (data.ignoredcategories.some((ignored_cat) => newMessage?.channel?.parent?.id === ignored_cat)) return;
 
     const oldContent = oldMessage.content; // Pre-edited message's content
     const newContent = newMessage.content; // Edited message's content
@@ -38,7 +38,7 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
     const embedCharacterLimit = 1000; // Character limit for each embed field
     let largerContent; // Prepare a variable for which content was larger
 
-    // Set the variable to whichever content was larger in length
+    // Set the variable to whichever content was larger
     if (editedNewContent.length > editedOldContent.length) {
         largerContent = editedNewContent;
     } else {

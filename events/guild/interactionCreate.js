@@ -140,7 +140,7 @@ module.exports = async (Discord, client, interaction) => {
                 let reportedMessagesList = '';
                 let reportCounter = 0;
 
-                await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // TODO: Map(1) { '528759471514845194' => [ '528759471514845194' ] } for profile report
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
                 for (const [reportInfo, reporters] of reportData.reports) {
                     const report = await interaction.guild.channels.cache.get(USER_REPORTS_CHANNEL).messages.fetch(reportData.reportID);
