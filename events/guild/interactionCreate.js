@@ -1,11 +1,11 @@
-const { MessageFlags, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder, AttachmentBuilder, ContainerBuilder,
-    TextDisplayBuilder, MediaGalleryBuilder
-} = require('discord.js');
+const { MessageFlags, ButtonStyle, ActionRowBuilder, ButtonBuilder, EmbedBuilder } = require('discord.js');
 const CONFIG = require('../../models/config.js');
 const LCONFIG = require('../../models/logconfig.js');
 const REPORTS = require('../../models/reports.js');
 const COOLDOWNS = require('../../models/repcooldowns.js');
 const { MET } = require('bing-translate-api');
+
+const USER_REPORTS_CHANNEL = '805795819722244148';
 
 module.exports = async (Discord, client, interaction) => {
     const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
@@ -13,6 +13,18 @@ module.exports = async (Discord, client, interaction) => {
 
     ///////////////////////// Buttons
     if (interaction.isButton()) {
+        // For report handling, dismissing, deleting, these are the buttons unanimously used to stay
+        const keepButtons = ['report-viewreps', 'report-hidedetails'];
+        const updatedReportButtons = interaction.message.components.map((row) => {
+            const newRow = new ActionRowBuilder();
+            const updButtons = row.components.map((comp) => {
+                return ButtonBuilder.from(comp).setDisabled(!keepButtons.includes(comp.customId));
+            });
+            
+            newRow.addComponents(...updButtons);
+            return newRow;
+        });
+        
         switch (interaction.customId) {
             case "setup-reset": { // When data setup is confirmed to be reset to default
                 if (cData) await CONFIG.findOneAndDelete({ guildID: interaction.guild.id }); // Delete configuration data
@@ -61,7 +73,7 @@ module.exports = async (Discord, client, interaction) => {
                 break;
             case "report-handle":
             case "report-dismiss": {
-                const reportData = await REPORTS.findOne({ reportID: interaction.message.id });
+                const reportData = await REPORTS.findOne({ reportID: interaction.message.id, handled: false });
                 const oldEmbed = interaction.message.embeds[0];
                 const isHandled = interaction.customId === "report-handle";
                 const handleColor = isHandled ? '#38DD86' : '#757D8D';
@@ -70,26 +82,31 @@ module.exports = async (Discord, client, interaction) => {
                     .setColor(handleColor)
                     .setFooter({ text: oldEmbed.footer.text.replace('Unhandled', isHandled ? 'Handled' : 'Dismissed') });
 
-                // If there is no data (by the off chance it got deleted), still mark the report as handled/dismised, otherwise delete it
-                if (reportData) await REPORTS.findOneAndDelete({ reportID: interaction.message.id });
+                // If there is data, mark it as handled to be filtered out for future reports
+                if (reportData) {
+                    reportData.handled = true;
+                    reportData.save().catch((err) => trailError(err));
+                }
                 
-                await interaction.message.edit({ embeds: [newEmbed], components: [] });
+                // Edit the embed to reflect whether it was handled or dismissed and respond to the user
+                await interaction.message.edit({ embeds: [newEmbed], components: updatedReportButtons });
                 await interaction.reply({ content: `Marked the report as ${isHandled ? 'handled' : 'dismissed'}.`, flags: MessageFlags.Ephemeral });
                 break;
             }
             case "report-delete": {
-                const reportData = await REPORTS.findOne({ reportID: interaction.message.id });
+                const reportData = await REPORTS.findOne({ reportID: interaction.message.id, handled: false });
                 const oldEmbed = interaction.message.embeds[0];
-                let deleteCount = 0;
+                let deletionCount = 0;
 
                 if (!reportData || !oldEmbed) return interaction.reply({ content: 'Failed to delete the reported messages as no data was found.', flags: MessageFlags.Ephemeral });
-
+                
                 const newEmbed = EmbedBuilder.from(oldEmbed)
                     .setColor('#38DD86')
                     .setFooter({ text: oldEmbed.footer.text.replace('Unhandled', 'Handled') });
 
                 await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
+                // For each report, get the message ID of it and delete them individually, if existing
                 for (const [reportInfo, reporters] of reportData.reports) {
                     const reportChannelID = reportInfo.split('-')[0];
                     const reportMessageID = reportInfo.split('-')[1];
@@ -99,44 +116,70 @@ module.exports = async (Discord, client, interaction) => {
                         if (!message) continue;
 
                         await message.delete();
-                        deleteCount++;
+                        deletionCount++;
                     } catch (e) {}
                 }
 
-                await REPORTS.findOneAndDelete({ reportID: interaction.message.id });
-                await interaction.message.edit({ embeds: [newEmbed], components: [] });
-                await interaction.followUp({ content: `Deleted **${deleteCount} message${deleteCount > 1 ? 's' : ''}** existing.` });
+                // If there is data, mark it as handled to be filtered out for future reports
+                if (reportData) {
+                    reportData.handled = true;
+                    reportData.save().catch((err) => trailError(err));
+                }
+
+                // Edit the embed to reflect it being handled and respond to the user
+                await interaction.message.edit({ embeds: [newEmbed], components: updatedReportButtons });
+                await interaction.followUp({ content: `Deleted **${deletionCount} message${deletionCount > 1 ? 's' : ''}** existing.` });
                 break;
             }
-            case "report-viewreps":
-                const reportData = await REPORTS.findOne({ reportID: interaction.message.id });
-                let reportedMessagesList = "";
+            case "report-viewreps": {
+                const reportData = await REPORTS.findOne({ reportID: interaction.message.id }); // Look for both handled and unhandled reports - no filter here
+                if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
+                
+                const isProfileReport = reportData.profile;
+                const listMessage = isProfileReport ? '' : 'The following messages have been reported by users:';
+                let reportedMessagesList = '';
                 let reportCounter = 0;
 
-                if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
-
-                await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+                await interaction.deferReply({ flags: MessageFlags.Ephemeral }); // TODO: Map(1) { '528759471514845194' => [ '528759471514845194' ] } for profile report
 
                 for (const [reportInfo, reporters] of reportData.reports) {
-                    const report = await interaction.guild.channels.cache.get('805795819722244148').messages.fetch(reportData.reportID);
+                    const report = await interaction.guild.channels.cache.get(USER_REPORTS_CHANNEL).messages.fetch(reportData.reportID);
                     if (!report) return null;
 
                     const reportEmbed = report.embeds[0];
                     if (!reportEmbed) return null;
 
                     let reportField = reportEmbed.fields[reportCounter];
+                    if (!isProfileReport) reportedMessagesList += `- ${reportField.value} **(${reportField.name})**\n`; // Don't add a field if it's a profile report
 
-                    reportedMessagesList += `- ${reportField.value} **(${reportField.name})**\n`;
-
-                    for (let i = 0; i < reporters.length; i++) {
+                    for (let i = 0; i < reporters.length; i++)
                         reportedMessagesList += `  - Reported by <@${reporters[i]}> (${reporters[i]})\n`;
-                    }
 
                     reportCounter++;
                 }
 
-                await interaction.followUp({ content: `The following messages have been reported by users:\n${reportedMessagesList}`, allowedMentions: { parse: [] } });
+                await interaction.followUp({ content: `${listMessage}\n${reportedMessagesList}`, allowedMentions: { parse: [] } });
                 break;
+            }
+            case "report-hidedetails": {
+                const oldEmbed = interaction.message.embeds[0];
+                const newEmbed = EmbedBuilder.from(oldEmbed)
+                    .setAuthor({ name: oldEmbed.author.name, iconURL: 'https://i.imgur.com/8XDdiH1.png' })
+                    .setThumbnail(null)
+                    .setImage(null)
+                    .setFooter({ text: `${oldEmbed.footer.text}  •  Hidden`})
+
+                const updatedProfileButtons = interaction.message.components.map((row) => {
+                    const profileRow = new ActionRowBuilder();
+                    const keptButtons = row.components.filter((comp) => comp.customId !== interaction.customId); // Remove itself from the button list
+                    profileRow.addComponents(...keptButtons);
+                    return profileRow;
+                });
+
+                await interaction.message.edit({ embeds: [newEmbed], components: updatedProfileButtons });
+                await interaction.reply({ content: 'Hid the profile picture and banner information for this profile report.', flags: MessageFlags.Ephemeral });
+                break;
+            }
             default:
                 await interaction.reply({ content: 'There is no functionality for this button!', flags: MessageFlags.Ephemeral });
                 break;
@@ -180,8 +223,8 @@ module.exports = async (Discord, client, interaction) => {
                 const newReportMap = new Map(); // Create a new map ready for new data
                 const reportedUser = interaction.targetMessage.author;
                 const reportedMember = interaction.guild.members.cache.get(reportedUser?.id);
-                const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: false }); // Get existing reports data
-                const cdData = await COOLDOWNS.findOne({ userID: interaction.user.id }); // Get existing report cooldown data
+                const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: false, handled: false }); // Get existing unhandled reports data
+                const cdData = await COOLDOWNS.findOne({ userID: interaction.user.id, expiresAt: { $gt: new Date() } }).sort({ expiresAt: -1 }); // Get existing report cooldown data, from non-expired & the most recent
                 let reportedMessage = interaction.targetMessage; // Reported message
                 let reportedMessageInfo = `${reportedMessage.channel.id}-${reportedMessage.id}`;
 
@@ -194,11 +237,9 @@ module.exports = async (Discord, client, interaction) => {
                 // Don't allow them to report if they are either blacklisted from the system, or on cooldown
                 if (cdData) {
                     if (cdData.blacklisted) return interaction.followUp({ content: 'You are blocked from using the user reporting system. Contact <@1043623513669513266> if you believe this is an error.' });
-                    if (cdData.expires > Date.now()) {
-                        const cooldownRemaining = Math.round(cdData.expires / 1000);
-                        return interaction.followUp({ content: `You are on cooldown and can report another message <t:${cooldownRemaining}:R>.` });
-                    } else {
-                        await COOLDOWNS.findOneAndDelete({ userID: interaction.user.id });
+
+                    if (cdData.expiresAt > new Date().getTime()) {
+                        return interaction.followUp({ content: `You are on cooldown and can report another message <t:${Math.round(cdData.expiresAt / 1000)}:R>.` });
                     }
                 }
 
@@ -215,7 +256,9 @@ module.exports = async (Discord, client, interaction) => {
                         reports: newReportMap,
                         reportID: reportID,
                         emergency: isEmergency,
-                        profile: false
+                        profile: false,
+                        handled: false,
+                        expiresAt: new Date(Date.now() + 16 * 60 * 60 * 1000), // Automatically set to expire after 16 hours
                     });
 
                     // Save the data and confirm response
@@ -272,7 +315,7 @@ module.exports = async (Discord, client, interaction) => {
                     guildID: interaction.guild.id,
                     userID: interaction.user.id,
                     blacklisted: false,
-                    expires: Date.now() + 10000 // 10 second cooldown
+                    expiresAt: new Date(Date.now() + 10 * 1000) // Expire in 10 seconds automatically
                 });
 
                 await newCooldownData.save();
@@ -321,6 +364,41 @@ module.exports = async (Discord, client, interaction) => {
 
                 break;
             default:
+                break;
+        }
+    }
+
+    ///////////////////////// User Context Interactions
+    else if (interaction.isUserContextMenuCommand()) {
+        switch (interaction.commandName) {
+            case "Report Profile":
+                const reportedUser = interaction.targetUser;
+                const reportedMember = interaction.guild.members.cache.get(reportedUser?.id);
+                const immuneRoles = ['749029859048816651', '756591038373691606', '759255791605383208'];
+                const newReportMap = new Map([[reportedUser.id, [interaction.user.id]]]); // Create a map for the sake of being able to view who reported it
+                const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: true, handled: false }); // Fetch unhandled profile data for that user ID
+
+                if (reportedUser?.bot || immuneRoles?.some((role) => reportedMember?.roles.cache.has(role))) return interaction.reply({ content: 'This user cannot be reported.', flags: MessageFlags.Ephemeral });
+                
+                if (rData)
+                    return interaction.reply({ content: 'Thank you for your profile report! This profile was already reported and will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
+                
+                const reportID = await createProfileReport(interaction);
+                if (!reportID) return interaction.reply({ content: 'Something went wrong trying to report that profile, please try again.', flags: MessageFlags.Ephemeral });
+                
+                const newReportData = new REPORTS({
+                    userID: reportedUser.id,
+                    reports: newReportMap,
+                    reportID: reportID,
+                    emergency: false,
+                    profile: true,
+                    handled: false,
+                    expiresAt: new Date(Date.now() + 16 * 60 * 60 * 1000), // Automatically expire after 16 hours
+                });
+
+                // Save the data and confirm response
+                await newReportData.save();
+                await interaction.reply({ content: 'Thank you for your profile report! This will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
                 break;
         }
     }
@@ -375,13 +453,61 @@ async function createReport(interaction, reporterid, reportedinfo, isemergency) 
                 .setEmoji('1332851977507307550'),
         );
 
-    const reportMessage = await interaction.guild.channels.cache.get('805795819722244148').send({
+    const reportMessage = await interaction.guild.channels.cache.get(USER_REPORTS_CHANNEL).send({
         content: isemergency ? '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!' : '',
         embeds: [reportEmbed],
         components: [reportButtons],
         allowedMentions: { parse: ['roles'] }
     });
 
+    return reportMessage.id;
+}
+
+async function createProfileReport(interaction) {
+    const reportedUser = await interaction.client.users.fetch(interaction?.targetUser?.id, { force: true });
+    const reportedAvatar = reportedUser.displayAvatarURL({ dynamic: true, size: 1024 });
+    const reportedBanner = reportedUser.bannerURL({ dynamic: true, size: 1024 });
+    const reportEmbed = new EmbedBuilder()
+        .setAuthor({ name: `@${reportedUser.username}'s profile has been reported`, iconURL: reportedAvatar })
+        .addFields([
+            { name: 'Display Name', value: reportedUser.displayName, inline: true },
+            { name: 'Username', value: `@${reportedUser.username}`, inline: true },
+            { name: 'Mention', value: `<@${reportedUser.id}>`, inline: true },
+            { name: 'Other', value: '⚠️ **Pronouns** and **About Me** aren\'t available for bots - check their profile in full if nothing shown.\n👁️ Hide **NSFW**/**NSFL** content with the eye button.', inline: false }
+        ])
+        .setFooter({ text: `Unhandled  •  User ID: ${reportedUser.id}` })
+        .setThumbnail(reportedAvatar)
+        .setImage(reportedBanner)
+        .setColor('#FF756E')
+    const reportButtons = new ActionRowBuilder()
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('report-handle')
+                .setLabel('Handled')
+                .setStyle(ButtonStyle.Success)
+                .setEmoji('✅'),
+        )
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('report-dismiss')
+                .setLabel('Dismiss')
+                .setStyle(ButtonStyle.Secondary)
+                .setEmoji('509606903903551490'),
+        )
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('report-hidedetails')
+                .setStyle(ButtonStyle.Danger)
+                .setEmoji('1396669210834505920')
+        )
+        .addComponents(
+            new ButtonBuilder()
+                .setCustomId('report-viewreps')
+                .setStyle(ButtonStyle.Primary)
+                .setEmoji('1332851977507307550'),
+        );
+    
+    const reportMessage = await interaction.guild.channels.cache.get(USER_REPORTS_CHANNEL).send({ embeds: [reportEmbed], components: [reportButtons] });
     return reportMessage.id;
 }
 
@@ -396,7 +522,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
     if (!message) return null;
 
     // If the report message can't be found (accidentally deleted or the like), delete the data and have them try again
-    const report = await interaction.guild.channels.cache.get('805795819722244148').messages.fetch(data.reportID).catch(() => null);
+    const report = await interaction.guild.channels.cache.get(USER_REPORTS_CHANNEL).messages.fetch(data.reportID).catch(() => null);
     if (!report) {
         await data.deleteOne();
         return null;

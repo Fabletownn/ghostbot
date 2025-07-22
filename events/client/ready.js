@@ -4,7 +4,6 @@ const STATUS = require('../../models/statuses.js');
 const LCONFIG = require('../../models/logconfig.js');
 const DELETES = require('../../models/deletes.js');
 const EDITS = require('../../models/edits.js');
-const COOLDOWNS = require('../../models/repcooldowns.js');
 const wf = require('../../handlers/webhook_functions.js');
 
 module.exports = (Discord, client) => {
@@ -17,17 +16,6 @@ module.exports = (Discord, client) => {
 
     cron.schedule('0 * * * *', async () => {
         searchAndChangeStatus(client);
-
-        /*
-            Delete expired report cooldowns every hour
-        */
-        const cooldowns = await COOLDOWNS.find({ guildID: '435431947963990026' });
-
-        await cooldowns.forEach((cd) => {
-            if (cd.expires < Date.now()) {
-                cd.deleteOne().catch((err) => trailError(err));
-            }
-        });
     });
 
     /*

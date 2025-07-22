@@ -3,8 +3,12 @@
 const cooldownSchema = mongoose.Schema({
     guildID: String,
     userID: String,
-    expires: String,
-    blacklisted: Boolean
+    blacklisted: Boolean,
+    expiresAt: {
+        type: Date,
+        required: true,
+        index: { expires: 0 } // Delete the entry automatically once cooldown has ended
+    }
 });
 
 module.exports = mongoose.model('repcooldowns', cooldownSchema);
