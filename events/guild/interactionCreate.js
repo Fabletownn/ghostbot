@@ -266,8 +266,10 @@ module.exports = async (Discord, client, interaction) => {
                     await interaction.followUp({ content: `Thank you for your ${reportType}! This message will be handled by the staff team as soon as possible.` });
                     
                 } else {
-                    // If there already is report data for the User ID 
+                    // If there already is report data for the User ID, stop them from making multiple emergency reports
                     if (isEmergency && rData.emergency) return interaction.followUp({ content: 'This user\'s messages have already been marked as an emergency! It will be handled by the staff team as soon as possible.' });
+                    // If it's not an emergency and they already have more than 5 reports, stop them from reporting
+                    if (!isEmergency && (rData.reports.size >= 5)) return interaction.followUp({ content: 'You have exceeded the amount of reports on this user at the moment. It will be handled by the staff team as soon as possible.' });
 
                     const reportMap = rData.reports;
                     const reportArray = reportMap.get(reportedMessageInfo);
@@ -379,9 +381,7 @@ module.exports = async (Discord, client, interaction) => {
                 const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: true, handled: false }); // Fetch unhandled profile data for that user ID
 
                 if (reportedUser?.bot || immuneRoles?.some((role) => reportedMember?.roles.cache.has(role))) return interaction.reply({ content: 'This user cannot be reported.', flags: MessageFlags.Ephemeral });
-                
-                if (rData)
-                    return interaction.reply({ content: 'Thank you for your profile report! This profile was already reported and will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
+                if (rData) return interaction.reply({ content: 'Thank you for your profile report! This profile was already reported and will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
                 
                 const reportID = await createProfileReport(interaction);
                 if (!reportID) return interaction.reply({ content: 'Something went wrong trying to report that profile, please try again.', flags: MessageFlags.Ephemeral });
