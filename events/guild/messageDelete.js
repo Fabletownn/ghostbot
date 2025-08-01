@@ -16,9 +16,17 @@ module.exports = async (Discord, client, message) => {
     if (data.ignoredcategories == null) return;
     if (data.deletewebhook == null) return;
 
+    // In a forum post, the parent of the forum post is the forum channel; in these cases, check to make sure that
+    // the parent of the forum channel - the actual category - isn't ignored before logging it
+    // ===========================================================================
+    // #bug-reports > Bug Report Post > parent: #bug-reports, not "QA Category" > parent of #bug-reports: "QA Category"
+    const singleParent = message?.channel?.parent?.id;
+    const doubleParent = message?.channel?.parent?.parent?.id;
+    const categoryID = doubleParent ? doubleParent : singleParent;
+
     // Do not log if the channel or category the channel is in is being ignored
-    if (data.ignoredchannels.some((ignored_channel) => message.channel.id === ignored_channel)) return;
-    if (data.ignoredcategories.some((ignored_cat) => message.channel.parent.id === ignored_cat)) return;
+    if (data.ignoredchannels.some((ignored_channel) => message?.channel?.id === ignored_channel)) return;
+    if (data.ignoredcategories.some((ignored_cat) => categoryID === ignored_cat)) return;
 
     const deletedContent = message.content ? message.content : '<No Message Content>';
     const deletedEditedContent = deletedContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>').replace(/\//g, '\\/');

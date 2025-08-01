@@ -15,10 +15,18 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
     if (data.ignoredchannels == null) return;
     if (data.ignoredcategories == null) return;
     if (data.editwebhook == null) return;
+    
+    // In a forum post, the parent of the forum post is the forum channel; in these cases, check to make sure that
+    // the parent of the forum channel - the actual category - isn't ignored before logging it
+    // ===========================================================================
+    // #bug-reports > Bug Report Post > parent: #bug-reports, not "QA Category" > parent of #bug-reports: "QA Category"
+    const singleParent = newMessage?.channel?.parent?.id;
+    const doubleParent = newMessage?.channel?.parent?.parent?.id;
+    const categoryID = doubleParent ? doubleParent : singleParent;
 
     // Don't log if the channel or category of the channel is set to be ignored
     if (data.ignoredchannels.some((ignored_channel) => newMessage?.channel?.id === ignored_channel)) return;
-    if (data.ignoredcategories.some((ignored_cat) => newMessage?.channel?.parent?.id === ignored_cat)) return;
+    if (data.ignoredcategories.some((ignored_cat) => categoryID === ignored_cat)) return;
 
     const oldContent = oldMessage.content; // Pre-edited message's content
     const newContent = newMessage.content; // Edited message's content

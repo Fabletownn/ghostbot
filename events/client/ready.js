@@ -22,18 +22,18 @@ module.exports = (Discord, client) => {
         Send message logs every 7.5 seconds
     */
     setInterval(async () => {
-        const data = await LCONFIG.findOne({ guildID: '435431947963990026' }); // Get existing log configuration data
+        const data = await LCONFIG.findOne({ guildID: '1291150926869954573' }); // Get existing log configuration data
 
         if (!data) return;
 
-        const deletelogs = await DELETES.find({ guildID: '435431947963990026' }); // Get existing delete log data
+        const deletelogs = await DELETES.find({ guildID: '1291150926869954573' }); // Get existing delete log data
 
         await deletelogs.forEach((d) => { // Send every log stored and delete the data afterward
             wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, d.embed)
                 .then(() => d.deleteOne().catch((err) => trailError(err)));
         });
 
-        const editlogs = await EDITS.find({ guildID: '435431947963990026' }); // Get existing edit log data
+        const editlogs = await EDITS.find({ guildID: '1291150926869954573' }); // Get existing edit log data
 
         await editlogs.forEach((d) => { // Send every log stored and delete the data afterward, again
             wf.useWebhookIfExisting(client, data.editchannel, data.editwebhook, d.embed)
