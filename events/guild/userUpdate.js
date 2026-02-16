@@ -10,7 +10,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
 
     const cTimestamp = Math.round((Date.now()) / 1000);
 
-    const data = await LCONFIG.findOne({ guildID: '435431947963990026' }); // Get existing log configuration data
+    const data = await LCONFIG.findOne({ guildID: process.env.GUILDID }); // Get existing log configuration data
     if (!data) return;
     if (!data.usernamechannel) return;
 
