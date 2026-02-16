@@ -14,7 +14,6 @@ module.exports = {
         // Trigger configuration variables
         const configAutoPublish = (data.autopublish === true) ? 'Enabled' : (data.autopublish === false) ? 'Disabled' : 'Unset';
         const configThreadCreate = (data.threadcreate === true) ? 'Enabled' : (data.threadcreate === false) ? 'Disabled' : 'Unset';
-        const configTagApply = (data.tagapply === true) ? 'Enabled' : (data.tagapply === false) ? 'Disabled' : 'Unset';
 
         // Channel configuration variables
         const configPBVCID = (data.pbvcid !== '') ? `<#${data.pbvcid}>` : 'Unset';
@@ -30,8 +29,7 @@ module.exports = {
             .setAuthor({ name: 'Trigger Configuration', iconURL: interaction.guild.iconURL({ dynamic: true, size: 512 }) })
             .addFields([
                 { name: 'Autopublishing', value: configAutoPublish, inline: true },
-                { name: 'Thread Creation', value: configThreadCreate, inline: true },
-                { name: 'Tag Application', value: configTagApply, inline: true },
+                { name: 'Thread Creation', value: configThreadCreate, inline: true }
             ]);
 
         const channelEmbed = new EmbedBuilder()
@@ -39,7 +37,7 @@ module.exports = {
             .addFields([
                 { name: 'Custom VC Creation', value: configPBVCID, inline: true },
                 { name: 'Pullroom Category', value: configPullCategory, inline: true },
-                { name: 'Pullroom Logs', value: configPullLogs, inline: true },
+                { name: 'Pullroom Logs', value: configPullLogs, inline: true }
             ]);
 
         const otherEmbed = new EmbedBuilder()

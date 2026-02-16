@@ -19,7 +19,6 @@ module.exports = {
                 guildID: interaction.guild.id,
                 autopublish: false,
                 threadcreate: false,
-                tagapply: false,
                 pbvcid: '',
                 pbvclimit: 4,
                 pullcategoryid: '',

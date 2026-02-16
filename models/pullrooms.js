@@ -6,7 +6,8 @@ const pullSchema = mongoose.Schema({
     userTag: String,
     channelID: String,
     roomName: String,
-    transcript: String
+    transcript: String,
+    admin: Boolean
 });
 
 module.exports = mongoose.model('pullroom', pullSchema);

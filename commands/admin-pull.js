@@ -1,12 +1,12 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, MessageFlags, EmbedBuilder } = require('discord.js');
 const CONFIG = require('../models/config.js');
 const PULL = require('../models/pullrooms.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('pull')
-        .setDescription('Creates a pullroom channel for the specified user')
-        .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
+        .setName('admin-pull')
+        .setDescription('Creates an Admin pullroom channel for the specified user')
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addUserOption((option) =>
             option.setName('user')
                 .setDescription('The user that will be pullroomed')
@@ -14,10 +14,10 @@ module.exports = {
         ),
     async execute(interaction) {
         const userOption = interaction.options.getUser('user'); // User to be pullroomed
-        if (userOption.id === interaction.user.id) return interaction.reply({ content: 'You cannot pullroom yourself.' });
-        
-        const userReports = '805795819722244148';                              // Channel ID for the user reports channel
-        const userReportsChannel = interaction.guild.channels.cache.get(userReports); // User reports channel object
+        if (userOption.id === interaction.user.id) return interaction.reply({ content: 'You cannot pullroom yourself.', flags: MessageFlags.Ephemeral });
+
+        const adminDiscussion = '781985975844733029';                                  // Channel ID for the admin channel
+        const adminDiscussionChannel = interaction.guild.channels.cache.get(adminDiscussion); // Admin channel object
 
         const cData = await CONFIG.findOne({ guildID: interaction.guild.id });                      // Get existing configuration data
         const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: userOption.id }); // Get existing pullrooms data
@@ -29,7 +29,7 @@ module.exports = {
         const pullCategory = interaction.guild.channels.cache.get(cData.pullcategoryid); // Pullroom category from configuration
         const pullMember = interaction.guild.members.cache.get(userOption.id);           // Member object for the person being pullroomed
 
-        await interaction.deferReply();
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
         if (pullCategory && pullMember) {
             const modifiedUsername = userOption.username.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase(); // Modified username for Discord channel limitations
@@ -48,14 +48,6 @@ module.exports = {
                     {
                         id: userOption.id, // The user being pulled
                         allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks]
-                    },
-                    {
-                        id: '756591038373691606', // Moderator
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
-                    },
-                    {
-                        id: '759255791605383208', // Trial Moderator
-                        allow: [PermissionFlagsBits.ViewChannel, PermissionFlagsBits.ReadMessageHistory, PermissionFlagsBits.SendMessages, PermissionFlagsBits.AttachFiles, PermissionFlagsBits.EmbedLinks, PermissionFlagsBits.ManageMessages, PermissionFlagsBits.ManageChannels]
                     }
                 ]
             }).then(async (pullroomChannel) => {
@@ -68,7 +60,7 @@ module.exports = {
                             dynamic: true
                         })
                     })
-                    .setDescription(`${userOption.displayName} has been pulled by ${interaction.user.displayName}.\n\n${cData.pullmsg}`)
+                    .setDescription(`${userOption.displayName} has been pulled.\n\n${cData.pullmsg}`)
                     .setColor('#FFFFFF');
 
                 const newPullData = new PULL({
@@ -77,8 +69,8 @@ module.exports = {
                     userTag: userOption.username,
                     channelID: pullroomChannel.id,
                     roomName: roomName,
-                    transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${interaction.user.username} with ${userOption.username} opened..\n`,
-                    admin: false
+                    transcript: `[${new Date().toLocaleString().replace(',', '')}] Admin pullroom started by ${interaction.user.username} with ${userOption.username} opened..\n`,
+                    admin: true
                 });
 
                 await newPullData.save().catch((err) => trailError(err));
@@ -88,13 +80,13 @@ module.exports = {
                 // Disconnect them from any connected voice channels
                 await pullMember.voice.setChannel(null, { reason: 'Disconnected from voice channel as pullroomed' });
                 // Send pullroom messages and followup to command
-                await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
+                await pullroomChannel.send({ content: `The Admin team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
                 await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
-                await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}>.` });
-                if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was pullroomed by ${interaction.user.username}` });
+                await interaction.followUp({ content: `Created an Admin pullroom for <@${userOption.id}> into <#${newPullData.channelID}>.` });
+                if (adminDiscussionChannel) await adminDiscussionChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was Admin pullroomed by ${interaction.user.username}` });
             });
         } else {
-            return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server. Rare find!' });
+            return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server.' });
         }
     },
 };

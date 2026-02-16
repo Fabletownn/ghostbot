@@ -5,7 +5,6 @@ const CONFIG = require('../models/config.js');
 const configOptions = ([
     { name: 'Autopublish (Boolean)', value: 'autopublish' },
     { name: 'Discussion Thread Creation (Boolean)', value: 'threadcreation' },
-    { name: 'Being Helped Tag Application (Boolean)', value: 'tagapply' },
     { name: 'Custom VC Creation Voice Channel (Channel)', value: 'pbvcid' },
     { name: 'Custom VC Default User Limit (Number)', value: 'pbvclimit' },
     { name: 'Pullroom Category (Category)', value: 'pullcategory' },
@@ -92,21 +91,13 @@ module.exports = {
                 data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption === true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
 
                 break;
-            case "tagapply": // Being Helped Tag Application (Boolean); whether or not to automatically apply "being helped" when a staff member responds to a support post
-                if (boolOption === null) return interaction.reply({ content: 'This configuration value requires a `boolean` option to be filled out.' });
-                if (data.tagapply === boolOption) return interaction.reply({ content: 'Being Helped tag application is already set to that value.' });
-
-                data.tagapply = boolOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All posts being assisted by a staff member will ${(boolOption === true) ? 'now have the \'Being Helped\' tag applied automatically (enabled)' : 'no longer have the \'Being Helped\' tag applied automatically (disabled)'}.` }));
-
-                break;
             case "pbvcid": // Custom VC Creation Voice Channel (Channel); the channel used to join for creating a custom voice channel
                 if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
                 if (data.pbvcid === channelOption.id) return interaction.reply({ content: 'That channel is already in use. ' });
                 if (channelOption.type !== ChannelType.GuildVoice) return interaction.reply({ content: 'That channel is not a voice channel.' });
 
                 data.pbvcid = channelOption.id;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now be created through joining the <#${channelOption.id}> channel.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Custom voice channels will now be created through joining the <#${channelOption.id}> channel.` }));
 
                 break;
             case "pbvclimit": // Custom VC Default User Limit (Number); the default user limit used when custom voice channels are created
@@ -114,7 +105,7 @@ module.exports = {
                 if (data.pbvclimit === numberOption) return interaction.reply({ content: 'That limit is already in use.' });
 
                 data.pbvclimit = numberOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `PartyBot voice channels will now have a default user limit of ${numberOption}.` }));
+                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Custom voice channels will now have a default user limit of ${numberOption}.` }));
 
                 break;
             case "pullcategory": // Pullroom Category (Category); the category to create pullroom channels

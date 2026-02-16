@@ -4,7 +4,6 @@ const configSchema = mongoose.Schema({
     guildID: String,
     autopublish: Boolean,
     threadcreate: Boolean,
-    tagapply: Boolean,
     pbvcid: String,
     pbvclimit: Number,
     pullcategoryid: String,
