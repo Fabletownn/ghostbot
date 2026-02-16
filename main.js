@@ -17,9 +17,14 @@ const client = new Client({
 });
 
 const mongoose = require('mongoose');
-
 mongoose.set('strictQuery', false);
 mongoose.connect(process.env.MONGO_URI);
+
+const Sentry = require('@sentry/node');
+Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: 'production'
+});
 
 client.commands = new Collection();
 

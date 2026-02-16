@@ -3,8 +3,8 @@ module.exports = (client) => {
     const errorLog = (type, error) => {
         const unixTS = `<t:${Math.round(Date.now() / 1000)}:F>`;
         const errorMessage = (error instanceof Error ? `${error.stack}` : `${error}`);
+        
         const logChannel = client.channels.cache.get('1029169352378941502');
-
         if (logChannel) return logChannel.send({ content: `${unixTS} **${type}** error log:\n\`\`\`${errorMessage}\`\`\`` });
     };
 

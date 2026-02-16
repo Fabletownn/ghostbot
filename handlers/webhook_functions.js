@@ -1,19 +1,5 @@
 const { WebhookClient } = require('discord.js');
-const winston = require('winston'); require('winston-syslog');
-
-const papertrail = new winston.transports.Syslog({
-    host: process.env.PT_HOST,
-    port: process.env.PT_PORT,
-    protocol: 'tls4',
-    localhost: 'GHOST',
-    eol: '\n',
-});
-
-const logger = winston.createLogger({
-    format: winston.format.simple(),
-    levels: winston.config.syslog.levels,
-    transports: [papertrail]
-});
+const Sentry = require('@sentry/node');
 
 async function useWebhookIfExisting(client, channel, webhook, embed) {
     const useChannel = client.channels.cache.get(channel);
@@ -53,7 +39,7 @@ async function deleteWebhookIfExisting(client, channel) {
 
 global.trailInfo = function (error) {
     try {
-        logger.info(error);
+        Sentry.captureMessage(error);
     } catch (err) {
         console.log(err);
     }
@@ -61,10 +47,7 @@ global.trailInfo = function (error) {
 
 global.trailError = function (error) {
     try {
-        const err_message = error.message || error;
-        const stack = error.stack || 'no stack available';
-        
-        logger.error(`${err_message}\n${stack}`);
+        Sentry.captureException(error);
         console.log(error);
     } catch (err) {
         console.log(err);
