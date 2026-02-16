@@ -5,7 +5,7 @@ const REPORTS = require('../../models/reports.js');
 const COOLDOWNS = require('../../models/repcooldowns.js');
 const { MET } = require('bing-translate-api');
 
-const USER_REPORTS_CHANNEL = '1332206411559735346';
+const USER_REPORTS_CHANNEL = '805795819722244148';
 
 module.exports = async (Discord, client, interaction) => {
     const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
