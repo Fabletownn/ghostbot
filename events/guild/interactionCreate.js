@@ -5,7 +5,7 @@ const REPORTS = require('../../models/reports.js');
 const COOLDOWNS = require('../../models/repcooldowns.js');
 const { MET } = require('bing-translate-api');
 
-const USER_REPORTS_CHANNEL = '805795819722244148';
+const USER_REPORTS_CHANNEL = '1332206411559735346';
 
 module.exports = async (Discord, client, interaction) => {
     const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
@@ -473,7 +473,7 @@ async function createProfileReport(interaction) {
             { name: 'Display Name', value: reportedUser.displayName, inline: true },
             { name: 'Username', value: `@${reportedUser.username}`, inline: true },
             { name: 'Mention', value: `<@${reportedUser.id}>`, inline: true },
-            { name: 'Other', value: '⚠️ **Pronouns** and **About Me** aren\'t available for bots - check their profile in full if nothing shown.\n👁️ Hide **NSFW**/**NSFL** content with the eye button.', inline: false }
+            { name: 'Other', value: '- **Pronouns** and **About Me** information is not available. Check their profile in full if nothing shown.\n- Hide **NSFW**/**NSFL** content with the eye button.', inline: false }
         ])
         .setFooter({ text: `Unhandled  •  User ID: ${reportedUser.id}` })
         .setThumbnail(reportedAvatar)
