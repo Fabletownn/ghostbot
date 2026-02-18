@@ -1,13 +1,16 @@
-const fs = require('fs');
+const fs = require('node:fs');
+const path = require('node:path');
 
 module.exports = (client) => {
-    const command_files = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
-
-    for (const file of command_files) {
-        const command = require(`../commands/${file}`)
-
-        if (command.name) {
-            client.commands.set(command.name, command);
+    const commandFolders = ['commands', 'contexts'];
+    
+    for (const folderName of commandFolders) {
+        const folderPath = path.join(__dirname, `../${folderName}`);
+        const files = fs.readdirSync(folderPath).filter((file) => file.endsWith('.js'));
+        
+        for (const file of files) {
+            const command = require(path.join(folderPath, file));
+            client.commands.set(command.data.name, command);
         }
     }
 };
