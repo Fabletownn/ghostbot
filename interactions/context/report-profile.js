@@ -1,48 +1,43 @@
 const { MessageFlags } = require('discord.js');
-const { createProfileReport } = require('../../utils/report-utils.js');
 const { getMember } = require('../../utils/fetch-utils.js');
+const { createProfileReport } = require('../../utils/report-utils.js');
 const REPORTS = require('../../models/reports.js');
+const SV = require('../../models/server-values.json');
+const COOLDOWNS = require('../../models/repcooldowns.js');
 
 module.exports = {
     commandName: 'Report Profile',
 
     async execute(interaction) {
-        try {
-            const reportedUser = interaction.targetUser;
-            const reportedMember = await getMember(interaction.guild, reportedUser.id);
-            const immuneRoles = ['749029859048816651', '756591038373691606', '759255791605383208'];
-            const newReportMap = new Map([[reportedUser.id, [interaction.user.id]]]); // Create a map for the sake of being able to view who reported it
-            const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: true, handled: false }); // Fetch unhandled profile data for that user ID
+        const reportedUser = interaction.targetUser;
+        const reportedMember = await getMember(interaction.guild, reportedUser.id);
+        const immuneRoles = [SV.ROLES.KINETIC_GAMES, SV.ROLES.MODERATOR, SV.ROLES.TRIAL_MODERATOR];
 
-            if (reportedUser?.bot || (reportedMember && immuneRoles?.some((role) => reportedMember?.roles.cache.has(role)))) return interaction.reply({ content: 'This user cannot be reported.' });
-            if (rData) return interaction.reply({ content: 'Thank you for your profile report! This profile was already reported and will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
-            
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        const rData = await REPORTS.findOne({ userID: reportedUser?.id, profile: true, handled: false }); // Fetch unhandled profile data for that user ID
+        const cdData = await COOLDOWNS.findOne({ userID: interaction.user.id, blacklisted: true }); // Get existing report cooldown data, from non-expired & the most recent
+        if (rData) return interaction.reply({ content: 'Thank you for your profile report! This profile was already reported and will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
+        if (cdData) return interaction.reply({ content: 'You are blocked from using the user reporting system. Contact <@1043623513669513266> if you believe this is an error.', flags: MessageFlags.Ephemeral })
 
-            const reportID = await createProfileReport(interaction);
-            if (!reportID) throw new Error('Failed to create profile report');
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        
+        if (reportedUser?.bot || (reportedMember && immuneRoles?.some((role) => reportedMember?.roles.cache.has(role)))) return interaction.followUp({ content: 'This user cannot be reported.' });
 
-            const newReportData = new REPORTS({
-                userID: reportedUser.id,
-                reports: newReportMap,
-                reportID: reportID,
-                emergency: false,
-                profile: true,
-                handled: false,
-                expiresAt: new Date(Date.now() + 16 * 60 * 60 * 1000), // Automatically expire after 16 hours
-            });
+        const reportID = await createProfileReport(interaction);
+        if (!reportID) throw new Error('Failed to create profile report');
 
-            // Save the data and confirm response
-            await newReportData.save();
-            await interaction.followUp({ content: 'Thank you for your profile report! This will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
-        } catch (error) {
-            trailError(error);
+        const newReportMap = new Map([[reportedUser.id, [interaction.user.id]]]); // Create a map for the sake of being able to view who reported it
+        const newReportData = new REPORTS({
+            userID: reportedUser.id,
+            reports: newReportMap,
+            reportID: reportID,
+            emergency: false,
+            profile: true,
+            handled: false,
+            expiresAt: new Date(Date.now() + 16 * 60 * 60 * 1000), // Automatically expire after 16 hours
+        });
 
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'An error occurred trying to report that profile.', flags: MessageFlags.Ephemeral });
-            } else {
-                await interaction.followUp({ content: 'An error occurred trying to report that profile.', flags: MessageFlags.Ephemeral });
-            }
-        }
+        // Save the data and confirm response
+        await newReportData.save();
+        await interaction.followUp({ content: 'Thank you for your profile report! This will be handled by the staff team as soon as possible.', flags: MessageFlags.Ephemeral });
     }
 }

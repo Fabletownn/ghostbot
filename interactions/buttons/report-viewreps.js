@@ -7,44 +7,34 @@ module.exports = {
     customId: 'report-viewreps',
 
     async execute(interaction) {
-        try {
-            const reportData = await REPORTS.findOne({ reportID: interaction.message.id }); // Look for both handled and unhandled reports - no filter here
-            if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
+        const reportData = await REPORTS.findOne({ reportID: interaction.message.id }); // Look for both handled and unhandled reports - no filter here
+        if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
 
-            const isProfileReport = reportData.profile;
-            const listMessage = isProfileReport ? '' : 'The following messages have been reported by users:';
+        const isProfileReport = reportData.profile;
+        const listMessage = isProfileReport ? '' : 'The following messages have been reported by users:';
 
-            await interaction.deferReply({ flags: MessageFlags.Ephemeral });
+        await interaction.deferReply({ flags: MessageFlags.Ephemeral });
 
-            // For each reporter, list their mention and user ID out
-            let reportedMessagesList = '';
-            let reportCounter = 0;
-            
-            for (const [reportInfo, reporters] of reportData.reports) {
-                const report = await getMessage(interaction.guild, SV.CHANNELS.USER_REPORTS, reportData.reportID);
-                if (!report) throw new Error('Report not found!');
+        // For each reporter, list their mention and user ID out
+        let reportedMessagesList = '';
+        let reportCounter = 0;
+        
+        for (const [reportInfo, reporters] of reportData.reports) {
+            const report = await getMessage(interaction.guild, SV.CHANNELS.USER_REPORTS, reportData.reportID);
+            if (!report) throw new Error('Report not found!');
 
-                const reportEmbed = report.embeds[0];
-                if (!reportEmbed) throw new Error('Report not found!');
+            const reportEmbed = report.embeds[0];
+            if (!reportEmbed) throw new Error('Report not found!');
 
-                let reportField = reportEmbed.fields[reportCounter];
-                if (!isProfileReport) reportedMessagesList += `- ${reportField.value} **(${reportField.name})**\n`; // Don't add a field if it's a profile report
+            let reportField = reportEmbed.fields[reportCounter];
+            if (!isProfileReport) reportedMessagesList += `- ${reportField.value} **(${reportField.name})**\n`; // Don't add a field if it's a profile report
 
-                for (let i = 0; i < reporters.length; i++)
-                    reportedMessagesList += `  - Reported by <@${reporters[i]}> (${reporters[i]})\n`;
+            for (let i = 0; i < reporters.length; i++)
+                reportedMessagesList += `  - Reported by <@${reporters[i]}> (${reporters[i]})\n`;
 
-                reportCounter++;
-            }
-
-            await interaction.followUp({ content: `${listMessage}\n${reportedMessagesList}`, allowedMentions: { parse: [] } });
-        } catch (error) {
-            trailError(error);
-
-            if (!interaction.replied && !interaction.deferred) {
-                await interaction.reply({ content: 'An error occurred trying to view reporters for this report.', flags: MessageFlags.Ephemeral });
-            } else {
-                await interaction.followUp({ content: 'An error occurred trying to view reporters for this report.', flags: MessageFlags.Ephemeral });
-            }
+            reportCounter++;
         }
+
+        await interaction.followUp({ content: `${listMessage}\n${reportedMessagesList}`, allowedMentions: { parse: [] } });
     }
 }

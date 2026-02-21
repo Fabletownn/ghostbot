@@ -1,6 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const LCONFIG = require('../../models/logconfig.js');
-const wf = require('../../handlers/webhook_functions.js');
+const { useWebhookIfExisting } = require('../../utils/webhook-utils.js');
 const superagent = require('superagent');
 
 module.exports = async (Discord, client, messages, channel) => {
@@ -8,19 +7,21 @@ module.exports = async (Discord, client, messages, channel) => {
     let bulkDeleteUserIDs = [];     // Prepare empty array for list of user IDs involved
 
     const guild = channel.guild; // Fetch the server
-    const data = await LCONFIG.findOne({ guildID: guild.id }); // Get existing log configuration data
+    const lData = client.cachedLogConfig; // Get existing log configuration data
 
     // Don't log if there is no data, no ignored channels or categories, or webhooks ready to send it
-    if (!data) return;
-    if (!(guild.channels.cache.get(data.deletechannel))) return;
-    if (!(guild.channels.cache.get(data.editchannel))) return;
-    if (data.ignoredchannels == null) return;
-    if (data.ignoredcategories == null) return;
-    if (data.deletewebhook == null) return;
+    if (!lData) return;
+    if (!(guild.channels.cache.get(lData.deletechannel))) return;
+    if (!(guild.channels.cache.get(lData.editchannel))) return;
+    if (lData.ignoredchannels == null) return;
+    if (lData.ignoredcategories == null) return;
+    if (lData.deletewebhook == null) return;
 
-    // Don't log if the channel or category of the channel is set to be ignored
-    if (data.ignoredchannels.some((ignored_channel) => channel.id === ignored_channel)) return;
-    if (data.ignoredcategories.some((ignored_cat) => channel.parent.id === ignored_cat)) return;
+    // Do not log if the channel or category the channel is in is being ignored
+    const categoryID = channel.isThread() ? channel.parent?.parent.id : (channel.parent ? channel.parent.id : null);
+
+    if (lData.ignoredchannels.includes(channel.id) || lData.ignoredchannels.includes(channel.parent?.id)) return;
+    if (lData.ignoredcategories.includes(categoryID)) return;
 
     const currentDate = new Date().toLocaleString('en-US', { hour12: true }); // Stringified date to upload
 
@@ -53,32 +54,26 @@ module.exports = async (Discord, client, messages, channel) => {
 
     // Send a request to upload the bulk delete log
     try {
-        superagent
+        const res = superagent
             .post('https://sourceb.in/api/bins')
             .send({
                 files: [{
                     name: 'Phasmophobia Bulkdelete Sourcebin Log',
                     content: sendContent
                 }]
-            })
-            .end((err, res) => {
-                if (err) return trailError(err);
-
-                // If it worked successfully, log it into the dedicated channel
-                if (res.ok) {
-                    const bulkDeleteEmbed = new EmbedBuilder()
-                        .setDescription(`**${messages.size}** message(s) were deleted and **${bulkDeleteInformation.length}** are known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(', ') : 'Unknown'}`)
-                        .addFields(
-                            { name: 'Link', value: `https://cdn.sourceb.in/bins/${res.body.key}/0` }
-                        )
-                        .setTimestamp()
-                        .setColor('#ED498D');
-
-                    wf.useWebhookIfExisting(client, data.deletechannel, data.deletewebhook, bulkDeleteEmbed);
-                } else {
-                    return trailError(`Error uploading bulk delete log: ${res.statusCode} - ${res.body.message}`);
-                }
             });
+        
+        if (res.ok) {
+            const bulkDeleteEmbed = new EmbedBuilder()
+                .setDescription(`**${messages.size}** message(s) were deleted and **${bulkDeleteInformation.length}** are known in cache.\n\n**IDs Involved**: ${(bulkDeleteUserIDs.length > 0) ? bulkDeleteUserIDs.join(', ') : 'Unknown'}`)
+                .addFields(
+                    { name: 'Link', value: `https://cdn.sourceb.in/bins/${res.body.key}/0` }
+                )
+                .setTimestamp()
+                .setColor('#ED498D');
+
+            await useWebhookIfExisting(client, lData.deletechannel, lData.deletewebhook, bulkDeleteEmbed);
+        }
     } catch (error) {
         return trailError(`Error uploading bulk delete log: ${error}`);
     }

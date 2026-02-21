@@ -1,4 +1,5 @@
 const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require('discord.js');
+const { cacheConfigData } = require('../utils/data-utils.js');
 const CONFIG = require('../models/config.js');
 
 // List of configuration options that will appear in the command list
@@ -59,7 +60,8 @@ module.exports = {
                 .setMaxValue(99)
         ),
     async execute(interaction) {
-        const data = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
+        const cData = await CONFIG.findOne({ guildID: interaction.guild.id }); // Get existing configuration data
+        if (!cData) return interaction.reply({ content: 'Failed to set a configuration value since no data is set up for the server. Use the `/config-setup` command first!' });
         
         const configOption = interaction.options.getString('config');      // Which configuration value to change
         const categoryOption = interaction.options.getChannel('category'); // Category given to use for configuration
@@ -68,75 +70,78 @@ module.exports = {
         const boolOption = interaction.options.getBoolean('boolean');      // True/false value given to use for configuration
         const messageOption = interaction.options.getString('message');    // String given to use for configuration
         const numberOption = interaction.options.getInteger('number');     // Number given to use for configuration
-        
-        if ((!categoryOption) && (!channelOption) && (!roleOption) && (boolOption === null) && (!messageOption) && (!numberOption))
-            return interaction.reply({ content: 'Please fill out a configuration value depending on what it requires. The option is labeled in parenthesis after the configuration option (e.g. "Autopublish (Boolean)" requires "boolean" option filled out).' });
-        
-        if (!data) return interaction.reply({ content: 'Failed to set a configuration value since no data is set up for the server. Use the `/config-setup` command first!' });
 
         switch (configOption) {
-            case "autopublish": // Autopublish (Boolean); whether or not to autopublish announcement messages
+            case "autopublish": // Autopublish (Boolean); whether to autopublish announcement messages
                 if (boolOption === null) return interaction.reply({ content: 'This configuration value requires a `boolean` option to be filled out.' });
-                if (data.autopublish === boolOption) return interaction.reply({ content: 'Autopublishing is already set to that value.' });
+                if (cData.autopublish === boolOption) return interaction.reply({ content: 'Autopublishing is already set to that value.' });
 
-                data.autopublish = boolOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All announcement posts will ${(boolOption === true) ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` }));
+                cData.autopublish = boolOption;
+                await cData.save();
+                await interaction.reply({ content: `All announcement posts will ${boolOption ? 'now be autopublished (enabled)' : 'no longer be autopublished (disabled)'}.` });
 
                 break;
             case "threadcreation": // Discussion Thread Creation (Boolean); disable or enable auto-thread creation for set channels
                 if (boolOption === null) return interaction.reply({ content: 'This configuration value requires a `boolean` option to be filled out.' });
-                if (data.threadcreate === boolOption) return interaction.reply({ content: 'Discussion thread creation is already set to that value.' });
+                if (cData.threadcreate === boolOption) return interaction.reply({ content: 'Discussion thread creation is already set to that value.' });
 
-                data.threadcreate = boolOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `All discussion posts will ${(boolOption === true) ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` }));
+                cData.threadcreate = boolOption;
+                await cData.save();
+                await interaction.reply({ content: `All discussion posts will ${boolOption ? 'now have a thread created automatically (enabled)' : 'no longer have threads created automatically (disabled)'}.` });
 
                 break;
             case "pbvcid": // Custom VC Creation Voice Channel (Channel); the channel used to join for creating a custom voice channel
                 if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
-                if (data.pbvcid === channelOption.id) return interaction.reply({ content: 'That channel is already in use. ' });
+                if (cData.pbvcid === channelOption.id) return interaction.reply({ content: 'That channel is already in use.' });
                 if (channelOption.type !== ChannelType.GuildVoice) return interaction.reply({ content: 'That channel is not a voice channel.' });
 
-                data.pbvcid = channelOption.id;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Custom voice channels will now be created through joining the <#${channelOption.id}> channel.` }));
+                cData.pbvcid = channelOption.id;
+                await cData.save();
+                await interaction.reply({ content: `Custom voice channels will now be created through joining the <#${channelOption.id}> channel.` });
 
                 break;
             case "pbvclimit": // Custom VC Default User Limit (Number); the default user limit used when custom voice channels are created
                 if (!numberOption) return interaction.reply({ content: 'This configuration value requires a `number` option to be filled out.' });
-                if (data.pbvclimit === numberOption) return interaction.reply({ content: 'That limit is already in use.' });
+                if (cData.pbvclimit === numberOption) return interaction.reply({ content: 'That limit is already in use.' });
 
-                data.pbvclimit = numberOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Custom voice channels will now have a default user limit of ${numberOption}.` }));
+                cData.pbvclimit = numberOption;
+                await cData.save();
+                await interaction.reply({ content: `Custom voice channels will now have a default user limit of ${numberOption}.` });
 
                 break;
             case "pullcategory": // Pullroom Category (Category); the category to create pullroom channels
                 if (!categoryOption) return interaction.reply({ content: 'This configuration value requires a `category` option to be filled out.' });
-                if (data.pullcategoryid === categoryOption.id) return interaction.reply({ content: 'That category is already in use.' });
+                if (cData.pullcategoryid === categoryOption.id) return interaction.reply({ content: 'That category is already in use.' });
 
-                data.pullcategoryid = categoryOption.id;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be created in the \`#${categoryOption.name}\` category.` }));
+                cData.pullcategoryid = categoryOption.id;
+                await cData.save();
+                await interaction.reply({ content: `Pullroom tickets will now be created in the \`#${categoryOption.name}\` category.` });
 
                 break;
             case "pullrole": // Pullroom Role (Role); the role to apply to pulled members
                 if (!roleOption) return interaction.reply({ content: 'This configuration value requires a `role` option to be filled out.' });
-                if (data.pullroleid === roleOption.id) return interaction.reply({ content: 'That role is already in use.' });
+                if (cData.pullroleid === roleOption.id) return interaction.reply({ content: 'That role is already in use.' });
 
-                data.pullroleid = roleOption.id;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Members who are pullroomed will now be given the <@&${roleOption.id}> role.` }));
+                cData.pullroleid = roleOption.id;
+                await cData.save();
+                await interaction.reply({ content: `Members who are pullroomed will now be given the <@&${roleOption.id}> role.` });
 
                 break;
             case "pulllogs": // Pullroom Logs (Channel); the channel to log pullroom transcripts
                 if (!channelOption) return interaction.reply({ content: 'This configuration value requires a `channel` option to be filled out.' });
-                if (data.pulllogid === channelOption.id) return interaction.reply({ content: 'That channel is already in use.' });
+                if (cData.pulllogid === channelOption.id) return interaction.reply({ content: 'That channel is already in use.' });
 
-                data.pulllogid = channelOption.id;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now be logged in the <#${channelOption.id}> channel.` }));
+                cData.pulllogid = channelOption.id;
+                await cData.save();
+                await interaction.reply({ content: `Pullroom tickets will now be logged in the <#${channelOption.id}> channel.` });
 
                 break;
             case "pullmsg": // Pullroom Message (Message); the default message used to introduce members to pullroom channels
                 if (!messageOption) return interaction.reply({ content: 'This configuration value requires a `message` option to be filled out.' });
 
-                data.pullmsg = messageOption;
-                data.save().catch((err) => trailError(err)).then(() => interaction.reply({ content: `Pullroom tickets will now start out with the following message: \`${messageOption}\`` }));
+                cData.pullmsg = messageOption;
+                await cData.save();
+                await interaction.reply({ content: `Pullroom tickets will now start out with the following message: \`${messageOption}\`` });
 
                 break;
             default: // Nothing filled out, not sure how you would get this anyway
@@ -144,5 +149,8 @@ module.exports = {
 
                 break;
         }
+        
+        // Cache and update the newly updated data everywhere that it's used
+        await cacheConfigData(interaction.client);
     },
 };

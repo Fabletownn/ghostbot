@@ -1,18 +1,17 @@
 const { EmbedBuilder } = require('discord.js');
-const LCONFIG = require('../../models/logconfig.js');
-const wf = require('../../handlers/webhook_functions.js');
+const { useWebhookIfExisting } = require('../../utils/webhook-utils.js');
 
 module.exports = async (Discord, client, oldUser, newUser) => {
     // Don't log if the user is a partial, bot, or if both display names are the same
     if (oldUser.partial || newUser.partial) return;
     if (oldUser.bot || newUser.bot) return;
-    if (oldUser.username === newUser.username && oldUser.displayName === newUser.displayName) return;
+    if ((oldUser.username === newUser.username) && (oldUser.displayName === newUser.displayName)) return;
 
     const cTimestamp = Math.round((Date.now()) / 1000);
 
-    const data = await LCONFIG.findOne({ guildID: process.env.GUILDID }); // Get existing log configuration data
-    if (!data) return;
-    if (!data.usernamechannel) return;
+    const lData = client.cachedLogConfig; // Get existing log configuration data
+    if (!lData) return;
+    if (!lData.usernamechannel) return;
 
     ///////////////////////////// Display Name
     if (oldUser.displayName !== newUser.displayName) {
@@ -32,7 +31,7 @@ module.exports = async (Discord, client, oldUser, newUser) => {
             ])
             .setTimestamp()
 
-        await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, displayNameEmbed);
+        await useWebhookIfExisting(client, lData.usernamechannel, lData.usernamewebhook, displayNameEmbed);
     }
 
     ///////////////////////////// Username
@@ -53,6 +52,6 @@ module.exports = async (Discord, client, oldUser, newUser) => {
             ])
             .setTimestamp()
 
-        await wf.useWebhookIfExisting(client, data.usernamechannel, data.usernamewebhook, usernameEmbed);
+        await useWebhookIfExisting(client, lData.usernamechannel, lData.usernamewebhook, usernameEmbed);
     }
 };

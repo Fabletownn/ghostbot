@@ -1,4 +1,5 @@
 ﻿const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits } = require('discord.js');
+const { getMember } = require('../utils/fetch-utils.js');
 const COOLDOWNS = require('../models/repcooldowns.js');
 
 module.exports = {
@@ -13,21 +14,22 @@ module.exports = {
         ),
     async execute(interaction) {
         const userOption = interaction.options.getString('user-id');
-        const user = interaction.guild.members.cache.get(userOption);
-        const data = await COOLDOWNS.findOne({ userID: userOption });
+        const user = await getMember(interaction.guild, userOption);
+        const cdData = await COOLDOWNS.findOne({ userID: userOption });
 
-        if (data) {
-            if (data.blacklisted) {
+        if (cdData) {
+            if (cdData.blacklisted) {
                 return interaction.reply({ content: 'That user ID is already blocked from the user reporting system. To undo this action, use the `/report-unblock` command instead.', flags: MessageFlags.Ephemeral });
             } else {
-                data.blacklisted = true;
-                data.save();
+                cdData.blacklisted = true;
+                await cdData.save();
             }
         } else {
             const newBlockData = new COOLDOWNS({
+                guildID: interaction.guild.id,
                 userID: userOption,
-                expires: 0,
-                blacklisted: true
+                blacklisted: true,
+                expiresAt: null
             });
 
             await newBlockData.save();

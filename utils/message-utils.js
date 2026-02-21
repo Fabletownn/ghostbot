@@ -8,6 +8,11 @@ function sanitizeMessage(content, limit = 0) {
         .slice(0, limit);
 }
 
+function channelText(content) {
+    return content.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase();
+}
+
 module.exports = {
-    sanitizeMessage
+    sanitizeMessage,
+    channelText
 };

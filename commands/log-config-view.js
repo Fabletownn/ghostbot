@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder } = require('discord.js');
-const LCONFIG = require('../models/logconfig.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -7,20 +6,19 @@ module.exports = {
         .setDescription('(Admin) Views logging configuration')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
-        const data = await LCONFIG.findOne({ guildID: interaction.guild.id }); // Get existing log configuration data
-
-        if (!data) return interaction.reply({ content: 'There is no data set up for the server. Use `/config-setup` first!' });
+        const lData = interaction.client.cachedLogConfig; // Get existing log configuration data
+        if (!lData) return interaction.reply({ content: 'There is no data set up for the server. Use `/config-setup` first!' });
 
         // Channel configuration values
-        const configDeleteChannel = (data.deletechannel !== '') ? `<#${data.deletechannel}> (${data.deletechannel})` : 'Unset';
-        const configEditChannel = (data.editchannel !== '') ? `<#${data.editchannel}> (${data.editchannel})` : 'Unset';
-        const configUsernameChannel = (data.usernamechannel !== '') ? `<#${data.usernamechannel}> (${data.usernamechannel})` : 'Unset';
-        const configVCChannel = (data.vcchannel !== '') ? `<#${data.vcchannel}> (${data.vcchannel})` : 'Unset';
-        const configUpdateChannel = (data.chanupchannel !== '') ? `<#${data.chanupchannel}> (${data.chanupchannel})` : 'Unset';
+        const configDeleteChannel = lData.deletechannel ? `<#${lData.deletechannel}> (${lData.deletechannel})` : 'Unset';
+        const configEditChannel = lData.editchannel ? `<#${lData.editchannel}> (${lData.editchannel})` : 'Unset';
+        const configUsernameChannel = lData.usernamechannel ? `<#${lData.usernamechannel}> (${lData.usernamechannel})` : 'Unset';
+        const configVCChannel = lData.vcchannel ? `<#${lData.vcchannel}> (${lData.vcchannel})` : 'Unset';
+        const configUpdateChannel = lData.chanupchannel ? `<#${lData.chanupchannel}> (${lData.chanupchannel})` : 'Unset';
         
         // Ignored configuration values
-        const configIgnoredCategories = (data.ignoredcategories.length !== 0) ? `${data.ignoredcategories.map((c) => `<#${c}>`).join('\n')}` : 'None';
-        const configIgnoredChannels = (data.ignoredchannels.length !== 0) ? `${data.ignoredchannels.map((c) => `<#${c}>`).join('\n')}` : 'None';
+        const configIgnoredCategories = (lData.ignoredcategories.length !== 0) ? `${lData.ignoredcategories.map((c) => `<#${c}>`).join('\n')}` : 'None';
+        const configIgnoredChannels = (lData.ignoredchannels.length !== 0) ? `${lData.ignoredchannels.map((c) => `<#${c}>`).join('\n')}` : 'None';
 
         const viewEmbed = new EmbedBuilder()
             .setAuthor({ name: 'Log Configuration', iconURL: interaction.guild.iconURL({ dynamic: true, size: 512 }) })

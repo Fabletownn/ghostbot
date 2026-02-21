@@ -1,15 +1,10 @@
 const { ChannelType } = require('discord.js');
-const CONFIG = require('../../models/config.js');
 const PULL = require('../../models/pullrooms.js');
 
 module.exports = async (Discord, client, message) => {
-    if (message.author.bot) return;
-    if (message.guild === null || message.channel === null || message.channel.parent === null) return;
+    if (message.author.bot || !message.guild || !message.channel?.parent) return;
 
-    const cData = await CONFIG.findOne({
-        guildID: message.guild.id
-    });
-
+    const cData = client.cachedConfig;
     if (!cData) return;
 
     /*
@@ -50,19 +45,19 @@ module.exports = async (Discord, client, message) => {
                 case '771924501645754408':
                     threadTitle += ' - Suggestion Discussion';
 
-                    createThread(message, threadTitle);
+                    await createThread(message, threadTitle);
                     break;
 
                 case '762935209377005569':
                     threadTitle += ' - Staff Candidate Discussion';
 
-                    createThread(message, threadTitle);
+                    await createThread(message, threadTitle);
                     break;
 
                 default:
                     threadTitle += ' - Discussion';
 
-                    createThread(message, threadTitle);
+                    await createThread(message, threadTitle);
                     break;
             }
         }

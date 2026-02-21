@@ -1,4 +1,5 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, MessageFlags, PermissionFlagsBits } = require('discord.js');
+const SV = require('../models/server-values.json');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -12,8 +13,11 @@ module.exports = {
         ),
     async execute(interaction) {
         const grantSteamPermission = interaction.options.getBoolean('steam');
-        const steamModeratorRoleID = '766063761060528138';
+        const steamModeratorRoleID = SV.ROLES.STEAM_MODERATOR;
         let commandResponse = '';
+        
+        if (!interaction.channel.parent.name.toLowerCase().includes('modmail'))
+            return interaction.reply({ content: 'This command can only be executed in ModMail tickets.', flags: MessageFlags.Ephemeral })
 
         // If they enabled it, give the role access, otherwise remove it
         if (grantSteamPermission) {

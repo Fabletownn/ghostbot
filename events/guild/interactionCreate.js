@@ -1,3 +1,4 @@
+const { safeExecute } = require('../../utils/component-utils.js');
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -39,12 +40,20 @@ for (const file of contextFiles) {
 }
 
 module.exports = async (Discord, client, interaction) => {
+    ///////////////////////// Slash Commands
+    if (interaction.isChatInputCommand()) {
+        const command = client.commands.get(interaction.commandName);
+
+        if (command)
+            await safeExecute(interaction, command);
+    }
+    
     ///////////////////////// Button Interactions
-    if (interaction.isButton()) {
+    else if (interaction.isButton()) {
         const buttonHandler = buttons.get(interaction.customId);
 
         if (buttonHandler)
-            await buttonHandler.execute(interaction);
+            await safeExecute(interaction, buttonHandler);
     }
 
     ///////////////////////// Modal Interactions
@@ -52,7 +61,7 @@ module.exports = async (Discord, client, interaction) => {
         const modalHandler = modals.get(interaction.customId);
 
         if (modalHandler)
-            await modalHandler.execute(interaction);
+            await safeExecute(interaction, modalHandler);
     }
 
     ///////////////////////// Context Menu Commands
@@ -60,6 +69,6 @@ module.exports = async (Discord, client, interaction) => {
         const contextHandler = contexts.get(interaction.commandName);
 
         if (contextHandler)
-            await contextHandler.execute(interaction);
+            await safeExecute(interaction, contextHandler);
     }
 }

@@ -26,7 +26,7 @@ module.exports = {
         await channelOption.permissionOverwrites.edit(interaction.guild.id, { SendMessages: false });
         
         // Send messages to confirm the channel lock, and command response
-        await channelOption.send({ content: `This channel **has been locked** by a moderator. Please stand by while any issues are being handled.\n\n${(reasonOption !== null) ? `Reason: **${reasonOption}**` : `Expect a message from a staff member soon.`}` });
-        await interaction.reply({ content: `The <#${channelOption.id}> channel has been locked successfully (with reason: ${(reasonOption !== null) ? reasonOption : 'None'}).` });
+        await channelOption.send({ content: `This channel **has been locked** by a moderator. Please stand by while any issues are being handled.\n\n${reasonOption ? `Reason: **${reasonOption}**` : 'Expect a message from a staff member soon.'}` });
+        await interaction.reply({ content: `The <#${channelOption.id}> channel has been locked successfully (with reason: ${reasonOption ? reasonOption : 'None'}).` });
     },
 };

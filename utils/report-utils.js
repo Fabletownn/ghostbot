@@ -1,6 +1,11 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { getChannel, getMessage, getUser } = require('../utils/fetch-utils.js');
-const { sanitizeMessage } = require('../utils/message-utils.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
+    TextDisplayBuilder,
+    SectionBuilder,
+    ContainerBuilder,
+    MessageFlags
+} = require('discord.js');
+const { getChannel, getMessage, getUser } = require('./fetch-utils.js');
+const { sanitizeMessage } = require('./message-utils.js');
 const SV = require('../models/server-values.json');
 
 async function createReport(interaction, reportedinfo, isemergency) {
@@ -52,8 +57,8 @@ async function createReport(interaction, reportedinfo, isemergency) {
                 .setEmoji('1332851977507307550'),
         );
 
-    const reportMessage = await interaction.guild.channels.cache.get(SV.CHANNELS.USER_REPORTS).send({
-        content: isemergency ? '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!' : null,
+    const reportMessage = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS).send({
+        content: isemergency ? `<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>: This report has been marked as an emergency!` : null,
         embeds: [reportEmbed],
         components: [reportButtons],
         allowedMentions: { parse: ['roles'] }
@@ -153,7 +158,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
     }
 
     await report.edit({ embeds: [reportEmbed] });
-    if (isemergency) await report.reply({ content: '<@&759255791605383208> <@&756591038373691606>: This report has been marked as an emergency!', allowedMentions: { parse: ['roles'] } });
+    if (isemergency) await report.reply({ content: `<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>: This report has been marked as an emergency!`, allowedMentions: { parse: ['roles'] } });
 }
 
 module.exports = {

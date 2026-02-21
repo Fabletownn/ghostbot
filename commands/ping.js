@@ -1,5 +1,7 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ButtonBuilder, ButtonStyle, ActionRowBuilder} = require('discord.js');
 const sf = require('seconds-formater');
+
+const { MessageFlags, ContainerBuilder, SectionBuilder, TextDisplayBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -8,8 +10,10 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers),
     async execute(interaction) {
         // Send the initial message to get trip latency
-        const pingReceived = await interaction.reply({ content: '<:bGhostPing:1042254166736777286>', withResponse: true });
-
+        await interaction.reply({ content: '<:bGhostPing:1042254166736777286>', withResponse: true });
+        
+        const pingReceived = await interaction.fetchReply();
+        
         const tripLatency = Math.round(pingReceived.createdTimestamp - interaction.createdTimestamp).toLocaleString(); // Trip latency between edits
         const botHeartbeat = interaction.client.ws.ping.toLocaleString();   // Bot heartbeat
         const uptimeInSeconds = (interaction.client.uptime / 1000) || 0;  // Bot uptime

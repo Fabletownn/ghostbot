@@ -1,4 +1,18 @@
-const { ActionRowBuilder, ButtonBuilder } = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, MessageFlags } = require('discord.js');
+
+async function safeExecute(interaction, handler) {
+    try {
+        await handler.execute(interaction);
+    } catch (error) {
+        trailError(error);
+        
+        if (!interaction.replied && !interaction.deferred) {
+            await interaction.reply({ content: 'An error occurred trying to execute that command.', flags: MessageFlags.Ephemeral });
+        } else {
+            await interaction.followUp({ content: 'An error occurred trying to execute that command.', flags: MessageFlags.Ephemeral });
+        }
+    }
+}
 
 function toggleButtons(components, options = {}) {
     const {
@@ -19,5 +33,6 @@ function toggleButtons(components, options = {}) {
 }
 
 module.exports = {
+    safeExecute,
     toggleButtons
 };

@@ -1,5 +1,4 @@
 const { EmbedBuilder } = require('discord.js');
-const LCONFIG = require('../../models/logconfig.js');
 const DELETES = require('../../models/deletes.js');
 
 module.exports = async (Discord, client, message) => {
@@ -7,26 +6,21 @@ module.exports = async (Discord, client, message) => {
     if (message.partial) return;
     if (message.author.bot) return;
 
-    const data = await LCONFIG.findOne({ guildID: message.guild.id }); // Get existing log configuration data
-    if (!data) return;
+    const lData = client.cachedLogConfig; // Get existing log configuration data
+    if (!lData) return;
 
     // Do not log if there is no log channel, no ignored channels or categories, or no log webhook
-    if (!(message.guild.channels.cache.get(data.deletechannel))) return;
-    if (data.ignoredchannels == null) return;
-    if (data.ignoredcategories == null) return;
-    if (data.deletewebhook == null) return;
-
-    // In a forum post, the parent of the forum post is the forum channel; in these cases, check to make sure that
-    // the parent of the forum channel - the actual category - isn't ignored before logging it
-    // ===========================================================================
-    // #bug-reports > Bug Report Post > parent: #bug-reports, not "QA Category" > parent of #bug-reports: "QA Category"
-    const singleParent = message?.channel?.parent?.id;
-    const doubleParent = message?.channel?.parent?.parent?.id;
-    const categoryID = doubleParent ? doubleParent : singleParent;
+    if (!(message.guild.channels.cache.get(lData.deletechannel))) return;
+    if (lData.ignoredchannels == null) return;
+    if (lData.ignoredcategories == null) return;
+    if (lData.deletewebhook == null) return;
 
     // Do not log if the channel or category the channel is in is being ignored
-    if (data.ignoredchannels.some((ignored_channel) => message?.channel?.id === ignored_channel)) return;
-    if (data.ignoredcategories.some((ignored_cat) => categoryID === ignored_cat)) return;
+    const channel = message.channel;
+    const categoryID = channel.isThread() ? channel.parent?.parent.id : (channel.parent ? channel.parent.id : null);
+    
+    if (lData.ignoredchannels.includes(channel.id) || lData.ignoredchannels.includes(channel.parent?.id)) return;
+    if (lData.ignoredcategories.includes(categoryID)) return;
 
     const deletedContent = message.content ? message.content : '<No Message Content>';
     const deletedEditedContent = deletedContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>').replace(/\//g, '\\/');

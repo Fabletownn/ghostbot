@@ -1,14 +1,13 @@
 const { AuditLogEvent, ChannelType, EmbedBuilder, PermissionsBitField } = require('discord.js');
-const LCONFIG = require('../../models/logconfig.js');
-const wf = require('../../handlers/webhook_functions.js');
+const { useWebhookIfExisting } = require('../../utils/webhook-utils.js');
 
 module.exports = async (Discord, client, oldChannel, newChannel) => {
-    const data = await LCONFIG.findOne({ guildID: newChannel.guild.id }); // Get existing log configuration data
+    const lData = client.cachedLogConfig; // Get existing log configuration data
 
     // If there is no data, log channel, or log webhook, don't continue
-    if (!data) return;
-    if (!data.chanupchannel) return;
-    if (!data.chanupwebhook) return;
+    if (!lData) return;
+    if (!lData.chanupchannel) return;
+    if (!lData.chanupwebhook) return;
 
     const oldName = oldChannel.name; // Old channel name
     const newName = newChannel.name; // New channel name
@@ -53,7 +52,7 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
                 ])
                 .setTimestamp()
 
-            await wf.useWebhookIfExisting(client, data.chanupchannel, data.chanupwebhook, nameEmbed);
+            await useWebhookIfExisting(client, lData.chanupchannel, lData.chanupwebhook, nameEmbed);
         });
     }
 
@@ -129,7 +128,7 @@ module.exports = async (Discord, client, oldChannel, newChannel) => {
                 ])
                 .setTimestamp();
 
-            await wf.useWebhookIfExisting(client, data.chanupchannel, data.chanupwebhook, permEmbed);
+            await useWebhookIfExisting(client, lData.chanupchannel, lData.chanupwebhook, permEmbed);
         });
     }
 }

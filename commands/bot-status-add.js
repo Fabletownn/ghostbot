@@ -15,10 +15,10 @@ module.exports = {
         ),
     async execute(interaction) {
         const statusOption = interaction.options.getString('status');                // Get the inputted status
-        const data = await STATUS.findOne({ guildID: interaction.guild.id }); // Get the existing status data
+        const sData = await STATUS.findOne({ guildID: interaction.guild.id }); // Get the existing status data
         
         // Create a new set of data entirely if not already existing (should only occur first-time)
-        if (!data) {
+        if (!sData) {
             const newStatusData = new STATUS({
                 guildID: interaction.guild.id,
                 statuses: ['Playing Phasmophobia', statusOption]
@@ -28,10 +28,10 @@ module.exports = {
             await interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${newStatusData.statuses.indexOf(statusOption) || '?'}**.` });
             
         // Push the new status into the array of data, and save it    
-        } else if (data) {
-            data.statuses.push(statusOption);
-            await data.save();
-            await interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${data.statuses.indexOf(statusOption) || '?'}**.` });
+        } else if (sData) {
+            sData.statuses.push(statusOption);
+            await sData.save();
+            await interaction.reply({ content: `Added status \`${statusOption}\` successfully at **index ${sData.statuses.indexOf(statusOption) || '?'}**.` });
         }
     },
 };

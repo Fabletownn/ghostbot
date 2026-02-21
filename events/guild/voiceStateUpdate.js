@@ -1,13 +1,11 @@
 /*
-    Creates PartyBot channels and data when the "join to create" voice channel is joined
+    Creates custom voice channels and data when the "join to create" voice channel is joined
 */
 
 const { ChannelType, EmbedBuilder } = require('discord.js');
+const { useWebhookIfExisting } = require('../../utils/webhook-utils.js');
 const PARTY = require('../../models/party.js');
-const CONFIG = require('../../models/config.js');
-const LCONFIG = require('../../models/logconfig.js');
-const wf = require('../../handlers/webhook_functions.js');
-const ROOMNAMES = require('../../models/vcroomnames.json');
+const ROOM_NAMES = require('../../models/vcroomnames.json');
 
 module.exports = async (Discord, client, oldState, newState) => {
     const oldVoiceGuild = oldState.guild;
@@ -21,12 +19,12 @@ module.exports = async (Discord, client, oldState, newState) => {
     const cTimestamp = Math.round((Date.now()) / 1000);
 
     ///////////////////////////// Logs
-    const lData = await LCONFIG.findOne({ guildID: newVoiceGuild.id });
+    const lData = client.cachedLogConfig;
     if (!lData) return;
     if (!lData.vcchannel) return;
     if (!lData.vcwebhook) return;
 
-    const customRoomNames = ROOMNAMES.roomnames;
+    const customRoomNames = ROOM_NAMES.roomnames;
     const isCustomRoom = customRoomNames.some((room_name) => room_name.includes(newChannel?.name || oldChannel?.name));
 
     const newUser = client.users.cache.get(newState.id);
@@ -48,7 +46,8 @@ module.exports = async (Discord, client, oldState, newState) => {
         if (isCustomRoom)
             await joinedEmbed.setFooter({ text: 'Joined a custom-made room' });
 
-        await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
+        await useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, joinedEmbed);
+        
     } else if (oldChannel !== null && newChannel !== null) {
         if (oldChannel.id === newChannel.id) return; // muting/deafening sends update event, don't send if they didn't actually move
         if (lData.ignoredcategories.some((ignored_cat) => newChannel.parent.id === ignored_cat)) return;
@@ -69,7 +68,8 @@ module.exports = async (Discord, client, oldState, newState) => {
         if (isCustomRoom)
             await movedEmbed.setFooter({ text: 'Moved to custom-made room' });
 
-        await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
+        await useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, movedEmbed);
+        
     } else if (oldChannel !== null && newChannel === null) {
         if (lData.ignoredcategories.some((ignored_cat) => oldChannel.parent.id === ignored_cat)) return;
 
@@ -87,7 +87,7 @@ module.exports = async (Discord, client, oldState, newState) => {
         if (isCustomRoom)
             await leftEmbed.setFooter({ text: 'Left from custom-made room' });
 
-        await wf.useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
+        await useWebhookIfExisting(client, lData.vcchannel, lData.vcwebhook, leftEmbed);
     }
 
     ///////////////////////////// Custom VCs
@@ -95,17 +95,14 @@ module.exports = async (Discord, client, oldState, newState) => {
     // This also ensures that ownership is given away if a room owner was banned from the server
     const stateUserID = oldState?.member?.id || newState?.member?.id || oldState?.id || newState?.id;
 
-    const possibleRoomNames = ROOMNAMES.roomnames;
+    const possibleRoomNames = ROOM_NAMES.roomnames;
     const randomRoomName = possibleRoomNames[Math.floor(Math.random() * possibleRoomNames.length)];
 
-    const configData = await CONFIG.findOne({
-        guildID: newVoiceGuild.id
-    });
-
-    if (!configData) return;
+    const cData = client.cachedConfig;
+    if (!cData) return;
 
     // If a user joins the room creation channel
-    if ((newChannel !== null) && (newChannel.id === configData.pbvcid)) {
+    if ((newChannel !== null) && (newChannel.id === cData.pbvcid)) {
         const newMember = newState.member;
 
         if (newMember.user.bot) return;
@@ -116,13 +113,13 @@ module.exports = async (Discord, client, oldState, newState) => {
 
         // Create a new room and room data if they don't own a room
         if (!roomData) {
-            const pbParent = newVoiceGuild.channels.cache.get(configData.pbvcid).parent.id;
+            const pbParent = newVoiceGuild.channels.cache.get(cData.pbvcid).parent.id;
 
             await newVoiceGuild.channels.create({
                 name: randomRoomName,
                 type: ChannelType.GuildVoice,
                 parent: pbParent,
-                userLimit: configData.pbvclimit
+                userLimit: cData.pbvclimit
             }).then(async (pRoom) => {
                 const newVoice = new PARTY({
                     voiceID: pRoom.id,
@@ -149,13 +146,14 @@ module.exports = async (Discord, client, oldState, newState) => {
             });
         }
     }
+    
     // If a user leaves a channel or moves channels
     else if ((oldChannel !== null && newChannel == null) || (oldChannel !== null && newChannel !== null)) {
         const voiceSize = oldChannel.members.size;
 
         // If they quickly joined the room creation channel and left, delete any data or created
         // voice channels left over
-        if (newChannel === null && oldChannel?.id === configData.pbvcid) {
+        if (newChannel === null && oldChannel?.id === cData.pbvcid) {
             const roomData = await PARTY.findOne({
                 ownerID: stateUserID
             });

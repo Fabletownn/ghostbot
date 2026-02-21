@@ -6,7 +6,7 @@ const cooldownSchema = mongoose.Schema({
     blacklisted: Boolean,
     expiresAt: {
         type: Date,
-        required: true,
+        default: null,
         index: { expires: 0 } // Delete the entry automatically once cooldown has ended
     }
 });

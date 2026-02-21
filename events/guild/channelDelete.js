@@ -1,14 +1,13 @@
 const { AuditLogEvent, ChannelType, EmbedBuilder } = require('discord.js');
-const LCONFIG = require('../../models/logconfig.js');
-const wf = require('../../handlers/webhook_functions.js');
+const { useWebhookIfExisting } = require('../../utils/webhook-utils.js');
 
 module.exports = async (Discord, client, channel) => {
-    const data = await LCONFIG.findOne({ guildID: channel.guild.id }); // Get existing log configuration data
+    const lData = client.cachedLogConfig; // Get existing log configuration data
 
     // If there is no data, log channel, or log webhook, don't continue
-    if (!data) return;
-    if (!data.chanupchannel) return;
-    if (!data.chanupwebhook) return;
+    if (!lData) return;
+    if (!lData.chanupchannel) return;
+    if (!lData.chanupwebhook) return;
 
     const cTimestamp = Math.round((Date.now()) / 1000);
 
@@ -38,6 +37,6 @@ module.exports = async (Discord, client, channel) => {
             ])
             .setTimestamp()
 
-        await wf.useWebhookIfExisting(client, data.chanupchannel, data.chanupwebhook, deleteEmbed);
+        await useWebhookIfExisting(client, lData.chanupchannel, lData.chanupwebhook, deleteEmbed);
     });
 }

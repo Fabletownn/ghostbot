@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, ActionRowBuilder, TextInputBuilder, TextInputStyle } = require('discord.js');
+const { SlashCommandBuilder, PermissionFlagsBits, ModalBuilder, TextInputBuilder, TextInputStyle, LabelBuilder } = require('discord.js');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -16,21 +16,22 @@ module.exports = {
         const possiblePlaceholders = ['I like long walks on the beach', 'The Tanglewood mailbox really intrigues me', 'Revenants don\'t scare me', `I got killed by ${randomFirstName} ${randomLastName}`, 'I got killed by Dk\'s pet rock'];
         const randomPlaceholder = possiblePlaceholders[Math.floor(Math.random() * possiblePlaceholders.length)];
 
-        const sayModal = new ModalBuilder()
-            .setCustomId('say-modal')
+        const mimicModal = new ModalBuilder()
+            .setCustomId('mimic-modal')
             .setTitle('Mimic Message')
-            .addComponents([
-                new ActionRowBuilder().addComponents(
-                    new TextInputBuilder()
-                        .setCustomId('say-msg')
-                        .setLabel('Message Content')
-                        .setPlaceholder(randomPlaceholder)
-                        .setStyle(TextInputStyle.Paragraph)
-                        .setRequired(true)
-                        .setMaxLength(1500)
-                )
-            ]);
+        
+        const messageInput = new TextInputBuilder()
+            .setCustomId('mimic-msg')
+            .setStyle(TextInputStyle.Paragraph)
+            .setPlaceholder(randomPlaceholder)
+            .setRequired(true)
+        
+        const messageLabel = new LabelBuilder()
+            .setLabel('Message')
+            .setDescription('The message to send through the bot')
+            .setTextInputComponent(messageInput)
 
-        await interaction.showModal(sayModal);
+        mimicModal.addLabelComponents(messageLabel);
+        await interaction.showModal(mimicModal);
     },
 };

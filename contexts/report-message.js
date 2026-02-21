@@ -1,4 +1,4 @@
-const { ContextMenuCommandBuilder, ApplicationCommandType, PermissionFlagsBits } = require('discord.js');
+const { ContextMenuCommandBuilder, ApplicationCommandType } = require('discord.js');
 
 module.exports = {
     data: new ContextMenuCommandBuilder()
