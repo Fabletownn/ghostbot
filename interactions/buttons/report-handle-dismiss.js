@@ -7,16 +7,21 @@ module.exports = {
 
     async execute(interaction) {
         const reportData = await REPORTS.findOne({ reportID: interaction.message.id, handled: false });
-        const oldEmbed = interaction.message.embeds[0];
+        const newComps = interaction.message.components.map((c) => c.toJSON());
+        const infoContainer = newComps[0];
+        const infoContent = infoContainer.components[1].content;
+        const buttonsRow = infoContainer.components[2];
+        const reportContainer = newComps[1];
         const isHandled = interaction.customId === 'report-handle';
-        const isHidden = oldEmbed?.footer.text.includes('Hidden');
-        const handleColor = isHandled ? '#38DD86' : '#757D8D';
+        const isHidden = infoContent.includes('Hidden');
+        const handleColor = isHandled ? '38DD86' : '757D8D';
         const handleStatus = isHandled ? 'Handled' : 'Dismissed';
         const keptButtons = isHidden ? ['report-viewreps'] : ['report-hidedetails', 'report-viewreps'];
 
-        const newEmbed = EmbedBuilder.from(oldEmbed)
-            .setColor(handleColor)
-            .setFooter({ text: oldEmbed.footer.text.replace('Unhandled', handleStatus) });
+        // Modify the buttons
+        buttonsRow.components = toggleButtons(buttonsRow, { keep: keptButtons });
+        infoContainer.components[1].content = infoContent.replace('Unhandled', handleStatus);
+        reportContainer.accent_color = parseInt(handleColor, 16);
 
         // If there is data, mark it as handled to be filtered out for future reports
         if (reportData) {
@@ -25,7 +30,7 @@ module.exports = {
         }
 
         // Edit the embed to reflect whether it was handled or dismissed and respond to the user
-        await interaction.message.edit({ embeds: [newEmbed], components: toggleButtons(interaction.message.components, { keep: keptButtons }) });
+        await interaction.message.edit({ components: newComps, allowedMentions: {} });
         await interaction.reply({ content: `Marked the report as ${isHandled ? 'handled' : 'dismissed'}.`, flags: MessageFlags.Ephemeral });
     }
 }

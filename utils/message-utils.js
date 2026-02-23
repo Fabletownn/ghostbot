@@ -12,7 +12,12 @@ function channelText(content) {
     return content.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase();
 }
 
+function pluralize(word, count) {
+    return count > 1 ? `${word}s` : word;
+}
+
 module.exports = {
     sanitizeMessage,
-    channelText
+    channelText,
+    pluralize
 };

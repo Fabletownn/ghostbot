@@ -55,7 +55,7 @@ module.exports = {
             });
 
             // Save the data and confirm response
-            //await newReportData.save();
+            await newReportData.save();
             await interaction.followUp({ content: `Thank you for your ${reportType}! This message will be handled by the staff team as soon as possible.` });
 
         } else {

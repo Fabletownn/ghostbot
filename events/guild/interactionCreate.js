@@ -50,7 +50,18 @@ module.exports = async (Discord, client, interaction) => {
     
     ///////////////////////// Button Interactions
     else if (interaction.isButton()) {
-        const buttonHandler = buttons.get(interaction.customId);
+        let buttonHandler = buttons.get(interaction.customId);
+        
+        // If there is no handler, check for buttons that *start* with an existing
+        // one (for one-offs such as subreport-dismisses)
+        if (!buttonHandler) {
+            for (const [k, v] of buttons.entries()) {
+                if (interaction.customId.startsWith(k)) {
+                    buttonHandler = v;
+                    break;
+                }
+            }
+        }
 
         if (buttonHandler)
             await safeExecute(interaction, buttonHandler);

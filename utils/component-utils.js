@@ -1,4 +1,4 @@
-const { ActionRowBuilder, ButtonBuilder, MessageFlags } = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, MessageFlags, ButtonStyle} = require('discord.js');
 
 async function safeExecute(interaction, handler) {
     try {
@@ -14,25 +14,69 @@ async function safeExecute(interaction, handler) {
     }
 }
 
-function toggleButtons(components, options = {}) {
+function toggleButtons(button_row, options = {}) {
     const {
         keep = [],
         disableAll = false
-    } = options; 
-    
-    return components.map((row) => {
-        const newRow = new ActionRowBuilder();
-        const updatedRow = row.components.map((comp) => {
-            const disabled = disableAll ? true : !keep.includes(comp.customId);
-            
-            return ButtonBuilder.from(comp).setDisabled(disabled);
-        });
-        
-        return newRow.addComponents(...updatedRow);
+    } = options;
+
+    return button_row.components.map((bcomp) => {
+        const disabled = !keep.includes(bcomp.custom_id) || disableAll;
+
+        return { ...bcomp, disabled };
     });
+}
+
+function getIndexOfSectionIncluding(container, content) {
+    return container.components.findIndex((sect) => {
+        if (!sect.components || !sect.components[0]) return false;
+
+        return sect.components[0].content?.includes(content);
+    });
+}
+
+function getReportButtons(deleteoption = true, hidedetailsoption = false) {
+    let actionRow = new ActionRowBuilder();
+    const handleButton = new ButtonBuilder()
+        .setCustomId('report-handle')
+        .setLabel('Resolve')
+        .setStyle(ButtonStyle.Success)
+        .setEmoji('1187528830378852564');
+    const deleteButton = new ButtonBuilder()
+        .setCustomId('report-delete')
+        .setLabel('Delete')
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('1187528832043974716');
+    const dismissButton = new ButtonBuilder()
+        .setCustomId('report-dismiss')
+        .setLabel('Dismiss')
+        .setStyle(ButtonStyle.Secondary)
+        .setEmoji('1474554168235655349');
+    const hideDetailsButton = new ButtonBuilder()
+        .setCustomId('report-hidedetails')
+        .setStyle(ButtonStyle.Danger)
+        .setEmoji('1396669210834505920');
+    const viewRepsButton = new ButtonBuilder()
+        .setCustomId('report-viewreps')
+        .setStyle(ButtonStyle.Primary)
+        .setEmoji('1332851977507307550');
+    
+    // Guaranteed buttons for each type of report
+    const buttonArray = [handleButton, dismissButton, viewRepsButton];
+    // Push in buttons depending on if it's wanted in their correct positions
+    if (hidedetailsoption)
+        buttonArray.splice(2, 0, hideDetailsButton);
+    if (deleteoption)
+        buttonArray.splice(1, 0, deleteButton);
+    
+    actionRow.addComponents(buttonArray);
+    
+    return actionRow;
 }
 
 module.exports = {
     safeExecute,
-    toggleButtons
+    toggleButtons,
+    getIndexOfSectionIncluding,
+    getReportButtons
 };

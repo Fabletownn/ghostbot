@@ -1,11 +1,14 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder,
+const {
+    MessageFlags,
+    ButtonBuilder, ButtonStyle,
     TextDisplayBuilder,
     SectionBuilder,
     ContainerBuilder,
-    MessageFlags
+    SeparatorBuilder, SeparatorSpacingSize, MediaGalleryBuilder
 } = require('discord.js');
 const { getChannel, getMessage, getUser } = require('./fetch-utils.js');
-const { sanitizeMessage } = require('./message-utils.js');
+const { sanitizeMessage, pluralize } = require('./message-utils.js');
+const { getIndexOfSectionIncluding, getReportButtons } = require('./component-utils.js');
 const SV = require('../models/server-values.json');
 
 async function createReport(interaction, reportedinfo, isemergency) {
@@ -18,49 +21,30 @@ async function createReport(interaction, reportedinfo, isemergency) {
 
     const reportedUser = message.author;
     const reportedContent = sanitizeMessage(message.content, 70);
-    const reportedUserAvatar = reportedUser.displayAvatarURL({ dynamic: true, size: 512 });
+    const pingIfEmergency = isemergency ? `as an emergency\n<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>` : '';
+    const reportEmoji = isemergency ? '⚠️' : '📨';
 
-    const reportEmbed = new EmbedBuilder()
-        .setAuthor({ name: `@${reportedUser.username}'s messages have been reported`, iconURL: reportedUserAvatar })
-        .addFields([
-            { name: `1 report ${isemergency ? '(Emergency)' : ''}`, value: `[${reportedContent}](${reportMessageURL})` }
-        ])
-        .setFooter({ text: `Unhandled  •  User ID: ${reportedUser.id}` })
-        .setColor('#FF756E')
+    const headerText = new TextDisplayBuilder()
+        .setContent(`### ${reportEmoji}  ${reportedUser.username}'s messages have been reported ${pingIfEmergency}`)
 
-    const reportButtons = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-handle')
-                .setLabel('Handled')
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('✅'),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-delete')
-                .setLabel('Delete')
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('🗑️'),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-dismiss')
-                .setLabel('Dismiss')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('509606903903551490'),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-viewreps')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji('1332851977507307550'),
-        );
+    const infoText = new TextDisplayBuilder()
+        .setContent(`-# - ID: ${reportedUser.id}\n-# - Status: Unhandled`);
+
+    const reportButtons = getReportButtons(true, false);
+
+    const reportSection = createReportSectionBuilder(reportedContent, reportMessageURL, reportedinfo, isemergency);
+
+    const infoContainer = new ContainerBuilder()
+        .addTextDisplayComponents([headerText, infoText])
+        .addActionRowComponents(reportButtons)
+
+    const reportContainer = new ContainerBuilder()
+        .setAccentColor(0xFF756E)
+        .addSectionComponents(reportSection);
 
     const reportMessage = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS).send({
-        content: isemergency ? `<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>: This report has been marked as an emergency!` : null,
-        embeds: [reportEmbed],
-        components: [reportButtons],
+        components: [infoContainer, reportContainer],
+        flags: MessageFlags.IsComponentsV2,
         allowedMentions: { parse: ['roles'] }
     });
 
@@ -71,47 +55,54 @@ async function createProfileReport(interaction) {
     const reportedUser = await getUser(interaction.client, interaction.targetUser.id, true);
     const reportedAvatar = reportedUser.displayAvatarURL({ dynamic: true, size: 1024 });
     const reportedBanner = reportedUser.bannerURL({ dynamic: true, size: 1024 });
-    const reportEmbed = new EmbedBuilder()
-        .setAuthor({ name: `@${reportedUser.username}'s profile has been reported`, iconURL: reportedAvatar })
-        .addFields([
-            { name: 'Display Name', value: reportedUser.displayName, inline: true },
-            { name: 'Username', value: `@${reportedUser.username}`, inline: true },
-            { name: 'Mention', value: `<@${reportedUser.id}>`, inline: true },
-            { name: 'Other', value: '- **Pronouns** and **About Me** information is not available. Check their profile in full if nothing shown.\n- Hide **NSFW**/**NSFL** content with the eye button.', inline: false }
-        ])
-        .setFooter({ text: `Unhandled  •  User ID: ${reportedUser.id}` })
-        .setThumbnail(reportedAvatar)
-        .setImage(reportedBanner)
-        .setColor('#FF756E')
-    const reportButtons = new ActionRowBuilder()
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-handle')
-                .setLabel('Handled')
-                .setStyle(ButtonStyle.Success)
-                .setEmoji('✅'),
+    const reportEmoji = '👤';
+
+    const headerText = new TextDisplayBuilder()
+        .setContent(`### ${reportEmoji}  ${reportedUser.username}'s profile has been reported`)
+
+    const infoText = new TextDisplayBuilder()
+        .setContent(`-# - ID: ${reportedUser.id}\n-# - Status: Unhandled`);
+
+    const reportButtons = getReportButtons(false, true);
+    
+    const infoSection = new SectionBuilder()
+        .addTextDisplayComponents((text) =>
+            text.setContent(`- **Display Name**: ${reportedUser.displayName}\n` +
+                                    `- **Username**: @${reportedUser.username}\n` +
+                                    `- **Mention**: <@${reportedUser.id}>\n`)
         )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-dismiss')
-                .setLabel('Dismiss')
-                .setStyle(ButtonStyle.Secondary)
-                .setEmoji('509606903903551490'),
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-hidedetails')
-                .setStyle(ButtonStyle.Danger)
-                .setEmoji('1396669210834505920')
-        )
-        .addComponents(
-            new ButtonBuilder()
-                .setCustomId('report-viewreps')
-                .setStyle(ButtonStyle.Primary)
-                .setEmoji('1332851977507307550'),
+        .setThumbnailAccessory((thumb) =>
+            thumb.setDescription('Profile picture of the reported user')
+                 .setURL(reportedAvatar)
+                 .setSpoiler(false)
         );
 
-    const reportMessage = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS).send({ embeds: [reportEmbed], components: [reportButtons] });
+    const separatorComp = new SeparatorBuilder()
+        .setDivider(true)
+        .setSpacing(SeparatorSpacingSize.Small)
+    
+    const bannerMedia = new MediaGalleryBuilder().addItems((item) =>
+        item.setDescription('Banner of the reported user')
+            .setURL(reportedBanner)
+            .setSpoiler(false)
+        );
+    
+    const infoContainer = new ContainerBuilder()
+        .addTextDisplayComponents([headerText, infoText])
+        .addActionRowComponents(reportButtons)
+    
+    const reportContainer = new ContainerBuilder()
+        .setAccentColor(0xFF756E)
+        .addSectionComponents(infoSection)
+        .addSeparatorComponents(separatorComp)
+        .addMediaGalleryComponents(bannerMedia)
+
+    const reportMessage = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS).send({
+        components: [infoContainer, reportContainer],
+        flags: MessageFlags.IsComponentsV2,
+        allowedMentions: {}
+    });
+
     return reportMessage.id;
 }
 
@@ -124,6 +115,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
 
     const message = await getMessage(interaction.guild, reportChannelID, reportMessageID);
     if (!message) return null;
+    const reportedContent = sanitizeMessage(message.content, 70);
 
     // If the report message can't be found (accidentally deleted or the like), delete the data and have them try again
     const report = await getMessage(interaction.guild, SV.CHANNELS.USER_REPORTS, data.reportID);
@@ -132,33 +124,44 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
         return null;
     }
 
-    const reportEmbed = report.embeds[0];
-    if (!reportEmbed) return null;
+    const newComps = report.components.map((c) => c.toJSON());
+    const reportComp = newComps[1];
+    if (!reportComp) return null;
+    
+    // Get the index of whichever section has the content and update the counter + add an emergency icon if it was
+    const reportMatchIndex = getIndexOfSectionIncluding(reportComp, reportMessageURL);
+    if (reportMatchIndex >= 0) {
+        const reportSection = reportComp.components[reportMatchIndex].components[0];
+        const isWasEmergency = isemergency || reportSection.content.includes('⚠️');
+        const dismissMarkers = reportSection.content.includes('~~') ? '~~' : '';
+        const count = reporters.length;
 
-    const reportedContent = sanitizeMessage(message.content, 70);
-    let foundPreviousReport = false;
-
-    for (let i = 0; i < reportEmbed.fields.length; i++) {
-        let reportField = reportEmbed.fields[i];
-
-        if (reportField.value.includes(reportMessageURL)) {
-            reportField.name = `${reporters.length} report${reporters.length > 1 ? 's' : ''} ${reportField.name.includes('emergency') || isemergency ? '(Emergency)' : ''}`;
-
-            reportEmbed.fields[i] = reportField;
-
-            foundPreviousReport = true;
-            break;
-        }
+        reportSection.content = `${dismissMarkers}### ${count} ${pluralize('report', count)} ${isWasEmergency ? '⚠️' : ''}\n` +
+                                `[${reportedContent}](${reportMessageURL})${dismissMarkers}`;
+    } else {
+        const separatorComp = new SeparatorBuilder()
+            .setDivider(true)
+            .setSpacing(SeparatorSpacingSize.Small)
+        
+        const newReportSection = createReportSectionBuilder(reportedContent, reportMessageURL, reportedinfo, isemergency);
+        reportComp.components.push(separatorComp)
+        reportComp.components.push(newReportSection);
     }
 
-    if (!foundPreviousReport) {
-        reportEmbed.fields.push(
-            { name: `1 report ${isemergency ? '(Emergency)' : ''}`, value: `[${reportedContent}](${reportMessageURL})` }
-        );
-    }
-
-    await report.edit({ embeds: [reportEmbed] });
+    await report.edit({ components: newComps });
     if (isemergency) await report.reply({ content: `<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>: This report has been marked as an emergency!`, allowedMentions: { parse: ['roles'] } });
+}
+
+function createReportSectionBuilder(content, url, reportinfo, isemergency) {
+    return new SectionBuilder()
+        .addTextDisplayComponents((text) =>
+            text.setContent(`### 1 report ${isemergency ? '⚠️' : ''}\n[${content}](${url})`)
+        )
+        .setButtonAccessory(new ButtonBuilder()
+            .setCustomId(`subreport-dismiss-${reportinfo}`)
+            .setStyle(ButtonStyle.Secondary)
+            .setEmoji('1474554168235655349')
+        );
 }
 
 module.exports = {
