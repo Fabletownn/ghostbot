@@ -1,4 +1,24 @@
 const { ActionRowBuilder, ButtonBuilder, MessageFlags, ButtonStyle} = require('discord.js');
+const fs = require('node:fs');
+const path = require('node:path');
+
+function loadInteractions(dir, properties) {
+    const interaction_map = new Map();
+    const files = fs.readdirSync(dir).filter((file) => file.endsWith('.js'));
+    
+    for (const file of files) {
+        const interaction = require(path.join(dir, file));
+
+        for (const property of properties) {
+            if (!interaction[property]) continue;
+
+            const keys = Array.isArray(interaction[property]) ? interaction[property] : [interaction[property]];
+            keys.forEach((k) => interaction_map.set(k, interaction));
+        }
+    }
+    
+    return interaction_map;
+}
 
 async function safeExecute(interaction, handler) {
     try {
@@ -75,6 +95,7 @@ function getReportButtons(deleteoption = true, hidedetailsoption = false) {
 }
 
 module.exports = {
+    loadInteractions,
     safeExecute,
     toggleButtons,
     getIndexOfSectionIncluding,

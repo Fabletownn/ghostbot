@@ -1,43 +1,9 @@
-const { safeExecute } = require('../../utils/component-utils.js');
-const fs = require('node:fs');
+const { loadInteractions, safeExecute } = require('../../utils/component-utils.js');
 const path = require('node:path');
 
-const buttons = new Map();
-const modals = new Map();
-const contexts = new Map();
-const buttonFiles = fs.readdirSync(path.join(__dirname, '../../interactions/buttons')).filter((file) => file.endsWith('.js'));
-const modalFiles = fs.readdirSync(path.join(__dirname, '../../interactions/modals')).filter((file) => file.endsWith('.js'));
-const contextFiles = fs.readdirSync(path.join(__dirname, '../../interactions/context')).filter((file) => file.endsWith('.js'));
-
-for (const file of buttonFiles) {
-    const button = require(`../../interactions/buttons/${file}`);
-    
-    if (Array.isArray(button.customIds)) {
-        button.customIds.forEach((id) => buttons.set(id, button));
-    } else {
-        buttons.set(button.customId, button);
-    }
-}
-
-for (const file of modalFiles) {
-    const modal = require(`../../interactions/modals/${file}`);
-
-    if (Array.isArray(modal.customIds)) {
-        modal.customIds.forEach((id) => modals.set(id, modal));
-    } else {
-        modals.set(modal.customId, modal);
-    }
-}
-
-for (const file of contextFiles) {
-    const context = require(`../../interactions/context/${file}`);
-
-    if (Array.isArray(context.commandNames)) {
-        context.commandNames.forEach((name) => contexts.set(name, context));
-    } else {
-        contexts.set(context.commandName, context);
-    }
-}
+const buttons = loadInteractions(path.join(__dirname, '../../interactions/buttons'), ['customIds', 'customId']);
+const modals = loadInteractions(path.join(__dirname, '../../interactions/modals'), ['customIds', 'customId']);
+const contexts = loadInteractions(path.join(__dirname, '../../interactions/context'), ['commandNames', 'commandName']);
 
 module.exports = async (Discord, client, interaction) => {
     ///////////////////////// Slash Commands
@@ -52,8 +18,8 @@ module.exports = async (Discord, client, interaction) => {
     else if (interaction.isButton()) {
         let buttonHandler = buttons.get(interaction.customId);
         
-        // If there is no handler, check for buttons that *start* with an existing
-        // one (for one-offs such as subreport-dismisses)
+        // If there is no handler, check for buttons that *start* with an existing one
+        // (for IDs such as subreport-dismiss-12345; check for subreport-dismiss)
         if (!buttonHandler) {
             for (const [k, v] of buttons.entries()) {
                 if (interaction.customId.startsWith(k)) {
