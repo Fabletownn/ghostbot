@@ -12,8 +12,7 @@ module.exports = {
         if (!reportData) return interaction.reply({ content: 'Failed to delete the reported messages as no data was found.', flags: MessageFlags.Ephemeral });
 
         await interaction.deferReply({ flags: MessageFlags.Ephemeral });
-
-        // For each report, get the message ID of it and delete them individually, if existing
+        
         let reportCount = 0;    // Counter for the for loop
         let deletionCount = 0;  // Counter for how many messages are deleted
         let dismissalCount = 0; // Counter for how many messages are dismissed
@@ -26,6 +25,7 @@ module.exports = {
         const keptButtons = ['report-viewreps'];
         const reports = reportComp.components.filter((c) => c.accessory);
 
+        // For each report, get the message ID of it and delete them individually, if existing and undismissed
         for (const [reportInfo, reporters] of reportData.reports) {
             const report = reports[reportCount].components;
             if (!report) throw new Error('Report not found!');
@@ -34,7 +34,7 @@ module.exports = {
             if (!reportContent) throw new Error('Report content not found!');
             
             // Don't delete dismissed reports (only check for strike-through markdown)
-            if (reportContent.includes('~~')) {
+            if (reportContent.startsWith('~~')) {
                 reportCount++;
                 dismissalCount++;
                 continue;

@@ -13,7 +13,7 @@ function channelText(content) {
 }
 
 function pluralize(word, count) {
-    return count > 1 ? `${word}s` : word;
+    return (count === 0 || count > 1) ? `${word}s` : word;
 }
 
 module.exports = {
