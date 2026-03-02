@@ -19,17 +19,19 @@ module.exports = {
         
         const userReportsChannel = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS); // User reports channel object
 
-        const cData = interaction.client.cachedConfig; // Get existing configuration data
-        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: userOption.id }); // Get existing pullrooms data
+        // Get and check existing configuration and pullroom data
+        const cData = interaction.client.cachedConfig;
+        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: userOption.id });
+        
+        if (!cData?.pullroleid || !cData?.pullcategoryid || !cData?.pullmsg)
+            return interaction.reply({ content: 'There is no data set up for pullrooms yet!' });
+        if (pData)
+            return interaction.reply({ content: `That user already has a pullroom session open in <#${pData.channelID}>.` });
 
-        if (!cData) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for the server! Use `/config-setup` first.' });
-        if (!cData.pullroleid || !cData.pullcategoryid || !cData.pullmsg) return interaction.reply({ content: 'I can\'t run that command if there is no data set up for pullrooms! Use `/config-edit` first.' });
-        if (pData) return interaction.reply({ content: `That user already has a pullroom session open in <#${pData.channelID}>.` });
+        await interaction.deferReply();
 
         const pullCategory = await getChannel(interaction.guild, cData.pullcategoryid); // Pullroom category from configuration
         const pullMember = await getMember(interaction.guild, userOption.id);      // Member object for the person being pullroomed
-
-        await interaction.deferReply();
 
         if (pullCategory && pullMember) {
             const modifiedUsername = userOption.username.replace(/[^a-zA-Z0-9]+/g, '').toLowerCase(); // Modified username for Discord channel limitations
@@ -79,20 +81,23 @@ module.exports = {
                 transcript: `[${new Date().toLocaleString().replace(',', '')}] Pullroom started by ${interaction.user.username} with ${userOption.username} opened..\n`,
                 admin: false
             });
+            
+            await Promise.all([
+                newPullData.save(), // Save pullroom data
+                pullroomChannel.setPosition(0), // Set the channel to the top of the category
+                pullMember.roles.add(cData.pullroleid), // Add the pulled role
+                pullMember.voice.setChannel(null, { reason: 'Disconnected from voice channel as pullroomed' }) // Disconnect from any voice channels
+            ]);
 
-            await newPullData.save().catch((err) => trailError(err));
-            // Set the channel to the top of the category
-            await pullroomChannel.setPosition(0);
-            // Add the pullroom role
-            await pullMember.roles.add(cData.pullroleid);
-            // Disconnect them from any connected voice channels
-            await pullMember.voice.setChannel(null, { reason: 'Disconnected from voice channel as pullroomed' });
-            // Send pullroom messages and followup to command
             await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
-            await pullroomChannel.send({ content: `<@${interaction.user.id}>` }).then((m) => m.delete());
+            
+            // Ping the user in the pullroom channel, then delete it
+            const pingMessage = await pullroomChannel.send({ content: `<@${interaction.user.id}>` });
+            await pingMessage.delete();
+            
+            // Send pullroom messages and followup to command
             await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}>.` });
             if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was pullroomed by ${interaction.user.username}` });
-            
         } else {
             return interaction.followUp({ content: 'The pullroom category no longer exists, or the member has left the server.' });
         }

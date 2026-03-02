@@ -1,4 +1,4 @@
-const { MessageFlags, EmbedBuilder } = require('discord.js');
+const { MessageFlags } = require('discord.js');
 const { toggleButtons } = require('../../utils/component-utils.js');
 const REPORTS = require('../../models/reports.js');
 

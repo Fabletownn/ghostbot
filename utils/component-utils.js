@@ -83,6 +83,7 @@ function getReportButtons(deleteoption = true, hidedetailsoption = false) {
     
     // Guaranteed buttons for each type of report
     const buttonArray = [handleButton, dismissButton, viewRepsButton];
+    
     // Push in buttons depending on if it's wanted in their correct positions
     if (hidedetailsoption)
         buttonArray.splice(2, 0, hideDetailsButton);
@@ -90,7 +91,6 @@ function getReportButtons(deleteoption = true, hidedetailsoption = false) {
         buttonArray.splice(1, 0, deleteButton);
     
     actionRow.addComponents(buttonArray);
-    
     return actionRow;
 }
 
