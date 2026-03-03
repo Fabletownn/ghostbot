@@ -91,10 +91,6 @@ module.exports = {
 
             await pullroomChannel.send({ content: `A member of the moderation team would like to speak to you, <@${userOption.id}>.`, embeds: [pullEmbed] });
             
-            // Ping the user in the pullroom channel, then delete it
-            const pingMessage = await pullroomChannel.send({ content: `<@${interaction.user.id}>` });
-            await pingMessage.delete();
-            
             // Send pullroom messages and followup to command
             await interaction.followUp({ content: `Pulled <@${userOption.id}> into <#${newPullData.channelID}>.` });
             if (userReportsChannel) await userReportsChannel.send({ content: `🪢 <@${userOption.id}> ${pullMember ? `(${pullMember.user.username}) ` : ''}was pullroomed by ${interaction.user.username}` });

@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
+const { MessageFlags, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, ButtonBuilder, ActionRowBuilder, ButtonStyle } = require('discord.js');
 const { getChannel, getMember } = require('../utils/fetch-utils.js');
 const superagent = require('superagent');
 const PULL = require('../models/pullrooms.js');
@@ -12,19 +12,26 @@ module.exports = {
         .addStringOption((option) =>
             option.setName('user-id')
                 .setDescription('The User ID of the pullroomed user')
-                .setRequired(true)
+                .setRequired(false)
         ),
     async execute(interaction) {
-        const idOption = interaction.options.getString('user-id'); // User ID to remove from pullroom
+        const idOption = interaction.options.getString('user-id');
+        const channelTopic = interaction.channel.topic;
+
+        // User ID to remove from pullroom; if there is no specified user ID,
+        // use the channel's topic - in a pullroom, it will be the user's ID
+        const pullID = idOption ? idOption : channelTopic?.split(' ')[2];
         
         // Get and check existing configuration and pullroom data
         const cData = interaction.client.cachedConfig;
-        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: idOption });
+        const pData = await PULL.findOne({ guildID: interaction.guild.id, userID: pullID });
         
         if (!cData)
             return interaction.reply({ content: 'There is no data set up for pullrooms yet!' });
         if (!pData)
-            return interaction.reply({ content: 'That user does not have a pullroom session open.' });
+            return interaction.reply({ content: 'No pullroom session found. Run the command in a pullroom or provide a `user-id` option.' });
+        if ((pData.admin) && !(interaction.member.roles.cache.has(SV.ROLES.ADMINISTRATOR)))
+            return interaction.reply({ content: 'Please ask an Administrator to run this command.', flags: MessageFlags.Ephemeral });
 
         await interaction.deferReply();
 
@@ -96,18 +103,18 @@ module.exports = {
 
         await transcript_sendChannel?.send({ embeds: [transcriptEmbed], components: [transcriptComponentRow] });
 
-        const idUsername = interaction.client.users.cache.get(idOption)?.username;
+        const idUsername = interaction.client.users.cache.get(pullID)?.username;
         await Promise.all([
             // Remove the pulled role from the user, if possible
             roleRemovePromise,
             // Delete the pullroom channel, if possible
             pullroomChannel?.delete().catch(() => {}),
             // Delete pullroom data
-            PULL.findOneAndDelete({ guildID: interaction.guild.id, userID: idOption }).catch(trailError),
+            PULL.findOneAndDelete({ guildID: interaction.guild.id, userID: pullID }).catch(trailError),
             // Follow up the interaction, if existing (don't error if run in the deleted pullroom channel (often))
             interaction.followUp({ content: `Removed <@${pData.userID}> from their pullroom.` }).catch(() => {}),
             // Send log
-            log_sendChannel?.send({ content: `🪢 <@${idOption}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` })
+            log_sendChannel?.send({ content: `🪢 <@${pullID}> ${idUsername ? `(${idUsername}) ` : ''}was removed from pullroom by ${interaction.user.username}` })
         ]);
     },
 };
