@@ -21,7 +21,10 @@ module.exports = {
         
         // Set the report content to a spoiler
         reportComp.components[0].accessory.spoiler = true; // profile picture
-        reportComp.components[2].items[0].spoiler = true;  // banner
+        
+        if (reportComp.components[2]?.items?.[0]) {
+            reportComp.components[2].items[0].spoiler = true;  // banner, if existing
+        }
         
         // Modify the buttons
         buttonsRow.components = toggleButtons(buttonsRow, { keep: keptButtons });

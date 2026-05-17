@@ -81,11 +81,15 @@ async function createProfileReport(interaction) {
         .setDivider(true)
         .setSpacing(SeparatorSpacingSize.Small)
     
-    const bannerMedia = new MediaGalleryBuilder().addItems((item) =>
-        item.setDescription('Banner of the reported user')
-            .setURL(reportedBanner)
-            .setSpoiler(false)
+    // Don't create a banner component if the user doesn't have a banner, will error
+    let bannerMedia = null;
+    if (reportedBanner) {
+        bannerMedia = new MediaGalleryBuilder().addItems((item) =>
+            item.setDescription('Banner of the reported user')
+                .setURL(reportedBanner)
+                .setSpoiler(false)
         );
+    }
     
     const infoContainer = new ContainerBuilder()
         .addTextDisplayComponents([headerText, infoText])
@@ -94,8 +98,12 @@ async function createProfileReport(interaction) {
     const reportContainer = new ContainerBuilder()
         .setAccentColor(0xFF756E)
         .addSectionComponents(infoSection)
-        .addSeparatorComponents(separatorComp)
-        .addMediaGalleryComponents(bannerMedia)
+    
+    // If the user has a banner, add a banner component
+    if (bannerMedia) {
+        reportContainer.addSeparatorComponents(separatorComp)
+        reportContainer.addMediaGalleryComponents(bannerMedia);
+    }
 
     const reportMessage = await getChannel(interaction.guild, SV.CHANNELS.USER_REPORTS).send({
         components: [infoContainer, reportContainer],
