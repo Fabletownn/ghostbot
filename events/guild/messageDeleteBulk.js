@@ -54,7 +54,7 @@ module.exports = async (Discord, client, messages, channel) => {
 
     // Send a request to upload the bulk delete log
     try {
-        const res = superagent
+        const res = await superagent
             .post('https://sourceb.in/api/bins')
             .send({
                 files: [{
