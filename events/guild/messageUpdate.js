@@ -22,8 +22,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
 
     const oldContent = oldMessage.content; // Pre-edited message's content
     const newContent = newMessage.content; // Edited message's content
-    const editedOldContent = oldContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
-    const editedNewContent = newContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>');
+    const editedOldContent = oldContent.replace(/[\\`*_\-<>\[\]/]/g, '\\$&'); // Escape markdown
+    const editedNewContent = newContent.replace(/[\\`*_\-<>\[\]/]/g, '\\$&'); // Escape markdown
     const editedID = newMessage.id; // Message ID
     const editedChannelID = newMessage.channel.id; // Channel that the edited message is in
     const editedAuthorID = newMessage.author.id; // User ID of the person who edited their message

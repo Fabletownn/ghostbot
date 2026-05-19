@@ -23,7 +23,7 @@ module.exports = async (Discord, client, message) => {
     if (lData.ignoredcategories.includes(categoryID)) return;
 
     const deletedContent = message.content ? message.content : '<No Message Content>';
-    const deletedEditedContent = deletedContent.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_').replace(/</g, '\\<').replace(/>/g, '\\>').replace(/\//g, '\\/');
+    const deletedEditedContent = deletedContent.replace(/[\\`*_\-<>\[\]/]/g, '\\$&'); // Escape markdown
     const deletedID = message.id;
     const deletedChannelID = message.channel.id;
     const deletedAuthorID = message.author.id;

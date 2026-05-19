@@ -1,11 +1,22 @@
 function sanitizeMessage(content, limit = 0) {
-    if (limit === 0) limit = content.length; // If there is no set limit, make it however long the message is
     if (!content) return '(No Content)';
-
-    return content.replace(/`/g, '\\`').replace(/\*/g, '\\*').replace(/-/g, '\\-').replace(/_/g, '\\_')
-        .replace(/</g, '\\<').replace(/>/g, '\\>').replace(/\//g, '\\/')
-        .replace(/\n/g, '...')
-        .slice(0, limit);
+    
+    // Replace Discord emotes
+    content = content.replace(/<a?:\w+:\d+>/g, '(Emote)');
+    
+    // Replace links
+    content = content.replace(/https?:\/\/\S+/g, '(Link)');
+    
+    let trimmed = limit > 0 ? Array.from(content).slice(0, limit).join('') : content;
+    
+    // Replace emojis
+    trimmed = trimmed.replace(/\p{Emoji_Presentation}/gu, '(Emoji)');
+    
+    // Escape all markdown and new lines
+    trimmed = trimmed.replace(/([\\`*_{}\[\]#|<>])/g, '\\$1')
+                     .replace(/\n/g, '...');
+    
+    return trimmed;
 }
 
 function channelText(content) {
