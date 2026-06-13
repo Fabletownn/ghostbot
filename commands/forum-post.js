@@ -16,8 +16,7 @@ module.exports = {
         const forumChannel = interaction.options.getChannel('channel');
         const forumTags = forumChannel.availableTags ?? []; // Return empty array if forum has no tags
         
-        // Map out all tags of the forum, if any - otherwise, only give them a 'none' option as
-        // posts sometimes cannot be created if a certain forum requires a tag
+        // Map out all tags of the forum, if any
         const possibleForumTags = [...forumTags.slice(0, 24).map((tag) => ({
                 label: tag.name,
                 value: tag.id,
