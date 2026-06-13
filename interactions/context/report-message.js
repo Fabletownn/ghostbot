@@ -51,7 +51,7 @@ module.exports = {
                 emergency: isEmergency,
                 profile: false,
                 handled: false,
-                expiresAt: new Date(Date.now() + 16 * 60 * 60 * 1000), // Automatically set to expire after 16 hours
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // Automatically set to expire after 24 hours
             });
 
             // Save the data and confirm response

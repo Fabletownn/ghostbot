@@ -6,7 +6,7 @@ module.exports = {
 
     async execute(interaction) {
         const reportData = await REPORTS.findOne({ reportID: interaction.message.id }); // Look for both handled and unhandled reports - no filter here
-        if (!reportData) return interaction.reply({ content: 'Failed to view the reporters as no data was found.', flags: MessageFlags.Ephemeral });
+        if (!reportData) return interaction.reply({ content: 'Data for this report has expired.', flags: MessageFlags.Ephemeral });
 
         const isProfileReport = reportData.profile;
         const listMessage = isProfileReport ? '' : '## Reports Submitted';
