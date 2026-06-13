@@ -11,7 +11,12 @@ module.exports = {
         
         const forumTitle = interaction.fields.getTextInputValue('forum-post-title');
         const forumBody = interaction.fields.getTextInputValue('forum-post-body');
-        const forumTags = interaction.fields.getStringSelectValues('forum-post-tags');
+        let forumTags = [];
+        
+        // If the modal did not include the tags component (if the forum has no tags), prevent an error
+        try {
+            forumTags = interaction.fields.getStringSelectValues('forum-post-tags');
+        } catch {}
         
         // Attempt to create the forum post
         try {

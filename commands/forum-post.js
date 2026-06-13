@@ -4,7 +4,7 @@ const { randomize } = require('../utils/message-utils');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('forum-post')
-        .setDescription('(Admin) Creates a post in a specified forum channel')
+        .setDescription('(Admin) Creates a post in the specified forum channel')
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
         .addChannelOption((option) =>
             option.setName('channel')
@@ -14,7 +14,7 @@ module.exports = {
         ),
     async execute(interaction) {
         const forumChannel = interaction.options.getChannel('channel');
-        const forumTags = forumChannel.availableTags ?? [];
+        const forumTags = forumChannel.availableTags ?? []; // Return empty array if forum has no tags
         
         // Map out all tags of the forum, if any - otherwise, only give them a 'none' option as
         // posts sometimes cannot be created if a certain forum requires a tag
@@ -81,10 +81,12 @@ module.exports = {
             .setLabel('Forum Tags')
             .setStringSelectMenuComponent(postTagsInput)
         
-
-        postModal.addLabelComponents(postTitleLabel);
-        postModal.addLabelComponents(postBodyLabel);
-        if (forumTags.length > 0) postModal.addLabelComponents(postTagsLabel);
+        // Add modal labels; only add the tags label if the forum selected has tags
+        postModal.addLabelComponents(
+            postTitleLabel,
+            postBodyLabel,
+            ...(forumTags.length > 0 ? [postTagsLabel] : [])
+        );
         
         await interaction.showModal(postModal);
     },

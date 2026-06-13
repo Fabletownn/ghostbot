@@ -4,6 +4,7 @@ module.exports = {
     commandName: 'Edit Ghost Message',
 
     async execute(interaction) {
+        // Prevent this from going through if they try and edit a message not made by the bot
         const messageAuthor = interaction.targetMessage.author;
         if (messageAuthor.id !== interaction.client.user.id) return interaction.reply({ content: 'I cannot edit messages not authored by me!', flags: MessageFlags.Ephemeral });
         
