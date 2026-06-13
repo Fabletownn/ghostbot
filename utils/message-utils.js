@@ -27,8 +27,13 @@ function pluralize(word, count) {
     return (count === 0 || count > 1) ? `${word}s` : word;
 }
 
+function randomize(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
 module.exports = {
     sanitizeMessage,
     channelText,
-    pluralize
+    pluralize,
+    randomize
 };

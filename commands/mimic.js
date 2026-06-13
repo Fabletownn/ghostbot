@@ -24,6 +24,7 @@ module.exports = {
             .setCustomId('mimic-msg')
             .setStyle(TextInputStyle.Paragraph)
             .setPlaceholder(randomPlaceholder)
+            .setMaxLength(2000)
             .setRequired(true)
         
         const messageLabel = new LabelBuilder()

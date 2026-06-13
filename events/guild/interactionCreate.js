@@ -35,7 +35,18 @@ module.exports = async (Discord, client, interaction) => {
 
     ///////////////////////// Modal Interactions
     else if (interaction.isModalSubmit()) {
-        const modalHandler = modals.get(interaction.customId);
+        let modalHandler = modals.get(interaction.customId);
+
+        // If there is no handler, check for modals that *start* with an existing one
+        // (for IDs such as forum-post-12345; check for forum-post)
+        if (!modalHandler) {
+            for (const [k, v] of modals.entries()) {
+                if (interaction.customId.startsWith(k)) {
+                    modalHandler = v;
+                    break;
+                }
+            }
+        }
 
         if (modalHandler)
             await safeExecute(interaction, modalHandler);
