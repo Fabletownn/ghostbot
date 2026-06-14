@@ -13,10 +13,13 @@ function sanitizeMessage(content, limit = 0) {
     trimmed = trimmed.replace(/\p{Emoji_Presentation}/gu, '(Emoji)');
     
     // Escape all markdown and new lines
-    trimmed = trimmed.replace(/([\\`*_{}\[\]#|<>])/g, '\\$1')
-                     .replace(/\n/g, '...');
+    trimmed = escapeMarkdown(trimmed).replace(/\n/g, ' ... ');
     
     return trimmed;
+}
+
+function escapeMarkdown(content) {
+    return content.replace(/([\\`*_~|{}\[\]()#<>\/])/g, '\\$1');
 }
 
 function channelText(content) {
@@ -33,6 +36,7 @@ function randomize(array) {
 
 module.exports = {
     sanitizeMessage,
+    escapeMarkdown,
     channelText,
     pluralize,
     randomize
