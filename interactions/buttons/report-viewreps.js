@@ -25,7 +25,7 @@ module.exports = {
             const report = reports[reportCounter].components;
             if (!report) throw new Error('Report not found!');
             
-            const reportContent = report[0].content;
+            const reportContent = report[0].content.split('\n')[1] ?? 'Unable to display';
             if (!reportContent) throw new Error('Report content not found!');
 
             // Add the report if it's a non-profile report
