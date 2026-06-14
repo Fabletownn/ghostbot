@@ -1,13 +1,6 @@
-const {
-    MessageFlags,
-    ButtonBuilder, ButtonStyle,
-    TextDisplayBuilder,
-    SectionBuilder,
-    ContainerBuilder,
-    SeparatorBuilder, SeparatorSpacingSize, MediaGalleryBuilder
-} = require('discord.js');
+const { MessageFlags, ButtonBuilder, ButtonStyle, TextDisplayBuilder, SectionBuilder, ContainerBuilder, SeparatorBuilder, SeparatorSpacingSize, MediaGalleryBuilder } = require('discord.js');
 const { getChannel, getMessage, getUser } = require('./fetch-utils.js');
-const { sanitizeMessage, pluralize } = require('./message-utils.js');
+const { escapeAllMarkdown, pluralize, truncate } = require('./message-utils.js');
 const { getIndexOfSectionIncluding, getReportButtons } = require('./component-utils.js');
 const SV = require('../models/server-values.json');
 
@@ -20,7 +13,7 @@ async function createReport(interaction, reportedinfo, isemergency) {
     if (!message) return null;
 
     const reportedUser = message.author;
-    const reportedContent = sanitizeMessage(message.content, 70);
+    const reportedContent = escapeAllMarkdown(truncate(message.content, 70), true);
     const pingIfEmergency = isemergency ? `as an emergency\n<@&${SV.ROLES.TRIAL_MODERATOR}> <@&${SV.ROLES.MODERATOR}>` : '';
     const reportEmoji = isemergency ? '⚠️' : '📨';
 
@@ -123,7 +116,7 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
 
     const message = await getMessage(interaction.guild, reportChannelID, reportMessageID);
     if (!message) return null;
-    const reportedContent = sanitizeMessage(message.content, 70);
+    const reportedContent = escapeAllMarkdown(truncate(message.content, 70), true);
 
     // If the report message can't be found (accidentally deleted or the like), delete the data and have them try again
     const report = await getMessage(interaction.guild, SV.CHANNELS.USER_REPORTS, data.reportID);
@@ -136,16 +129,15 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
     const reportComp = newComps[1];
     if (!reportComp) return null;
     
-    // Get the index of whichever section has the content and update the counter + add an emergency icon if it was
+    // Check for multiple reports: Get the index of any section that has the message URL and update the counter if existing
+    // + add a warning icon if it was an emergency
     const reportMatchIndex = getIndexOfSectionIncluding(reportComp, reportMessageURL);
     if (reportMatchIndex >= 0) {
         const reportSection = reportComp.components[reportMatchIndex].components[0];
         const isWasEmergency = isemergency || reportSection.content.includes('⚠️');
-        const dismissMarkers = reportSection.content.includes('~~') ? '~~' : '';
         const count = reporters.length;
 
-        reportSection.content = `${dismissMarkers}### ${count} ${pluralize('report', count)} ${isWasEmergency ? '⚠️' : ''}\n` +
-                                `[${reportedContent}](${reportMessageURL})${dismissMarkers}`;
+        reportSection.content = `### ${count} ${pluralize('report', count)} ${isWasEmergency ? '⚠️' : ''}\n${reportedContent}`;
     } else {
         const separatorComp = new SeparatorBuilder()
             .setDivider(true)
@@ -163,12 +155,12 @@ async function editReport(interaction, data, reportedinfo, isemergency) {
 function createReportSectionBuilder(content, url, reportinfo, isemergency) {
     return new SectionBuilder()
         .addTextDisplayComponents((text) =>
-            text.setContent(`### 1 report ${isemergency ? '⚠️' : ''}\n[${content}](${url})`)
+            text.setContent(`### 1 report ${isemergency ? '⚠️' : ''}\n${content}`)
         )
         .setButtonAccessory(new ButtonBuilder()
-            .setCustomId(`subreport-dismiss-${reportinfo}`)
-            .setStyle(ButtonStyle.Secondary)
-            .setEmoji('1474554168235655349')
+            .setURL(url)
+            .setStyle(ButtonStyle.Link)
+            .setLabel('Jump')
         );
 }
 

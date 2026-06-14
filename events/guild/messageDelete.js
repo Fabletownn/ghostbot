@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { escapeMarkdown } = require('../../utils/message-utils.js');
+const { escapeAllMarkdown } = require('../../utils/message-utils.js');
 const DELETES = require('../../models/deletes.js');
 
 module.exports = async (Discord, client, message) => {
@@ -24,7 +24,7 @@ module.exports = async (Discord, client, message) => {
     if (lData.ignoredcategories.includes(categoryID)) return;
 
     const deletedContent = message.content ? message.content : '<No Message Content>';
-    const deletedEditedContent = escapeMarkdown(deletedContent);
+    const deletedEditedContent = escapeAllMarkdown(deletedContent);
     const deletedID = message.id;
     const deletedChannelID = message.channel.id;
     const deletedAuthorID = message.author.id;

@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { escapeMarkdown } = require('../../utils/message-utils.js');
+const { escapeAllMarkdown } = require('../../utils/message-utils.js');
 const EDITS = require('../../models/edits.js');
 
 module.exports = async (Discord, client, oldMessage, newMessage) => {
@@ -23,8 +23,8 @@ module.exports = async (Discord, client, oldMessage, newMessage) => {
 
     const oldContent = oldMessage.content; // Pre-edited message's content
     const newContent = newMessage.content; // Edited message's content
-    const editedOldContent = escapeMarkdown(oldContent);
-    const editedNewContent = escapeMarkdown(newContent);
+    const editedOldContent = escapeAllMarkdown(oldContent);
+    const editedNewContent = escapeAllMarkdown(newContent);
     const editedID = newMessage.id; // Message ID
     const editedChannelID = newMessage.channel.id; // Channel that the edited message is in
     const editedAuthorID = newMessage.author.id; // User ID of the person who edited their message

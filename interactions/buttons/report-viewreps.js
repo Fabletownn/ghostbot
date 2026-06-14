@@ -27,12 +27,10 @@ module.exports = {
             
             const reportContent = report[0].content;
             if (!reportContent) throw new Error('Report content not found!');
-            
-            const content = reportContent.split('\n')[1].replace('~~', ' *(Dismissed)*');
 
             // Add the report if it's a non-profile report
             if (!isProfileReport)
-                reportedMessagesList += `- ${content}\n`; // Don't add a field if it's a profile report
+                reportedMessagesList += `- ${reportContent}\n`; // Don't add a field if it's a profile report
             else 
                 reportedMessagesList += '- Profile Report\n';
 

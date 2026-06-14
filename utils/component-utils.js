@@ -48,10 +48,11 @@ function toggleButtons(button_row, options = {}) {
 }
 
 function getIndexOfSectionIncluding(container, content) {
+    // Loop through all container components, find the accessory with the URL
     return container.components.findIndex((sect) => {
-        if (!sect.components || !sect.components[0]) return false;
+        if (!sect.accessory || !sect?.accessory?.url) return false;
 
-        return sect.components[0].content?.includes(content);
+        return sect?.accessory?.url?.includes(content);
     });
 }
 

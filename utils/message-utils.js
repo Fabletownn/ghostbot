@@ -1,25 +1,34 @@
-function sanitizeMessage(content, limit = 0) {
+const { escapeMarkdown } = require('discord.js');
+
+function escapeAllMarkdown(content, newlines = false) {
     if (!content) return '(No Content)';
     
-    // Replace Discord emotes
-    content = content.replace(/<a?:\w+:\d+>/g, '(Emote)');
+    // Escape all markdown
+    content = escapeMarkdown(content, { 
+        blockQuote: true,
+        bold: true,
+        bulletedList: true,
+        codeBlock: true,
+        escape: true,
+        heading: true,
+        inlineCode: true,
+        italic: true,
+        maskedLink: true,
+        numberedList: true,
+        quote: true,
+        spoiler: true,
+        strikethrough: true,
+        underline: true
+    });
     
-    // Replace links
-    content = content.replace(/https?:\/\/\S+/g, '(Link)');
+    // Escape pings, quotes (as above method does not work), links
+    content = content.replace(/([/<>-])/g, '$1\u200b');
     
-    let trimmed = limit > 0 ? Array.from(content).slice(0, limit).join('') : content;
+    // Remove new lines if the parameter asks for it
+    if (newlines)
+        content = content.replace(/\n/g, ' ... ');
     
-    // Replace emojis
-    trimmed = trimmed.replace(/\p{Emoji_Presentation}/gu, '(Emoji)');
-    
-    // Escape all markdown and new lines
-    trimmed = escapeMarkdown(trimmed).replace(/\n/g, ' ... ');
-    
-    return trimmed;
-}
-
-function escapeMarkdown(content) {
-    return content.replace(/([\\`*_~|{}\[\]()#<>\/])/g, '\\$1');
+    return content;
 }
 
 function channelText(content) {
@@ -34,10 +43,14 @@ function randomize(array) {
     return array[Math.floor(Math.random() * array.length)];
 }
 
+function truncate(content, limit) { // more readable this way
+    return content.slice(0, limit);
+}
+
 module.exports = {
-    sanitizeMessage,
-    escapeMarkdown,
+    escapeAllMarkdown,
     channelText,
     pluralize,
-    randomize
+    randomize,
+    truncate
 };

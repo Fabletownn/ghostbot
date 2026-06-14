@@ -15,7 +15,6 @@ module.exports = {
         
         let reportCount = 0;    // Counter for the for loop
         let deletionCount = 0;  // Counter for how many messages are deleted
-        let dismissalCount = 0; // Counter for how many messages are dismissed
 
         const newComps = interaction.message.components.map((c) => c.toJSON());
         const infoContainer = newComps[0];
@@ -23,23 +22,9 @@ module.exports = {
         const buttonsRow = infoContainer.components[2];
         const reportComp = newComps[1];
         const keptButtons = ['report-viewreps'];
-        const reports = reportComp.components.filter((c) => c.accessory);
 
         // For each report, get the message ID of it and delete them individually, if existing and undismissed
         for (const [reportInfo, reporters] of reportData.reports) {
-            const report = reports[reportCount].components;
-            if (!report) throw new Error('Report not found!');
-
-            const reportContent = report[0].content;
-            if (!reportContent) throw new Error('Report content not found!');
-            
-            // Don't delete dismissed reports (only check for strike-through markdown)
-            if (reportContent.startsWith('~~')) {
-                reportCount++;
-                dismissalCount++;
-                continue;
-            }
-
             const reportChannelID = reportInfo.split('-')[0];
             const reportMessageID = reportInfo.split('-')[1];
 
@@ -67,6 +52,6 @@ module.exports = {
 
         // Edit the embed to reflect it being handled and respond to the user
         await interaction.message.edit({ components: newComps });
-        await interaction.followUp({ content: `Deleted **${deletionCount} ${pluralize('message', deletionCount)}** total *(${dismissalCount} dismissed)*.` });
+        await interaction.followUp({ content: `Deleted **${deletionCount} ${pluralize('message', deletionCount)}**.` });
     }
 }
