@@ -110,7 +110,7 @@ module.exports = {
             guildID: interaction.guild.id,
             userID: interaction.user.id,
             blacklisted: false,
-            expiresAt: new Date(Date.now() + 10 * 1000) // Expire in 10 seconds automatically
+            expiresAt: new Date(Date.now() + 5 * 1000) // Expire in 5 seconds automatically
         });
 
         await newCooldownData.save();
