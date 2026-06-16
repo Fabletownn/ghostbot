@@ -1,4 +1,4 @@
-const { WebhookClient } = require('discord.js');
+const { MessageFlags } = require('discord.js');
 const Sentry = require('@sentry/node');
 const LOG_CONFIG = require('../models/logconfig.js');
 
@@ -71,26 +71,26 @@ async function createWebhookButReuseIfPossible(interaction, config, channel) {
     return reused;
 }
 
-async function useWebhookIfExisting(client, channel, webhook, embed) {
-    const useChannel = client.channels.cache.get(channel);
+async function useWebhookIfExisting(client, channel_id, webhook_url, embed, components_v2 = false) {
+    const channel = client.channels.cache.get(channel_id);
+    if (!channel || !webhook_url) return null;
 
-    if (!useChannel || !channel) return;
-    if (!webhook) return;
-
-    const webhookID = webhook.split(/\//)[5];
-    const webhookToken = webhook.split(/\//)[6];
-
-    const tryFetchWebhook = await useChannel.fetchWebhooks();
-    const fetchedWebhook = tryFetchWebhook.find((wh) => wh.id === webhookID);
-
-    if (!fetchedWebhook) return;
-
-    const webhookClient = new WebhookClient({ id: webhookID, token: webhookToken });
-
-    if (Array.isArray(embed)) {
-        webhookClient.send({ embeds: embed }).catch((err) => { trailError('Error uploading log:\n' + err) });
-    } else {
-        webhookClient.send({ embeds: [embed] }).catch((err) => { trailError('Error uploading log:\n' + err) });
+    const webhookID = webhook_url.split('/')[5];
+    const webhooks = await channel.fetchWebhooks();
+    const webhook = webhooks.find((wh) => wh.id === webhookID);
+    if (!webhook) return null;
+    
+    try {
+        // If the embed is Components V2, send it with special parameters and flags
+        if (components_v2)
+            return webhook.send({ components: [embed], flags: MessageFlags.IsComponentsV2 });
+        
+        // If it is not using Components V2, send it with standard embed parameters
+        else
+            return webhook.send({ embeds: Array.isArray(embed) ? embed : [embed] });
+    } catch (err) {
+        trailError('Error uploading bulk delete log:\n' + err);
+        return null;
     }
 }
 
